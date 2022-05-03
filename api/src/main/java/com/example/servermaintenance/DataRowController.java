@@ -13,7 +13,7 @@ public class DataRowController {
     @GetMapping("/bulkcreate")
     public String bulkcreate(){
 // save a single Customer
-        repository.save(new DataRow("Raj", "Bhojwani"));
+        repository.save(new DataRow("Raj", "Bhoj"));
 
 // save a list of Customers
         repository.saveAll(Arrays.asList(new DataRow("Salim", "Khan")
