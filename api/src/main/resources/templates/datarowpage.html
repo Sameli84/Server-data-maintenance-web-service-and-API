@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Datarows</title>
+</head>
+<body>
+    <h1>Available Data</h1>
+    <ul>
+        <li th:each="dataRow:${datarows}">
+            <p th:text="${dataRow.firstName}">datarow</p>
+        </li>
+    </ul>
+</body>
+</html>

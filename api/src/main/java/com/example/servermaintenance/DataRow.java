@@ -1,9 +1,18 @@
 package com.example.servermaintenance;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 import java.io.Serializable;
 
+// project	student alias	csc username	uid	dns name	self made dns name	name		vps username		 pouta dns		ip address
+
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Data
 @Table(name = "datarow")
 public class DataRow implements Serializable {
 
@@ -17,6 +26,7 @@ public class DataRow implements Serializable {
 
     @Column(name = "lastname")
     private String lastName;
+
 
     public DataRow(String firstName, String lastName) {
         this.firstName = firstName;
