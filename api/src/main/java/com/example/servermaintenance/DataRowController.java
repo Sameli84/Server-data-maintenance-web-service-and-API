@@ -28,7 +28,7 @@ public class DataRowController {
                 , new DataRow("Rahul", "Dravid")
                 , new DataRow("Dharmendra", "Bhojwani")));
 
-        return "Customers are created";
+        return "redirect:/datarowpage";
     }
 
     @GetMapping("/datarowpage")
