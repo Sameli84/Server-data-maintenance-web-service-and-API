@@ -42,7 +42,7 @@ public class DataRow implements Serializable {
     private String vps_user_name;
 
     @Column(name = "pouta_dns")
-    private String puta_dns;
+    private String pouta_dns;
 
     @Column(name = "ip_address")
     private String ip_address;
@@ -55,7 +55,7 @@ public class DataRow implements Serializable {
     @JoinColumn(name = "course")
     private Course course;
 
-    public DataRow(String student_alias, String csc_username, int juuseri_id, String dns_name, String self_made_dns_name, String name, String vps_user_name, String puta_dns, String ip_address, Teacher teacher, Course course) {
+    public DataRow(String student_alias, String csc_username, int juuseri_id, String dns_name, String self_made_dns_name, String name, String vps_user_name, String pouta_dns, String ip_address, Teacher teacher, Course course) {
         this.student_alias = student_alias;
         this.csc_username = csc_username;
         this.juuseri_id = juuseri_id;
@@ -63,7 +63,7 @@ public class DataRow implements Serializable {
         this.self_made_dns_name = self_made_dns_name;
         this.name = name;
         this.vps_user_name = vps_user_name;
-        this.puta_dns = puta_dns;
+        this.pouta_dns = pouta_dns;
         this.ip_address = ip_address;
         this.teacher = teacher;
         this.course = course;
