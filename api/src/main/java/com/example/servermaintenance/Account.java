@@ -29,15 +29,14 @@ public class Account extends AbstractPersistable<Long> {
     @Column(name = "password")
     private String password;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "account")
+    @OneToMany(mappedBy = "account")
     private List<DataRow> data;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "account")
+    @OneToMany(mappedBy = "account")
     private List<Course> courses;
 
-    public Account(String name, String email, String password) {
+    public Account(String name, String email) {
         this.name = name;
         this.email = email;
-        this.password = password;
     }
 }

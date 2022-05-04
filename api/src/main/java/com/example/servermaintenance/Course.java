@@ -29,7 +29,13 @@ public class Course extends AbstractPersistable<Long> {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "course")
     private List<DataRow> data;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "owner_id")
-    private Account user;
+    private Account account;
+
+    public Course(String name, String url, Account account) {
+        this.name = name;
+        this.url = url;
+        this.account = account;
+    }
 }

@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface DataRowRepository extends JpaRepository<DataRow, Long> {
-    List<DataRow> findAll();
+public interface CourseRepository extends JpaRepository<Course, Long> {
+    List<Course> findAll();
 }
