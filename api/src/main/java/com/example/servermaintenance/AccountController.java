@@ -22,10 +22,8 @@ public class AccountController {
 
     @PostMapping("/register")
     public String signUp(@RequestParam String name, @RequestParam String email, @RequestParam String password) {
-        System.out.println("GOT");
         if (accountRepository.findByEmail(email).isPresent()) {
             // erroria tähän?
-            System.out.println("ERRORIA");
             return "redirect:/register";
         }
 

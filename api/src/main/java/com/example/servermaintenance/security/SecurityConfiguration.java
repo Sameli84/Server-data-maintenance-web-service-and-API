@@ -20,9 +20,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        // TODO: poista tämä ja selvitä miten formiin lisätään csrf!
-        http.csrf().disable();
-
         http.authorizeRequests()
                 .antMatchers("/register", "/register/**").permitAll()
                 .anyRequest().authenticated().and()
