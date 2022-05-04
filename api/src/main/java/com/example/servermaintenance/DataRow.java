@@ -47,15 +47,15 @@ public class DataRow implements Serializable {
     @Column(name = "ip_address")
     private String ip_address;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "client_id")
-    private Teacher teacher;
+    private Account account;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "course")
     private Course course;
 
-    public DataRow(String student_alias, String csc_username, int juuseri_id, String dns_name, String self_made_dns_name, String name, String vps_user_name, String pouta_dns, String ip_address, Teacher teacher, Course course) {
+    public DataRow(String student_alias, String csc_username, int juuseri_id, String dns_name, String self_made_dns_name, String name, String vps_user_name, String pouta_dns, String ip_address, Account account, Course course) {
         this.student_alias = student_alias;
         this.csc_username = csc_username;
         this.juuseri_id = juuseri_id;
@@ -65,7 +65,7 @@ public class DataRow implements Serializable {
         this.vps_user_name = vps_user_name;
         this.pouta_dns = pouta_dns;
         this.ip_address = ip_address;
-        this.teacher = teacher;
+        this.account = account;
         this.course = course;
     }
 }

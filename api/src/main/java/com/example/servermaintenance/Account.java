@@ -14,8 +14,8 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-@Table(name = "teacher")
-public class Teacher extends AbstractPersistable<Long> {
+@Table(name = "account")
+public class Account extends AbstractPersistable<Long> {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -29,13 +29,13 @@ public class Teacher extends AbstractPersistable<Long> {
     @Column(name = "password")
     private String password;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "teacher")
+    @OneToMany(mappedBy = "account")
     private List<DataRow> data;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "teacher")
+    @OneToMany(mappedBy = "account")
     private List<Course> courses;
 
-    public Teacher(String name, String email) {
+    public Account(String name, String email) {
         this.name = name;
         this.email = email;
     }

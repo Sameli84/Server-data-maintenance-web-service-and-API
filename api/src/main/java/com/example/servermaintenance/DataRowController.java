@@ -5,7 +5,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Controller
@@ -21,16 +20,16 @@ public class DataRowController {
     private CourseRepository courseRepository;
 
     @Autowired
-    private TeacherRepository teacherRepository;
+    private AccountRepository accountRepository;
 
     @GetMapping("/bulkcreate")
     public String bulkcreate(){
 // save a single Customer
-        Teacher teacher = new Teacher("Petteri","Jekku@Tuni.fi");
-        teacherRepository.save(teacher);
-        Course course = new Course("SoftaDevaus","www.tuni.fi", teacher);
+        Account account = new Account("Petteri","Jekku@Tuni.fi");
+        accountRepository.save(account);
+        Course course = new Course("SoftaDevaus","www.tuni.fi", account);
         courseRepository.save(course);
-        dataRowRepository.save(new DataRow("Jakobi","Juuseri",55555,"theDNS","myDNS","Jaakko","vpsJuuseri","8.8.8.8","123.123.124.12", teacher, course));
+        dataRowRepository.save(new DataRow("Jakobi","Juuseri",55555,"theDNS","myDNS","Jaakko","vpsJuuseri","8.8.8.8","123.123.124.12", account, course));
 
     /*
         repository.saveAll(Arrays.asList(new DataRow("Salim", "Khan")

@@ -19,7 +19,7 @@
             <th>Vps_user_name</th>
             <th>Pouta_dns</th>
             <th>Ip_address</th>
-            <th>Teacher</th>
+            <th>Account</th>
             <th>Course</th>
         </tr>
         </thead>
@@ -35,8 +35,8 @@
             <td th:text="${dataRow.vps_user_name}">${dataRow.vps_user_name}</td>
             <td th:text="${dataRow.pouta_dns}">${dataRow.pouta_dns}</td>
             <td th:text="${dataRow.ip_address}">${dataRow.ip_address}</td>
-            <td th:text="${dataRow.teacher}">${dataRow.teacher}</td>
-            <td th:text="${dataRow.course}">${dataRow.course}</td>
+            <td th:text="${dataRow.account.name}">${dataRow.account.name}</td>
+            <td th:text="${dataRow.course.name}">${dataRow.course.name}</td>
         </tr>
         </tbody>
     </table>
