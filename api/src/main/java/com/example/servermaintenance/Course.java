@@ -31,5 +31,5 @@ public class Course extends AbstractPersistable<Long> {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
-    private User user;
+    private Account user;
 }

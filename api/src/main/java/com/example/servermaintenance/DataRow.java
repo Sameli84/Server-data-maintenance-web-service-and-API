@@ -28,7 +28,7 @@ public class DataRow implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id")
-    private User user;
+    private Account user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course")
