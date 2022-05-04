@@ -18,13 +18,21 @@ public class DataRow implements Serializable {
     private static final long serialVersionUID = -2343243243242432341L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private Long id;
 
     @Column(name = "firstname")
     private String firstName;
 
     @Column(name = "lastname")
     private String lastName;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_id")
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "course")
+    private Course course;
 
     public DataRow(String firstName, String lastName) {
         this.firstName = firstName;

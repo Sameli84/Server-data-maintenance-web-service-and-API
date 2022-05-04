@@ -8,6 +8,6 @@ import java.util.List;
 
 @Repository
 public interface DataRowRepository extends JpaRepository<DataRow, Long> {
-    ArrayList<DataRow> findByFirstName(String FirstName);
-    ArrayList<DataRow> findAll();
+    List<DataRow> findByFirstName(String FirstName);
+    List<DataRow> findAll();
 }
