@@ -1,8 +1,6 @@
 package com.example.servermaintenance;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -12,7 +10,8 @@ import java.io.Serializable;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 @Table(name = "datarow")
 public class DataRow implements Serializable {
 
@@ -27,35 +26,9 @@ public class DataRow implements Serializable {
     @Column(name = "lastname")
     private String lastName;
 
-
     public DataRow(String firstName, String lastName) {
         this.firstName = firstName;
         this.lastName = lastName;
     }
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    //Setters, getters and constructors
 }
