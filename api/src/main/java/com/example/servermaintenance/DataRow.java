@@ -20,23 +20,52 @@ public class DataRow implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name = "firstname")
-    private String firstName;
+    @Column(name = "student_alias")
+    private String student_alias;
 
-    @Column(name = "lastname")
-    private String lastName;
+    @Column(name = "csc_username")
+    private String csc_username;
+
+    @Column(name = "juuseri_id")
+    private int juuseri_id;
+
+    @Column(name = "dns_name")
+    private String dns_name;
+
+    @Column(name = "self_made_dns_name")
+    private String self_made_dns_name;
+
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "vps_user_name")
+    private String vps_user_name;
+
+    @Column(name = "pouta_dns")
+    private String puta_dns;
+
+    @Column(name = "ip_address")
+    private String ip_address;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id")
-    private User user;
+    private Teacher teacher;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course")
     private Course course;
 
-    public DataRow(String firstName, String lastName) {
-        this.firstName = firstName;
-        this.lastName = lastName;
+    public DataRow(String student_alias, String csc_username, int juuseri_id, String dns_name, String self_made_dns_name, String name, String vps_user_name, String puta_dns, String ip_address, Teacher teacher, Course course) {
+        this.student_alias = student_alias;
+        this.csc_username = csc_username;
+        this.juuseri_id = juuseri_id;
+        this.dns_name = dns_name;
+        this.self_made_dns_name = self_made_dns_name;
+        this.name = name;
+        this.vps_user_name = vps_user_name;
+        this.puta_dns = puta_dns;
+        this.ip_address = ip_address;
+        this.teacher = teacher;
+        this.course = course;
     }
-
 }

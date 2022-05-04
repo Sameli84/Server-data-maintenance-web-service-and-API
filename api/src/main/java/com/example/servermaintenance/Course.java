@@ -31,5 +31,11 @@ public class Course extends AbstractPersistable<Long> {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
-    private User user;
+    private Teacher teacher;
+
+    public Course(String name, String url, Teacher teacher) {
+        this.name = name;
+        this.url = url;
+        this.teacher = teacher;
+    }
 }

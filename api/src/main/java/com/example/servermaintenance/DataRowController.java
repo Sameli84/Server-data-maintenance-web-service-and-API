@@ -15,18 +15,30 @@ public class DataRowController {
     private DataRowService dataRowService;
 
     @Autowired
-    private DataRowRepository repository;
+    private DataRowRepository dataRowRepository;
+
+    @Autowired
+    private CourseRepository courseRepository;
+
+    @Autowired
+    private TeacherRepository teacherRepository;
 
     @GetMapping("/bulkcreate")
     public String bulkcreate(){
 // save a single Customer
-        repository.save(new DataRow("Raj", "Bhoj"));
+        Teacher teacher = new Teacher("Petteri","Jekku@Tuni.fi");
+        teacherRepository.save(teacher);
+        Course course = new Course("SoftaDevaus","www.tuni.fi", teacher);
+        courseRepository.save(course);
+        dataRowRepository.save(new DataRow("Jakobi","Juuseri",55555,"theDNS","myDNS","Jaakko","vpsJuuseri","8.8.8.8","123.123.124.12", teacher, course));
 
-// save a list of Customers
+    /*
         repository.saveAll(Arrays.asList(new DataRow("Salim", "Khan")
                 , new DataRow("Rajesh", "Parihar")
                 , new DataRow("Rahul", "Dravid")
                 , new DataRow("Dharmendra", "Bhojwani")));
+
+    */
 
         return "redirect:/datarowpage";
     }
