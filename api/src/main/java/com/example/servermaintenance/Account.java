@@ -23,7 +23,7 @@ public class Account extends AbstractPersistable<Long> {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "email")
+    @Column(name = "email", unique = true)
     private String email;
 
     @Column(name = "password")
@@ -35,8 +35,9 @@ public class Account extends AbstractPersistable<Long> {
     @OneToMany(mappedBy = "account")
     private List<Course> courses;
 
-    public Account(String name, String email) {
+    public Account(String name, String email, String password) {
         this.name = name;
         this.email = email;
+        this.password = password;
     }
 }

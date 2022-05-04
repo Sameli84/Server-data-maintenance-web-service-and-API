@@ -3,6 +3,7 @@ package com.example.servermaintenance.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -19,8 +20,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        // TODO: poista tämä ja selvitä miten formiin lisätään csrf!
+        http.csrf().disable();
+
         http.authorizeRequests()
-                .antMatchers("/register").permitAll()
+                .antMatchers("/register", "/register/**").permitAll()
                 .anyRequest().authenticated().and()
                 .formLogin().usernameParameter("email").permitAll().and()
                 .logout().permitAll();

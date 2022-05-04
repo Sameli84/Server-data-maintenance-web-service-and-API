@@ -23,13 +23,13 @@ public class DataRowController {
     private AccountRepository accountRepository;
 
     @GetMapping("/bulkcreate")
-    public String bulkcreate(){
+    public String bulkcreate() {
 // save a single Customer
-        Account account = new Account("Petteri","Jekku@Tuni.fi");
+        Account account = new Account("Petteri", "Jekku@Tuni.fi", "moro");
         accountRepository.save(account);
-        Course course = new Course("SoftaDevaus","www.tuni.fi", account);
+        Course course = new Course("SoftaDevaus", "www.tuni.fi", account);
         courseRepository.save(course);
-        dataRowRepository.save(new DataRow("Jakobi","Juuseri",55555,"theDNS","myDNS","Jaakko","vpsJuuseri","8.8.8.8","123.123.124.12", account, course));
+        dataRowRepository.save(new DataRow("Jakobi", "Juuseri", 55555, "theDNS", "myDNS", "Jaakko", "vpsJuuseri", "8.8.8.8", "123.123.124.12", account, course));
 
     /*
         repository.saveAll(Arrays.asList(new DataRow("Salim", "Khan")
