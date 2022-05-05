@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface CourseRepository extends JpaRepository<Course, Long> {
     List<Course> findAll();
     Optional<Course> findCourseByUrl(String url);
+    boolean existsByUrl(String url);
 }

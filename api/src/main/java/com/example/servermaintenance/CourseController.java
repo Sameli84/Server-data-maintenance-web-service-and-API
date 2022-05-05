@@ -2,8 +2,6 @@ package com.example.servermaintenance;
 
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,15 +13,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 @AllArgsConstructor
 public class CourseController {
     @Autowired
-    private CourseRepository courseRepository;
+    private AccountService accountService;
 
     @Autowired
-    private AccountRepository accountRepository;
+    private CourseService courseService;
 
     @GetMapping("/")
     public String getCoursesPage(Model model) {
-        var email = SecurityContextHolder.getContext().getAuthentication().getName();
-        var account = accountRepository.findByEmail(email).get();
+        var account = accountService.getContextAccount().get();
         model.addAttribute("courses", account.getCourses());
         model.addAttribute("studentCourses", account.getStudentCourses());
 
@@ -32,31 +29,22 @@ public class CourseController {
 
     @GetMapping("/c/{courseUrl}")
     public String getCoursePage(@PathVariable String courseUrl, Model model) {
-        var course = courseRepository.findCourseByUrl(courseUrl);
+        var course = courseService.getCourseByUrl(courseUrl);
         if (course.isEmpty()) {
-            // erroria?
-            return "redirect:/";
+            // erroria? not found?
+            return "redirect:/?error";
         }
-
         model.addAttribute("course", course.get());
         return "course";
     }
 
     @PostMapping("/c/{courseUrl}/join")
-    public String joinCourse(@PathVariable String courseUrl, Model model) {
-        var course = courseRepository.findCourseByUrl(courseUrl);
-        if (course.isEmpty()) {
-            // erroria?
-            return "redirect:/";
+    public String joinCourse(@PathVariable String courseUrl) {
+        if (courseService.addToCourseContext(courseUrl)) {
+            return "redirect:/c/" + courseUrl;
+        } else {
+            return "redirect:/?error";
         }
-
-        // todo: puhdistusta tai paremmin tämä!
-        var email = SecurityContextHolder.getContext().getAuthentication().getName();
-        var account = accountRepository.findByEmail(email).get();
-        course.get().addStudent(account);
-        courseRepository.save(course.get());
-        accountRepository.save(account);
-        return "redirect:/c/" + courseUrl;
     }
 
     @GetMapping("/create-course")
@@ -66,12 +54,11 @@ public class CourseController {
 
     @PostMapping("/create-course")
     public String createCourse(@RequestParam String name, @RequestParam String url) {
-        var email = SecurityContextHolder.getContext().getAuthentication().getName();
-        var account = accountRepository.findByEmail(email).get();
-        var c = new Course(name, url,account);
-
-        // TODO: prevent duplicate urls
-        courseRepository.save(c);
-        return "redirect:/c/" + c.getUrl();
+        try {
+            var course = courseService.newCourseContext(name, url);
+            return "redirect:/c/" + course.getUrl();
+        } catch (Exception e) {
+            return "redirect:/create-course?error";
+        }
     }
 }
