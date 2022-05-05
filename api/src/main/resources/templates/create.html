@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create</title>
+    <style>
+        table,th ,td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+    </style>
+</head>
+<body>
+<h1></h1>
+    <form method="post" action="/createdata">
+        <button type="submit">Create project</button>
+        <table>
+            <tr>
+                <th>student alias</th>
+                <th>csc username</th>
+
+                <th>Dns name</th>
+                <th>self made dns name</th>
+                <th>Name</th>
+                <th>vps user name</th>
+                <th>pouta dns</th>
+                <th>ip address</th>
+                <th>Course</th>
+            </tr>
+            <tr>
+                <td ><input type="text" placeholder="student alias" required></td>
+                <td ><input type="text" placeholder="csc username" required></td>
+
+                <td ><input type="text" placeholder="dns name" required></td>
+                <td ><input type="text" placeholder="self made dns name" required></td>
+                <td ><input type="text" placeholder="name" required></td>
+                <td ><input type="text" placeholder="vps username" required></td>
+                <td ><input type="text" placeholder="pouta dns" required></td>
+                <td ><input type="text" minlength="7" maxlength="15" size="15" required
+                               pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$"
+                               placeholder="255.255.255.255"></td>
+                <td><input type="text" placeholder="Course" requireds></td>
+            </tr>
+        </table>
+    </form>
+</body>
+</html>
