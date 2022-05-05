@@ -1,25 +1,26 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
 <head>
-    <meta charset="UTF-8">
-    <title>Register</title>
+    <title>REGISTER</title>
 </head>
 <body>
-<form action="/register" method="post">
-    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-    <div>
-        <label for="name-input">Name</label><br>
-        <input type="text" name="name" id="name-input">
-    </div>
-    <div>
-        <label for="email-input">Email</label><br>
-        <input type="email" name="email" id="email-input">
-    </div>
-    <div>
-        <label for="password-input">Password</label><br>
-        <input type="password" name="password" id="password-input">
-    </div>
-    <input type="submit" value="Signup">
-</form>
+<section layout:fragment="content">
+    <form action="/register" method="post">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <div>
+            <label for="name-input">Name</label><br>
+            <input type="text" name="name" id="name-input">
+        </div>
+        <div>
+            <label for="email-input">Email</label><br>
+            <input type="email" name="email" id="email-input">
+        </div>
+        <div>
+            <label for="password-input">Password</label><br>
+            <input type="password" name="password" id="password-input">
+        </div>
+        <input type="submit" value="Signup">
+    </form>
+</section>
 </body>
 </html>

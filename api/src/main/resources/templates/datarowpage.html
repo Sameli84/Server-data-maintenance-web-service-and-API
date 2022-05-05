@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
 <head>
-    <meta charset="UTF-8">
-    <title>Datarows</title>
+    <title>DATAROW</title>
 </head>
 <body>
+<section layout:fragment="content">
     <h1>Available Data</h1>
-    <table class="table"  id="myTableId" >
+    <table class="table" id="myTableId">
         <thead>
         <tr>
             <th>Id</th>
@@ -24,23 +24,22 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="dataRow:${datarows}">
-            <td th:text="${dataRow.id}">${user.firstname}</td>
-            <td th:text="${dataRow.student_alias}">${dataRow.student_alias}</td>
-            <td th:text="${dataRow.csc_username}">${dataRow.csc_username}</td>
-            <td th:text="${dataRow.juuseri_id}">${dataRow.juuseri_id}</td>
-            <td th:text="${dataRow.dns_name}">${dataRow.dns_name}</td>
-            <td th:text="${dataRow.self_made_dns_name}">${dataRow.self_made_dns_name}</td>
-            <td th:text="${dataRow.name}">${dataRow.name}</td>
-            <td th:text="${dataRow.vps_user_name}">${dataRow.vps_user_name}</td>
-            <td th:text="${dataRow.pouta_dns}">${dataRow.pouta_dns}</td>
-            <td th:text="${dataRow.ip_address}">${dataRow.ip_address}</td>
-            <td th:text="${dataRow.account.name}">${dataRow.account.name}</td>
-            <td th:text="${dataRow.course.name}">${dataRow.course.name}</td>
+        <tr th:each="dataRow : ${datarows}">
+            <td>[[${dataRow.id}]]</td>
+            <td>[[${dataRow.student_alias}]]</td>
+            <td>[[${dataRow.csc_username}]]</td>
+            <td>[[${dataRow.juuseri_id}]]</td>
+            <td>[[${dataRow.dns_name}]]</td>
+            <td>[[${dataRow.self_made_dns_name}]]</td>
+            <td>[[${dataRow.name}]]</td>
+            <td>[[${dataRow.vps_user_name}]]</td>
+            <td>[[${dataRow.pouta_dns}]]</td>
+            <td>[[${dataRow.ip_address}]]</td>
+            <td>[[${dataRow.account.name}]]</td>
+            <td>[[${dataRow.course.name}]]</td>
         </tr>
         </tbody>
     </table>
-
-
+</section>
 </body>
 </html>
