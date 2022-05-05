@@ -36,7 +36,7 @@ public class DataRowController {
 
         System.out.println(account.toString());
 
-        Course course = new Course("SoftaDevaus", "www.tuni.fi", account.get());
+        Course course = new Course("SoftaDevaus", "softa", account.get());
         courseRepository.save(course);
         dataRowRepository.save(new DataRow("Jakobi", "Juuseri", 55555, "theDNS", "myDNS", "Jaakko", "vpsJuuseri", "8.8.8.8", "123.123.124.12", account.get(), course));
 

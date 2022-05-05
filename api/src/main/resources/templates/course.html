@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+<head>
+    <title>[[${course.name}]]</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <h1>[[${course.name}]]</h1>
+    <p>students:</p>
+    <ul>
+        <li th:each="student : ${course.students}">
+            <p>[[${student.name}]]</p>
+        </li>
+    </ul>
+    <form th:action="@{/c/{url}/join(url=${course.url})}" method="post">
+        <input type="submit" value="Join">
+    </form>
+</section>
+</body>
+</html>

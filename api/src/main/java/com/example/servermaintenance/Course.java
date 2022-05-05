@@ -25,7 +25,7 @@ public class Course extends AbstractPersistable<Long> {
     @Column(name = "name")
     private String name;
 
-    @Column(name = "url")
+    @Column(name = "url", unique = true)
     private String url;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "course")
@@ -35,7 +35,7 @@ public class Course extends AbstractPersistable<Long> {
     @JoinColumn(name = "owner_id")
     private Account account;
 
-    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH }, fetch = FetchType.EAGER)
     @JoinTable(
             name = "student_course",
             joinColumns = { @JoinColumn(name = "account_id") },
@@ -47,5 +47,10 @@ public class Course extends AbstractPersistable<Long> {
         this.name = name;
         this.url = url;
         this.account = account;
+    }
+
+    public void addStudent(Account a) {
+        this.students.add(a);
+        a.getStudentCourses().add(this);
     }
 }

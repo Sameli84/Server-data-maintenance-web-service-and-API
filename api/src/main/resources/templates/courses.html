@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+<head>
+    <title>COURSES</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <h1>my courses</h1>
+    <ul>
+        <li th:each="course : ${courses}">
+            <a th:href="@{/c/{url}(url=${course.url})}">[[${course.name}]]</a>
+        </li>
+    </ul>
+
+    <h1>attending courses</h1>
+    <ul>
+        <li th:each="course : ${studentCourses}">
+            <a th:href="@{/c/{url}(url=${course.url})}">[[${course.name}]]</a>
+        </li>
+    </ul>
+</section>
+</body>
+</html>
