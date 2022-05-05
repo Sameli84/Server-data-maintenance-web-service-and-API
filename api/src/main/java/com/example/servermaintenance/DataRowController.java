@@ -58,4 +58,22 @@ public class DataRowController {
         return "datarowpage";
     }
 
+    @PostMapping("/createdata")
+    public String createData(@RequestParam String courseUrl,
+                             @RequestParam String studentAlias, @RequestParam String cscUsername, @RequestParam int uid,
+                             @RequestParam String dnsName, @RequestParam String selfMadeDnsName,
+                             @RequestParam String name, @RequestParam String vpsUsername,
+                             @RequestParam String poutaDns, @RequestParam String ipAddress) {
+        var course = courseRepository.findCourseByUrl(courseUrl);
+        if (course.isEmpty()) {
+            // erroria?
+            return "redirect:/";
+        }
+        var email = SecurityContextHolder.getContext().getAuthentication().getName();
+        var account = accountRepository.findByEmail(email);
+
+        dataRowRepository.save(new DataRow(studentAlias, cscUsername, uid, dnsName, selfMadeDnsName, name, vpsUsername, poutaDns, ipAddress, account.get(), course.get()));
+
+        return "redirect:/c/" + courseUrl;
+    }
 }
