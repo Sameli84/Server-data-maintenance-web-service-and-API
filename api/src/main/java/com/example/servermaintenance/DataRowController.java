@@ -29,13 +29,16 @@ public class DataRowController {
     public String bulkcreate(Authentication authentication) {
 // save a single Customer
 
-        Account account = accountRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName()).get();
+        var account = accountRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+        if (account.isEmpty()) {
+            return "redirect:/login";
+        }
 
         System.out.println(account.toString());
 
-        Course course = new Course("SoftaDevaus", "www.tuni.fi", account);
+        Course course = new Course("SoftaDevaus", "www.tuni.fi", account.get());
         courseRepository.save(course);
-        dataRowRepository.save(new DataRow("Jakobi", "Juuseri", 55555, "theDNS", "myDNS", "Jaakko", "vpsJuuseri", "8.8.8.8", "123.123.124.12", account, course));
+        dataRowRepository.save(new DataRow("Jakobi", "Juuseri", 55555, "theDNS", "myDNS", "Jaakko", "vpsJuuseri", "8.8.8.8", "123.123.124.12", account.get(), course));
 
     /*
         repository.saveAll(Arrays.asList(new DataRow("Salim", "Khan")

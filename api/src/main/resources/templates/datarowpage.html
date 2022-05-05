@@ -9,32 +9,32 @@
     <table class="table" id="myTableId">
         <thead>
         <tr>
-            <th>Id</th>
-            <th>Student_alias</th>
-            <th>Csc_username</th>
-            <th>Juuseri_id</th>
-            <th>Dns_name</th>
-            <th>Self_made_dns_name</th>
-            <th>Name</th>
-            <th>Vps_user_name</th>
-            <th>Pouta_dns</th>
-            <th>Ip_address</th>
-            <th>Account</th>
-            <th>Course</th>
+            <th>data id</th>
+            <th>student alias</th>
+            <th>csc username</th>
+            <th>uid</th>
+            <th>dns name</th>
+            <th>self made dns name</th>
+            <th>name</th>
+            <th>vps user name</th>
+            <th>pouta dns</th>
+            <th>ip address</th>
+            <th>account</th>
+            <th>course</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="dataRow : ${datarows}">
             <td>[[${dataRow.id}]]</td>
-            <td>[[${dataRow.student_alias}]]</td>
-            <td>[[${dataRow.csc_username}]]</td>
-            <td>[[${dataRow.juuseri_id}]]</td>
-            <td>[[${dataRow.dns_name}]]</td>
-            <td>[[${dataRow.self_made_dns_name}]]</td>
+            <td>[[${dataRow.studentAlias}]]</td>
+            <td>[[${dataRow.cscUsername}]]</td>
+            <td>[[${dataRow.uid}]]</td>
+            <td>[[${dataRow.dnsName}]]</td>
+            <td>[[${dataRow.selfMadeDnsName}]]</td>
             <td>[[${dataRow.name}]]</td>
-            <td>[[${dataRow.vps_user_name}]]</td>
-            <td>[[${dataRow.pouta_dns}]]</td>
-            <td>[[${dataRow.ip_address}]]</td>
+            <td>[[${dataRow.vpsUserName}]]</td>
+            <td>[[${dataRow.poutaDns}]]</td>
+            <td>[[${dataRow.ipAddress}]]</td>
             <td>[[${dataRow.account.name}]]</td>
             <td>[[${dataRow.course.name}]]</td>
         </tr>
