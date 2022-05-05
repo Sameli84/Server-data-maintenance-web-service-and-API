@@ -17,63 +17,31 @@ public class DataRowController {
     private DataRowService dataRowService;
 
     @Autowired
-    private DataRowRepository dataRowRepository;
+    private AccountService accountService;
 
     @Autowired
-    private CourseRepository courseRepository;
-
-    @Autowired
-    private AccountRepository accountRepository;
+    private CourseService courseService;
 
     @GetMapping("/bulkcreate")
-    public String bulkcreate(Authentication authentication) {
-// save a single Customer
-
-        var account = accountRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+    public String bulkcreate() {
+        var account = accountService.getContextAccount();
         if (account.isEmpty()) {
             return "redirect:/login";
         }
 
-        System.out.println(account.toString());
+        var course = courseService.getCourseByUrl("softa");
+        if (course.isEmpty()) {
+            course = courseService.newCourse("SoftaDevaus", "softa", account.get());
+        }
 
-        Course course = new Course("SoftaDevaus", "softa", account.get());
-        courseRepository.save(course);
-        dataRowRepository.save(new DataRow("Jakobi", "Juuseri", 55555, "theDNS", "myDNS", "Jaakko", "vpsJuuseri", "8.8.8.8", "123.123.124.12", account.get(), course));
-
-    /*
-        repository.saveAll(Arrays.asList(new DataRow("Salim", "Khan")
-                , new DataRow("Rajesh", "Parihar")
-                , new DataRow("Rahul", "Dravid")
-                , new DataRow("Dharmendra", "Bhojwani")));
-
-    */
+        courseService.updateStudentsData(course.get(), account.get(), "Jakobi", "Juuseri", 55555, "theDNS", "myDNS", "Jaakko", "vpsJuuseri", "8.8.8.8", "123.123.124.12");
 
         return "redirect:/datarowpage";
     }
 
     @GetMapping("/datarowpage")
     public String getDatarows(Model model) {
-        List<DataRow> dataRows = dataRowService.getDataRows();
-        model.addAttribute("datarows", dataRows);
+        model.addAttribute("datarows", dataRowService.getDataRows());
         return "datarowpage";
-    }
-
-    @PostMapping("/createdata")
-    public String createData(@RequestParam String courseUrl,
-                             @RequestParam String studentAlias, @RequestParam String cscUsername, @RequestParam int uid,
-                             @RequestParam String dnsName, @RequestParam String selfMadeDnsName,
-                             @RequestParam String name, @RequestParam String vpsUsername,
-                             @RequestParam String poutaDns, @RequestParam String ipAddress) {
-        var course = courseRepository.findCourseByUrl(courseUrl);
-        if (course.isEmpty()) {
-            // erroria?
-            return "redirect:/";
-        }
-        var email = SecurityContextHolder.getContext().getAuthentication().getName();
-        var account = accountRepository.findByEmail(email);
-
-        dataRowRepository.save(new DataRow(studentAlias, cscUsername, uid, dnsName, selfMadeDnsName, name, vpsUsername, poutaDns, ipAddress, account.get(), course.get()));
-
-        return "redirect:/c/" + courseUrl;
     }
 }

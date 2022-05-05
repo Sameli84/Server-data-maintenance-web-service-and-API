@@ -1,7 +1,6 @@
 package com.example.servermaintenance;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -15,22 +14,27 @@ public class CourseService {
     private AccountRepository accountRepository;
 
     @Autowired
+    private DataRowRepository dataRowRepository;
+
+    @Autowired
     private AccountService accountService;
 
-    public Course newCourse(String name, String url, Account account) throws Exception {
+    public Optional<Course> newCourse(String name, String url, Account account) {
         // TODO: slugify url?
         if (courseRepository.existsByUrl(url)) {
-            throw new Exception("already exists");
+            return Optional.empty();
         }
 
-        var c = new Course(name, url, account);
-
-        return courseRepository.save(c);
+        return Optional.of(courseRepository.save(new Course(name, url, account)));
     }
 
-    public Course newCourseContext(String name, String url) throws Exception {
-        var account = accountService.getContextAccount().orElseThrow(() -> new UsernameNotFoundException("not logged in"));
-        return newCourse(name, url, account);
+    public Optional<Course> newCourseContext(String name, String url) {
+        var account = accountService.getContextAccount();
+        if (account.isPresent()) {
+            return newCourse(name, url, account.get());
+        } else {
+            return Optional.empty();
+        }
     }
 
     public boolean addToCourse(String courseUrl, Account account) {
@@ -54,5 +58,9 @@ public class CourseService {
 
     public Optional<Course> getCourseByUrl(String url) {
         return courseRepository.findCourseByUrl(url);
+    }
+
+    public void updateStudentsData(Course course, Account account, String studentAlias, String cscUsername, int uid, String dnsName, String selfMadeDnsName, String name, String vpsUsername, String poutaDns, String ipAddress) {
+        dataRowRepository.save(new DataRow(studentAlias, cscUsername, uid, dnsName, selfMadeDnsName, name, vpsUsername, poutaDns, ipAddress, account, course));
     }
 }
