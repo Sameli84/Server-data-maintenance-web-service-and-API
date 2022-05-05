@@ -9,6 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 @AllArgsConstructor
@@ -56,5 +57,21 @@ public class CourseController {
         courseRepository.save(course.get());
         accountRepository.save(account);
         return "redirect:/c/" + courseUrl;
+    }
+
+    @GetMapping("/create-course")
+    public String getCourseCreationPage() {
+        return "create_course";
+    }
+
+    @PostMapping("/create-course")
+    public String createCourse(@RequestParam String name, @RequestParam String url) {
+        var email = SecurityContextHolder.getContext().getAuthentication().getName();
+        var account = accountRepository.findByEmail(email).get();
+        var c = new Course(name, url,account);
+
+        // TODO: prevent duplicate urls
+        courseRepository.save(c);
+        return "redirect:/c/" + c.getUrl();
     }
 }
