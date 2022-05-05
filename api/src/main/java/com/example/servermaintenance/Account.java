@@ -7,7 +7,9 @@ import lombok.Setter;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @NoArgsConstructor
@@ -34,6 +36,9 @@ public class Account extends AbstractPersistable<Long> {
 
     @OneToMany(mappedBy = "account")
     private List<Course> courses;
+
+    @ManyToMany(mappedBy = "students")
+    private Set<Course> studentCourses = new HashSet<>();
 
     public Account(String name, String email, String password) {
         this.name = name;
