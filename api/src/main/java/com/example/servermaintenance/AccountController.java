@@ -31,4 +31,10 @@ public class AccountController {
         accountRepository.save(a);
         return "redirect:/";
     }
+
+    @GetMapping("/login")
+    public String getLoginPage() {
+        return "login";
+    }
+
 }

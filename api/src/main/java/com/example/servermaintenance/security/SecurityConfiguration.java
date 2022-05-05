@@ -23,8 +23,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 .antMatchers("/register", "/register/**").permitAll()
                 .anyRequest().authenticated().and()
-                .formLogin().usernameParameter("email").permitAll().and()
-                .logout().permitAll();
+                .formLogin()
+                .usernameParameter("email")
+                .loginPage("/login")
+                .loginProcessingUrl("/authentication")
+                .permitAll()
+                .and()
+                .logout()
+                .logoutUrl("/logout")
+                .invalidateHttpSession(true)
+                .permitAll();
     }
 
     @Autowired
