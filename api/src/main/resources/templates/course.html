@@ -48,7 +48,7 @@
 
     <td th:text="${error} ?: 'UNKNOWN'" />
 
-    <form method="post" th:action="@{/courses/{url}/update-data(url=${course.url})}">
+    <form method="post" th:action="@{/courses/{url}/students/{id}/update-data(url=${course.url}, id=${user.getId()})}">
         <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
         <div>
             <label for="student-alias-input">student alias</label>

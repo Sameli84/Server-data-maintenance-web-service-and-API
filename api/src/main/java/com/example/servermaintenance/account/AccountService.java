@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,13 +28,18 @@ public class AccountService implements UserDetailsService {
         return accountRepository.findByEmail(email);
     }
 
-    public boolean registerAccount(String name, String email, String password) {
+    public boolean registerStudent(String name, String email, String password) {
+        return registerAccount(name, email, password, List.of(roleRepository.findByName("ROLE_STUDENT")));
+    }
+
+    @Transactional
+    public boolean registerAccount(String name, String email, String password, List<Role> roles) {
         if (accountRepository.findByEmail(email).isPresent()) {
             return false;
         }
 
         Account a = new Account(name, email, passwordEncoder.encode(password));
-        a.setRoles(List.of(roleRepository.findByName("ROLE_STUDENT")));
+        a.setRoles(roles);
         accountRepository.save(a);
         return true;
     }

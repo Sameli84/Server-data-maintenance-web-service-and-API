@@ -37,7 +37,7 @@ public class Course extends AbstractPersistable<Long> {
     @JoinColumn(name = "owner_id")
     private Account account;
 
-    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH }, fetch = FetchType.EAGER)
+    @ManyToMany
     @JoinTable(
             name = "student_course",
             joinColumns = { @JoinColumn(name = "account_id") },
