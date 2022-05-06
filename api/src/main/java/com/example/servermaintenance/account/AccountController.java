@@ -18,7 +18,7 @@ public class AccountController {
 
     @PostMapping("/register")
     public String signUp(@RequestParam String name, @RequestParam String email, @RequestParam String password) {
-        if (accountService.registerAccount(name, email, password)) {
+        if (accountService.registerStudent(name, email, password)) {
             return "redirect:/";
         } else {
             return "redirect:/register?error";

@@ -8,6 +8,7 @@ import com.example.servermaintenance.account.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,9 +44,13 @@ public class CourseService {
         }
     }
 
-    public boolean addToCourse(String courseUrl, Account account) {
+    @Transactional
+    public boolean joinToCourse(String courseUrl, Account account) {
         var course = courseRepository.findCourseByUrl(courseUrl);
         if (course.isEmpty()) {
+            return false;
+        }
+        if (course.get().getStudents().contains(account)) {
             return false;
         }
         course.get().addStudent(account);
@@ -54,12 +59,12 @@ public class CourseService {
         return true;
     }
 
-    public boolean addToCourseContext(String courseUrl) {
+    public boolean joinToCourseContext(String courseUrl) {
         var account = accountService.getContextAccount();
         if (account.isEmpty()) {
             return false;
         }
-        return addToCourse(courseUrl, account.get());
+        return joinToCourse(courseUrl, account.get());
     }
 
     public Optional<Course> getCourseByUrl(String url) {

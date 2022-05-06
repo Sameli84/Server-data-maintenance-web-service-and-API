@@ -4,6 +4,7 @@ import com.example.servermaintenance.security.PasswordEncoderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import javax.transaction.Transactional;
@@ -17,10 +18,10 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
     private RoleRepository roleRepository;
 
     @Autowired
-    private AccountRepository accountRepository;
+    private AccountService accountService;
 
     @Autowired
-    private PasswordEncoderService passwordEncoderService;
+    PasswordEncoder passwordEncoder;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -29,11 +30,11 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
         }
 
         var adminRole = createRoleIfNotFound("ROLE_ADMIN");
-        createRoleIfNotFound("ROLE_TEACHER");
+        var teacherRole = createRoleIfNotFound("ROLE_TEACHER");
         createRoleIfNotFound("ROLE_STUDENT");
 
         // TODO: lataa nämä jostain ympäristömuuttujista!
-        createUserIfNotFound("admin@tuni.fi", "admini", "koira123", List.of(adminRole));
+        accountService.registerAccount("admini", "admin@tuni.fi", "koira", List.of(adminRole, teacherRole));
 
         alreadySetup = true;
     }
@@ -46,19 +47,5 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
             roleRepository.save(role);
         }
         return role;
-    }
-
-    @Transactional
-    void createUserIfNotFound(String email, String name, String password, List<Role> roles) {
-        if (accountRepository.findByEmail(email).isPresent()) {
-            return;
-        }
-        var account = new Account();
-        account.setName(name);
-        account.setEmail(email);
-        account.setPassword(passwordEncoderService.passwordEncoder().encode(password));
-        account.setRoles(roles);
-
-        accountRepository.save(account);
     }
 }

@@ -1,5 +1,6 @@
 package com.example.servermaintenance.course;
 
+import com.example.servermaintenance.account.RoleService;
 import com.example.servermaintenance.datarow.DataRow;
 import com.example.servermaintenance.datarow.DataRowService;
 import com.example.servermaintenance.account.AccountService;
@@ -21,6 +22,9 @@ public class CourseController {
 
     @Autowired
     private DataRowService dataRowService;
+
+    @Autowired
+    private RoleService roleService;
 
     @GetMapping("/")
     public String getIndexPage() {
@@ -51,15 +55,16 @@ public class CourseController {
         model.addAttribute("course", course.get());
         model.addAttribute("data", data.orElse(null));
         model.addAttribute("datarows", dataRowService.getCourseData(course.get()));
+        model.addAttribute("user", account);
         return "course";
     }
 
     @PostMapping("/courses/{courseUrl}/join")
     public String joinCourse(@PathVariable String courseUrl) {
-        if (courseService.addToCourseContext(courseUrl)) {
+        if (courseService.joinToCourseContext(courseUrl)) {
             return "redirect:/courses/" + courseUrl;
         } else {
-            return "redirect:/courses?error";
+            return "redirect:/courses/" + courseUrl + "?error";
         }
     }
 
@@ -82,6 +87,10 @@ public class CourseController {
                              @RequestParam String poutaDns, @RequestParam String ipAddress, RedirectAttributes ra) {
 
         var account = accountService.getContextAccount();
+        if (account.get().getId() != studentId && !roleService.isTeacher(account.get())) {
+            return "redirect:/courses/" + courseUrl + "?error";
+        }
+
         var course = courseService.getCourseByUrl(courseUrl);
 
         if (course.isEmpty()) {
@@ -92,7 +101,7 @@ public class CourseController {
         Boolean check = courseService.checkIfStudentOnCourse(course.get(), account.get());
         if(!check) {
             ra.addFlashAttribute("error", "You must sign up for course to create projects!");
-            return "redirect:/c/" + courseUrl;
+            return "redirect:/courses/" + courseUrl;
         }
 
         var data = dataRowService.getStudentData(course.get(), account.get());
