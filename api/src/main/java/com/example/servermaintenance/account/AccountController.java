@@ -1,4 +1,4 @@
-package com.example.servermaintenance;
+package com.example.servermaintenance.account;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

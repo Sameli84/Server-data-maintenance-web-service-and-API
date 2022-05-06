@@ -1,5 +1,6 @@
 package com.example.servermaintenance;
 
+import com.example.servermaintenance.account.Account;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

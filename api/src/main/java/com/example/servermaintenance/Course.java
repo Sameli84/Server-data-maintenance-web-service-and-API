@@ -1,5 +1,6 @@
 package com.example.servermaintenance;
 
+import com.example.servermaintenance.account.Account;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

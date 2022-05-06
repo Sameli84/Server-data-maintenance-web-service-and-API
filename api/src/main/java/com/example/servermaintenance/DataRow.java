@@ -1,5 +1,6 @@
 package com.example.servermaintenance;
 
+import com.example.servermaintenance.account.Account;
 import lombok.*;
 
 import javax.persistence.*;
