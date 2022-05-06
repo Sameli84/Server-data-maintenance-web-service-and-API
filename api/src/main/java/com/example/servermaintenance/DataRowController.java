@@ -77,8 +77,7 @@ public class DataRowController {
         var account = accountRepository.findByEmail(email);
         Boolean check = courseService.checkIfStudentOnCourse(course.get(), account.get());
         if(!check) {
-            System.out.println("You must sign up for course to create projects!");
-            ra.addFlashAttribute("error", "Not on course");
+            ra.addFlashAttribute("error", "You must sign up for course to create projects!");
             return "redirect:/c/" + courseUrl;
         }
 
