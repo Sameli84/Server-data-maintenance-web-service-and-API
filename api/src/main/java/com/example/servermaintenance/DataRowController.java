@@ -72,7 +72,7 @@ public class DataRowController {
             dataRows = dataRowService.getDataRows();
         } else {
             Course course = courseService.getCourseById(selectCourse);
-            dataRows = dataRowService.getDataRowsByCourse(course);
+            dataRows = dataRowService.getCourseData(course);
         }
         List<Course> courses = courseService.getCourses();
         model.addAttribute("datarows", dataRows);

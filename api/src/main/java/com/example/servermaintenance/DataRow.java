@@ -53,6 +53,18 @@ public class DataRow implements Serializable {
     @JoinColumn(name = "course_id")
     private Course course;
 
+    public void update(String studentAlias, String cscUsername, int uid, String dnsName, String selfMadeDnsName, String name, String vpsUserName, String poutaDns, String ipAddress) {
+        setStudentAlias(studentAlias);
+        setCscUsername(cscUsername);
+        setUid(uid);
+        setDnsName(dnsName);
+        setSelfMadeDnsName(selfMadeDnsName);
+        setName(name);
+        setVpsUserName(vpsUserName);
+        setPoutaDns(poutaDns);
+        setIpAddress(ipAddress);
+    }
+
     public DataRow(String studentAlias, String cscUsername, int uid, String dnsName, String selfMadeDnsName, String name, String vpsUserName, String poutaDns, String ipAddress, Account account, Course course) {
         this.studentAlias = studentAlias;
         this.cscUsername = cscUsername;

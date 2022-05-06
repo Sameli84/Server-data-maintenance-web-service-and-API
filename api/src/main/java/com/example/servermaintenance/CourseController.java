@@ -16,6 +16,9 @@ public class CourseController {
     @Autowired
     private CourseService courseService;
 
+    @Autowired
+    private DataRowService dataRowService;
+
     @GetMapping("/")
     public String getCoursesPage(Model model) {
         var account = accountService.getContextAccount().get();
@@ -32,8 +35,14 @@ public class CourseController {
             // erroria? not found?
             return "redirect:/?error";
         }
+        var account = accountService.getContextAccount().get();
+
+        var data = dataRowService.getStudentData(course.get(), account);
+
         model.addAttribute("error", error);
         model.addAttribute("course", course.get());
+        model.addAttribute("data", data.orElse(null));
+        model.addAttribute("datarows", dataRowService.getCourseData(course.get()));
         return "course";
     }
 
@@ -71,8 +80,14 @@ public class CourseController {
             // erroria? not foundia?
             return "redirect:/?error";
         }
-        courseService.updateStudentsData(course.get(), account.get(), studentAlias, cscUsername, uid, dnsName, selfMadeDnsName, name, vpsUsername, poutaDns, ipAddress);
+        var data = dataRowService.getStudentData(course.get(), account.get());
+        if (data.isEmpty()) {
+            courseService.updateStudentsData(new DataRow(studentAlias, cscUsername, uid, dnsName, selfMadeDnsName, name, vpsUsername, poutaDns, ipAddress, account.get(), course.get()));
+        } else {
+            data.get().update(studentAlias, cscUsername, uid, dnsName, selfMadeDnsName, name, vpsUsername, poutaDns, ipAddress);
+            courseService.updateStudentsData(data.get());
+        }
 
-        return "redirect:/c/" + courseUrl;
+        return "redirect:/c/" + course.get().getUrl();
     }
 }
