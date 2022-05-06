@@ -25,8 +25,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
                 .antMatchers("/register", "/register/**").permitAll()
-                // kommentointi pois kun on roolit!
-//                .antMatchers("/api", "/api/**").hasRole("TEACHER")
+                .antMatchers("/api", "/api/**").hasAuthority("TEACHER")
                 .anyRequest().authenticated().and()
                 .httpBasic().and()
                 .formLogin()

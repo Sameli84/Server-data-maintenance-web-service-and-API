@@ -28,9 +28,9 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
             return;
         }
 
-        var adminRole = createRoleIfNotFound("ADMIN");
-        createRoleIfNotFound("TEACHER");
-        createRoleIfNotFound("STUDENT");
+        var adminRole = createRoleIfNotFound("ROLE_ADMIN");
+        createRoleIfNotFound("ROLE_TEACHER");
+        createRoleIfNotFound("ROLE_STUDENT");
 
         // TODO: lataa nämä jostain ympäristömuuttujista!
         createUserIfNotFound("admin@tuni.fi", "admini", "koira123", List.of(adminRole));

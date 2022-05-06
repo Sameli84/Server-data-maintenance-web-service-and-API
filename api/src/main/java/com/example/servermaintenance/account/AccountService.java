@@ -33,7 +33,7 @@ public class AccountService implements UserDetailsService {
         }
 
         Account a = new Account(name, email, passwordEncoder.encode(password));
-        a.setRoles(List.of(roleRepository.findByName("STUDENT")));
+        a.setRoles(List.of(roleRepository.findByName("ROLE_STUDENT")));
         accountRepository.save(a);
         return true;
     }
