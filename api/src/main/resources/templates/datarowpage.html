@@ -7,14 +7,15 @@
 <section layout:fragment="content">
     <h1>Available Data</h1>
 
-    <form method="post" action="/datarowpage">
+    <form method="get" action="/datarowpage">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         <select name="selectCourse" id="selectCourse">
+            <option value=-1>All courses</option>
             <option th:each="course : ${courses}"
                     th:value="${course.id}"
-                    th:text="${course.name}">
+                    th:text="${course.name}"
+                    th:selected="${param.selectCourse} != null and ${course.id}==${param.selectCourse[0]}">
             </option>
-            <option value=-1>All courses</option>
         </select>
         <button type="submit">Filter</button>
     </form>

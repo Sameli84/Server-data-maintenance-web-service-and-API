@@ -18,28 +18,64 @@ public class DataRowController {
     private DataRowService dataRowService;
 
     @Autowired
+    private DataRowRepository dataRowRepository;
+
+    @Autowired
+    private CourseRepository courseRepository;
+
+    @Autowired
     private CourseService courseService;
 
-    @GetMapping("/datarowpage")
-    public String getDatarows(Model model) {
-        model.addAttribute("datarows", dataRowService.getDataRows());
-        model.addAttribute("courses", courseService.getCourses());
-        return "datarowpage";
+    @Autowired
+    private AccountRepository accountRepository;
+
+    @GetMapping("/bulkcreate")
+    public String bulkcreate(Authentication authentication) {
+// save a single Customer
+
+        var account = accountRepository.findByEmail(SecurityContextHolder.getContext().getAuthentication().getName());
+        if (account.isEmpty()) {
+            return "redirect:/login";
+        }
+
+        System.out.println(account.toString());
+
+        Course course = new Course("SoftaDevaus", "softa", account.get());
+        courseRepository.save(course);
+        dataRowRepository.save(new DataRow("Jakobi", "Juuseri", 55555, "theDNS", "myDNS", "Jaakko", "vpsJuuseri", "8.8.8.8", "123.123.124.12", account.get(), course));
+
+    /*
+        repository.saveAll(Arrays.asList(new DataRow("Salim", "Khan")
+                , new DataRow("Rajesh", "Parihar")
+                , new DataRow("Rahul", "Dravid")
+                , new DataRow("Dharmendra", "Bhojwani")));
+
+    */
+
+        return "redirect:/datarowpage";
     }
 
-    @PostMapping("/datarowpage")
-    public String filterDatarows(@RequestParam Long selectCourse, Model model) {
-        System.out.println(selectCourse);
-        List<DataRow> dataRows;
-        if(selectCourse == -1) {
-            dataRows = dataRowService.getDataRows();
+    @GetMapping("/datarowpage")
+    public String getDatarows(Model model, @RequestParam Optional<Long> selectCourse) {
+        if (selectCourse.isEmpty()) {
+            List<DataRow> dataRows = dataRowService.getDataRows();
+            List<Course> courses = courseService.getCourses();
+            model.addAttribute("datarows", dataRows);
+            model.addAttribute("courses", courses);
+            return "datarowpage";
         } else {
-            Course course = courseService.getCourseById(selectCourse);
-            dataRows = dataRowService.getCourseData(course);
+            System.out.println(selectCourse);
+            List<DataRow> dataRows;
+            if(selectCourse.get() == -1) {
+                dataRows = dataRowService.getDataRows();
+            } else {
+                Course course = courseService.getCourseById(selectCourse.get());
+                dataRows = dataRowService.getCourseData(course);
+            }
+            List<Course> courses = courseService.getCourses();
+            model.addAttribute("datarows", dataRows);
+            model.addAttribute("courses", courses);
+            return "datarowpage";
         }
-        List<Course> courses = courseService.getCourses();
-        model.addAttribute("datarows", dataRows);
-        model.addAttribute("courses", courses);
-        return "datarowpage";
     }
 }
