@@ -10,6 +10,8 @@ import javax.persistence.*;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotEmpty;
 
 @Entity
 @NoArgsConstructor
@@ -22,12 +24,16 @@ public class Account extends AbstractPersistable<Long> {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @NotEmpty(message = "Password is mandatory")
     @Column(name = "name")
     private String name;
 
+    @NotEmpty(message = "Name is mandatory")
+    @Email
     @Column(name = "email", unique = true)
     private String email;
 
+    @NotEmpty(message = "Password is mandatory")
     @Column(name = "password")
     private String password;
 
