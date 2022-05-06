@@ -15,6 +15,9 @@
     <form th:action="@{/c/{url}/join(url=${course.url})}" method="post">
         <input type="submit" value="Join">
     </form>
+
+    <p th:text="${error} ?: 'UNKNOWN'" ></p>
+
     <form method="post" action="/createdata">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         <input type="hidden" name=courseUrl th:value="${course.url}"/>
@@ -34,7 +37,7 @@
             <tr>
                 <td ><input type="text" name="studentAlias" placeholder="student alias" required></td>
                 <td ><input type="text" name="cscUsername" placeholder="csc username" required></td>
-                <td ><input type="text" name="uid" placeholder="uid" required></td>
+                <td ><input type="text" name="uid" placeholder="55555" pattern="[0-9]+" required></td>
                 <td ><input type="text" name="dnsName" placeholder="dns name" required></td>
                 <td ><input type="text" name="selfMadeDnsName" placeholder="self made dns name" required></td>
                 <td ><input type="text" name="name" placeholder="name" required></td>

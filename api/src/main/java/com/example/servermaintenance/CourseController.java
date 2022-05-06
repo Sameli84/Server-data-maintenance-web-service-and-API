@@ -5,10 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 @AllArgsConstructor
@@ -29,12 +26,13 @@ public class CourseController {
     }
 
     @GetMapping("/c/{courseUrl}")
-    public String getCoursePage(@PathVariable String courseUrl, Model model) {
+    public String getCoursePage(@PathVariable String courseUrl, @ModelAttribute("error") String error, Model model) {
         var course = courseService.getCourseByUrl(courseUrl);
         if (course.isEmpty()) {
             // erroria? not found?
             return "redirect:/?error";
         }
+        model.addAttribute("error", error);
         model.addAttribute("course", course.get());
         return "course";
     }
