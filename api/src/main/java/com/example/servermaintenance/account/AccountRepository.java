@@ -1,4 +1,4 @@
-package com.example.servermaintenance;
+package com.example.servermaintenance.account;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

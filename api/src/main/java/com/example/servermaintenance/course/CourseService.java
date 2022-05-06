@@ -1,8 +1,14 @@
-package com.example.servermaintenance;
+package com.example.servermaintenance.course;
 
+import com.example.servermaintenance.datarow.DataRow;
+import com.example.servermaintenance.datarow.DataRowRepository;
+import com.example.servermaintenance.account.Account;
+import com.example.servermaintenance.account.AccountRepository;
+import com.example.servermaintenance.account.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -60,11 +66,19 @@ public class CourseService {
         return courseRepository.findCourseByUrl(url);
     }
 
-    public void updateStudentsData(Course course, Account account, String studentAlias, String cscUsername, int uid, String dnsName, String selfMadeDnsName, String name, String vpsUsername, String poutaDns, String ipAddress) {
-        dataRowRepository.save(new DataRow(studentAlias, cscUsername, uid, dnsName, selfMadeDnsName, name, vpsUsername, poutaDns, ipAddress, account, course));
+    public void updateStudentsData(DataRow data) {
+        dataRowRepository.save(data);
     }
 
     public Boolean checkIfStudentOnCourse(Course course, Account account) {
         return course.getStudents().contains(account);
+    }
+
+    public List<Course> getCourses() {
+        return courseRepository.findAll();
+    }
+
+    public Course getCourseById(Long id) {
+        return courseRepository.getById(id);
     }
 }

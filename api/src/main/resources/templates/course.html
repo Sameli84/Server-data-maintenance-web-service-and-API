@@ -1,53 +1,102 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
 <head>
     <title>[[${course.name}]]</title>
 </head>
 <body>
 <section layout:fragment="content">
     <h1>[[${course.name}]]</h1>
-    <p>students:</p>
-    <ul>
-        <li th:each="student : ${course.students}">
-            <p>[[${student.name}]]</p>
-        </li>
-    </ul>
-    <form th:action="@{/c/{url}/join(url=${course.url})}" method="post">
+    <p>by [[${course.getAccount().getName()}]]</p>
+
+    <form method="post" th:action="@{/courses/{url}/join(url=${course.url})}">
         <input type="submit" value="Join">
     </form>
 
-    <p th:text="${error} ?: 'UNKNOWN'" ></p>
-
-    <form method="post" action="/createdata">
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-        <input type="hidden" name=courseUrl th:value="${course.url}"/>
-        <button type="submit">Create project</button>
-        <table>
+    <th:block th:if="${datarows}">
+        <table class="table" id="myTableId">
+            <thead>
             <tr>
+                <th>student name</th>
                 <th>student alias</th>
                 <th>csc username</th>
                 <th>uid</th>
-                <th>Dns name</th>
+                <th>dns name</th>
                 <th>self made dns name</th>
-                <th>Name</th>
+                <th>name</th>
                 <th>vps user name</th>
                 <th>pouta dns</th>
                 <th>ip address</th>
             </tr>
-            <tr>
-                <td ><input type="text" name="studentAlias" placeholder="student alias" required></td>
-                <td ><input type="text" name="cscUsername" placeholder="csc username" required></td>
-                <td ><input type="text" name="uid" placeholder="55555" pattern="[0-9]+" required></td>
-                <td ><input type="text" name="dnsName" placeholder="dns name" required></td>
-                <td ><input type="text" name="selfMadeDnsName" placeholder="self made dns name" required></td>
-                <td ><input type="text" name="name" placeholder="name" required></td>
-                <td ><input type="text" name="vpsUsername" placeholder="vps username" required></td>
-                <td ><input type="text" name="poutaDns" placeholder="pouta dns" required></td>
-                <td ><input type="text" name="ipAddress" minlength="7" maxlength="15" size="15" required
-                            pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$"
-                            placeholder="255.255.255.255"></td>
+            </thead>
+            <tbody>
+            <tr th:each="dataRow : ${datarows}">
+                <td>[[${dataRow.account.name}]]</td>
+                <td>[[${dataRow.studentAlias}]]</td>
+                <td>[[${dataRow.cscUsername}]]</td>
+                <td>[[${dataRow.uid}]]</td>
+                <td>[[${dataRow.dnsName}]]</td>
+                <td>[[${dataRow.selfMadeDnsName}]]</td>
+                <td>[[${dataRow.name}]]</td>
+                <td>[[${dataRow.vpsUserName}]]</td>
+                <td>[[${dataRow.poutaDns}]]</td>
+                <td>[[${dataRow.ipAddress}]]</td>
             </tr>
+            </tbody>
         </table>
+    </th:block>
+
+    <td th:text="${error} ?: 'UNKNOWN'" />
+
+    <form method="post" th:action="@{/courses/{url}/update-data(url=${course.url})}">
+        <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+        <div>
+            <label for="student-alias-input">student alias</label>
+            <input type="text" name="studentAlias" id="student-alias-input" th:value="${data?.getStudentAlias()}"
+                   placeholder="student alias" required>
+        </div>
+        <div>
+            <label for="csc-username-input">csc username</label>
+            <input type="text" name="cscUsername" id="csc-username-input" th:value="${data?.getCscUsername()}"
+                   placeholder="student alias" required>
+        </div>
+        <div>
+            <label for="uid-input">uid</label>
+            <input type="number" name="uid" id="uid-input" th:value="${data?.getUid()}" placeholder="55555" required>
+        </div>
+        <div>
+            <label for="self-made-dns-name-input">self made dns name</label>
+            <input type="text" name="selfMadeDnsName" id="self-made-dns-name-input"
+                   th:value="${data?.getSelfMadeDnsName()}" placeholder="self made dns name" required>
+        </div>
+        <div>
+            <label for="vps-user-name-input">vps user name</label>
+            <input type="text" name="vpsUsername" id="vps-user-name-input" th:value="${data?.getVpsUserName()}"
+                   placeholder="vps username" required>
+        </div>
+        <div>
+            <label for="dns-name-input">Dns name</label>
+            <input type="text" name="dnsName" id="dns-name-input" th:value="${data?.getDnsName()}"
+                   placeholder="dns name" required>
+        </div>
+        <div>
+            <label for="name-input">Name</label>
+            <input type="text" name="name" id="name-input" th:value="${data?.getName()}" placeholder="name" required>
+        </div>
+        <div>
+            <label for="pouta-dns-input">pouta dns</label>
+            <input type="text" name="poutaDns" id="pouta-dns-input" th:value="${data?.getPoutaDns()}"
+                   placeholder="pouta dns" required>
+        </div>
+        <div>
+            <label for="ip-address-input">ip address</label>
+            <input type="text" name="ipAddress" id="ip-address-input" th:value="${data?.getIpAddress()}" minlength="7"
+                   maxlength="15" size="15" required
+                   pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$"
+                   placeholder="255.255.255.255">
+        </div>
+
+        <input type="submit" value="Update information">
     </form>
 </section>
 </body>

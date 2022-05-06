@@ -1,4 +1,4 @@
-package com.example.servermaintenance;
+package com.example.servermaintenance.account;
 
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
