@@ -63,4 +63,8 @@ public class CourseService {
     public void updateStudentsData(Course course, Account account, String studentAlias, String cscUsername, int uid, String dnsName, String selfMadeDnsName, String name, String vpsUsername, String poutaDns, String ipAddress) {
         dataRowRepository.save(new DataRow(studentAlias, cscUsername, uid, dnsName, selfMadeDnsName, name, vpsUsername, poutaDns, ipAddress, account, course));
     }
+
+    public Boolean checkIfStudentOnCourse(Course course, Account account) {
+        return course.getStudents().contains(account);
+    }
 }
