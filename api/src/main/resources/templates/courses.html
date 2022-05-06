@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
 <head>
     <title>COURSES</title>
 </head>
@@ -8,18 +8,18 @@
     <h1>my courses</h1>
     <ul>
         <li th:each="course : ${courses}">
-            <a th:href="@{/c/{url}(url=${course.url})}">[[${course.name}]]</a>
+            <a th:href="@{/courses/{url}(url=${course.url})}">[[${course.name}]]</a>
         </li>
     </ul>
 
     <h1>attending courses</h1>
     <ul>
         <li th:each="course : ${studentCourses}">
-            <a th:href="@{/c/{url}(url=${course.url})}">[[${course.name}]]</a>
+            <a th:href="@{/courses/{url}(url=${course.url})}">[[${course.name}]]</a>
         </li>
     </ul>
 
-    <a href="/create-course">NEW COURSE</a>
+    <a href="/courses/create">NEW COURSE</a>
 </section>
 </body>
 </html>
