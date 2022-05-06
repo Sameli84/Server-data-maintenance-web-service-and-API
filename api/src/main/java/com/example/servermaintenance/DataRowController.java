@@ -56,27 +56,26 @@ public class DataRowController {
     }
 
     @GetMapping("/datarowpage")
-    public String getDatarows(Model model) {
-        List<DataRow> dataRows = dataRowService.getDataRows();
-        List<Course> courses = courseService.getCourses();
-        model.addAttribute("datarows", dataRows);
-        model.addAttribute("courses", courses);
-        return "datarowpage";
-    }
-
-    @PostMapping("/datarowpage")
-    public String filterDatarows(@RequestParam Long selectCourse, Model model) {
-        System.out.println(selectCourse);
-        List<DataRow> dataRows;
-        if(selectCourse == -1) {
-            dataRows = dataRowService.getDataRows();
+    public String getDatarows(Model model, @RequestParam Optional<Long> selectCourse) {
+        if (selectCourse.isEmpty()) {
+            List<DataRow> dataRows = dataRowService.getDataRows();
+            List<Course> courses = courseService.getCourses();
+            model.addAttribute("datarows", dataRows);
+            model.addAttribute("courses", courses);
+            return "datarowpage";
         } else {
-            Course course = courseService.getCourseById(selectCourse);
-            dataRows = dataRowService.getCourseData(course);
+            System.out.println(selectCourse);
+            List<DataRow> dataRows;
+            if(selectCourse.get() == -1) {
+                dataRows = dataRowService.getDataRows();
+            } else {
+                Course course = courseService.getCourseById(selectCourse.get());
+                dataRows = dataRowService.getCourseData(course);
+            }
+            List<Course> courses = courseService.getCourses();
+            model.addAttribute("datarows", dataRows);
+            model.addAttribute("courses", courses);
+            return "datarowpage";
         }
-        List<Course> courses = courseService.getCourses();
-        model.addAttribute("datarows", dataRows);
-        model.addAttribute("courses", courses);
-        return "datarowpage";
     }
 }
