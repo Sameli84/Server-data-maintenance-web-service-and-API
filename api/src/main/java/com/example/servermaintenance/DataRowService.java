@@ -12,4 +12,8 @@ public class DataRowService {
     private DataRowRepository dataRowRepository;
 
     public List<DataRow> getDataRows() { return this.dataRowRepository.findAll(); }
+
+    public List<DataRow> getDataRowsByCourse(Course course) {
+        return this.dataRowRepository.findAllByCourse(course);
+    }
 }
