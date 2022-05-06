@@ -6,7 +6,7 @@
 <body>
 <section layout:fragment="content">
     <div th:if="${param.error}">URL Slug already taken!</div>
-    <form action="/create-course" method="post">
+    <form action="/courses/create" method="post">
         <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
         <div>
             <label for="name-input">Name</label><br>

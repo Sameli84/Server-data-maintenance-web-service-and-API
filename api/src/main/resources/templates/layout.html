@@ -17,9 +17,8 @@
     </th:block>
     <th:block sec:authorize="isAuthenticated()">
         <span sec:authentication="name">Bob</span>
-        <a href="/">COURSES</a>
+        <a href="/courses">COURSES</a>
         <a href="/datarowpage">DATAROW</a>
-        <a href="/bulkcreate">BULKCREATE</a>
         <form action="/logout" method="post">
             <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
             <input type="submit" value="Logout">

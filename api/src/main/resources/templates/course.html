@@ -9,7 +9,7 @@
     <h1>[[${course.name}]]</h1>
     <p>by [[${course.getAccount().getName()}]]</p>
 
-    <form method="post" th:action="@{/c/{url}/join(url=${course.url})}">
+    <form method="post" th:action="@{/courses/{url}/join(url=${course.url})}">
         <input type="submit" value="Join">
     </form>
 
@@ -48,7 +48,7 @@
 
     <p th:if="${error == null}">UNKNOWN</p>
 
-    <form method="post" th:action="@{/c/{url}/update-data(url=${course.url})}">
+    <form method="post" th:action="@{/courses/{url}/update-data(url=${course.url})}">
         <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
         <div>
             <label for="student-alias-input">student alias</label>
