@@ -7,7 +7,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class AccountController {
@@ -25,7 +24,7 @@ public class AccountController {
             return "register";
         }
         
-        if (accountService.registerAccount(account.getName(), account.getEmail(), account.getPassword())) {
+        if (accountService.registerStudent(account.getName(), account.getEmail(), account.getPassword())) {
             return "redirect:/";
         } else {
             return "redirect:/register?error";
