@@ -3,6 +3,7 @@ package com.example.servermaintenance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -66,5 +67,13 @@ public class CourseService {
 
     public Boolean checkIfStudentOnCourse(Course course, Account account) {
         return course.getStudents().contains(account);
+    }
+
+    public List<Course> getCourses() {
+        return courseRepository.findAll();
+    }
+
+    public Course getCourseById(Long id) {
+        return courseRepository.getById(id);
     }
 }

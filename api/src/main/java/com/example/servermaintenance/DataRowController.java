@@ -58,7 +58,25 @@ public class DataRowController {
     @GetMapping("/datarowpage")
     public String getDatarows(Model model) {
         List<DataRow> dataRows = dataRowService.getDataRows();
+        List<Course> courses = courseService.getCourses();
         model.addAttribute("datarows", dataRows);
+        model.addAttribute("courses", courses);
+        return "datarowpage";
+    }
+
+    @PostMapping("/datarowpage")
+    public String filterDatarows(@RequestParam Long selectCourse, Model model) {
+        System.out.println(selectCourse);
+        List<DataRow> dataRows;
+        if(selectCourse == -1) {
+            dataRows = dataRowService.getDataRows();
+        } else {
+            Course course = courseService.getCourseById(selectCourse);
+            dataRows = dataRowService.getDataRowsByCourse(course);
+        }
+        List<Course> courses = courseService.getCourses();
+        model.addAttribute("datarows", dataRows);
+        model.addAttribute("courses", courses);
         return "datarowpage";
     }
 
@@ -77,11 +95,9 @@ public class DataRowController {
         var account = accountRepository.findByEmail(email);
         Boolean check = courseService.checkIfStudentOnCourse(course.get(), account.get());
         if(!check) {
-            System.out.println("You must sign up for course to create projects!");
-            ra.addFlashAttribute("error", "Not on course");
+            ra.addFlashAttribute("error", "You must sign up for course to create projects!");
             return "redirect:/c/" + courseUrl;
         }
-
 
         dataRowRepository.save(new DataRow(studentAlias, cscUsername, uid, dnsName, selfMadeDnsName, name, vpsUsername, poutaDns, ipAddress, account.get(), course.get()));
 
