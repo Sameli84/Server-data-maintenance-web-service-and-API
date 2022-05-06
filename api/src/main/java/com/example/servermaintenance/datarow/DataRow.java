@@ -1,6 +1,7 @@
-package com.example.servermaintenance;
+package com.example.servermaintenance.datarow;
 
 import com.example.servermaintenance.account.Account;
+import com.example.servermaintenance.course.Course;
 import lombok.*;
 
 import javax.persistence.*;

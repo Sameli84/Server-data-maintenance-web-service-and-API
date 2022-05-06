@@ -1,6 +1,7 @@
-package com.example.servermaintenance;
+package com.example.servermaintenance.datarow;
 
 import com.example.servermaintenance.account.Account;
+import com.example.servermaintenance.course.Course;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

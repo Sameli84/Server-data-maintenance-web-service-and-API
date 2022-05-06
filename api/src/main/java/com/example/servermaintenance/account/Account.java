@@ -1,7 +1,7 @@
 package com.example.servermaintenance.account;
 
-import com.example.servermaintenance.Course;
-import com.example.servermaintenance.DataRow;
+import com.example.servermaintenance.course.Course;
+import com.example.servermaintenance.datarow.DataRow;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
