@@ -67,8 +67,13 @@ public class DataRowController {
     @PostMapping("/datarowpage")
     public String filterDatarows(@RequestParam Long selectCourse, Model model) {
         System.out.println(selectCourse);
-        Course course = courseService.getCourseById(selectCourse);
-        List<DataRow> dataRows = dataRowService.getDataRowsByCourse(course);
+        List<DataRow> dataRows;
+        if(selectCourse == -1) {
+            dataRows = dataRowService.getDataRows();
+        } else {
+            Course course = courseService.getCourseById(selectCourse);
+            dataRows = dataRowService.getDataRowsByCourse(course);
+        }
         List<Course> courses = courseService.getCourses();
         model.addAttribute("datarows", dataRows);
         model.addAttribute("courses", courses);
