@@ -79,28 +79,4 @@ public class DataRowController {
         model.addAttribute("courses", courses);
         return "datarowpage";
     }
-
-    @PostMapping("/createdata")
-    public String createData(@RequestParam String courseUrl, @RequestParam String studentAlias,
-                             @RequestParam String cscUsername, @RequestParam int uid,
-                             @RequestParam String dnsName, @RequestParam String selfMadeDnsName,
-                             @RequestParam String name, @RequestParam String vpsUsername,
-                             @RequestParam String poutaDns, @RequestParam String ipAddress, RedirectAttributes ra) {
-        var course = courseRepository.findCourseByUrl(courseUrl);
-        if (course.isEmpty()) {
-            // erroria?
-            return "redirect:/";
-        }
-        var email = SecurityContextHolder.getContext().getAuthentication().getName();
-        var account = accountRepository.findByEmail(email);
-        Boolean check = courseService.checkIfStudentOnCourse(course.get(), account.get());
-        if(!check) {
-            ra.addFlashAttribute("error", "You must sign up for course to create projects!");
-            return "redirect:/c/" + courseUrl;
-        }
-
-        dataRowRepository.save(new DataRow(studentAlias, cscUsername, uid, dnsName, selfMadeDnsName, name, vpsUsername, poutaDns, ipAddress, account.get(), course.get()));
-
-        return "redirect:/c/" + courseUrl;
-    }
 }
