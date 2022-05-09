@@ -1,8 +1,10 @@
 package com.example.servermaintenance.account;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +24,9 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
     @Autowired
     PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private Environment env;
+
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         if (alreadySetup) {
@@ -32,8 +37,10 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
         createRoleIfNotFound("ROLE_TEACHER");
         createRoleIfNotFound("ROLE_STUDENT");
 
-        // TODO: lataa nämä jostain ympäristömuuttujista!
-        accountService.registerAccount("admini", "admin@tuni.fi", "koira", List.of(adminRole));
+        var email = env.getProperty("spring.security.user.email");
+        var name = env.getProperty("spring.security.user.name");
+        var password = env.getProperty("spring.security.user.password");
+        accountService.registerAccount(name, email, password, List.of(adminRole));
 
         alreadySetup = true;
     }

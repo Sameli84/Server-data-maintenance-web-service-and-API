@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "spring.security.user.email",
+      "type": "java.lang.String",
+      "description": "Default Security user email."
+  }
+] }
