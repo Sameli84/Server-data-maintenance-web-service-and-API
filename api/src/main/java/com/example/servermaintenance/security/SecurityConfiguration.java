@@ -11,7 +11,6 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.access.vote.RoleHierarchyVoter;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -36,7 +35,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 .expressionHandler(webExpressionHandler())
                 .antMatchers("/register", "/register/**").permitAll()
-                .antMatchers("/api", "/api/**").hasRole("TEACHER").and()
+                .antMatchers("/api", "/api/**").hasRole("TEACHER")
                 .antMatchers("/admin-tools", "/admin-tools/**").hasRole("ADMIN").and()
                 .authorizeRequests()
                 .accessDecisionManager(accessDecisionManager())
