@@ -56,6 +56,7 @@ public class CourseController {
         model.addAttribute("data", data.orElse(null));
         model.addAttribute("datarows", dataRowService.getCourseData(course.get()));
         model.addAttribute("user", account);
+        model.addAttribute("isStudent", course.get().getStudents().contains(account));
         return "course";
     }
 

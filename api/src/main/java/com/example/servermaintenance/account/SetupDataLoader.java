@@ -1,6 +1,5 @@
 package com.example.servermaintenance.account;
 
-import com.example.servermaintenance.security.PasswordEncoderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
