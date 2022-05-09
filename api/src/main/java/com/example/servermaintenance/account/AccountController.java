@@ -48,4 +48,9 @@ public class AccountController {
         return "admin-tools";
     }
 
+    @PostMapping("/search")
+    public String searchAccounts() {
+        return "account-table";
+    }
+
 }
