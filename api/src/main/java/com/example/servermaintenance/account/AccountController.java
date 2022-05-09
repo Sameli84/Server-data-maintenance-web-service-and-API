@@ -1,5 +1,7 @@
 package com.example.servermaintenance.account;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -19,13 +21,18 @@ public class AccountController {
     }
 
     @PostMapping("/register")
-    public String signUp(@Valid @ModelAttribute Account account, BindingResult bindingResult) {
+    public String signUp(@Valid @ModelAttribute Account account, BindingResult bindingResult, HttpServletRequest request) {
         if(bindingResult.hasErrors()){
             return "register";
         }
         
         if (accountService.registerStudent(account.getName(), account.getEmail(), account.getPassword())) {
-            return "redirect:/";
+            try {
+                request.login(account.getEmail(), account.getPassword());
+                return "redirect:/";
+            } catch (ServletException e) {
+                return "redirect:/login?error";
+            }
         } else {
             return "redirect:/register?error";
         }
