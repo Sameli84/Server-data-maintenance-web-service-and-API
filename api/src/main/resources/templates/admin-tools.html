@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+<script src="https://unpkg.com/htmx.org@1.7.0" integrity="sha384-EzBXYPt0/T6gxNp0nuPtLkmRpmDBbjg6WmCUZRLXBBwYYmwAUxzlSGej0ARHX0Bo" crossorigin="anonymous" defer></script>
+<head>
+    <title>ADMIN TOOLS</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <h3>
+        Search Accounts
+        <span class="htmx-indicator">
+    <img src="/img/bars.svg"/> Searching...
+   </span>
+    </h3>
+    <input class="form-control" type="search"
+           name="search" placeholder="Begin Typing To Search Accounts..."
+           hx-post="/search"
+           hx-trigger="keyup changed delay:500ms, search"
+           hx-target="#search-results"
+           hx-indicator=".htmx-indicator">
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+        </tr>
+        </thead>
+        <tbody id="search-results">
+        </tbody>
+    </table>
+
+</section>
+</body>
+</html>

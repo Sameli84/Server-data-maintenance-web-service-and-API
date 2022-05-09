@@ -37,6 +37,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .expressionHandler(webExpressionHandler())
                 .antMatchers("/register", "/register/**").permitAll()
                 .antMatchers("/api", "/api/**").hasRole("TEACHER").and()
+                .antMatchers("/admin-tools", "/admin-tools/**").hasRole("ADMIN").and()
                 .authorizeRequests()
                 .accessDecisionManager(accessDecisionManager())
                 .anyRequest().authenticated().and()

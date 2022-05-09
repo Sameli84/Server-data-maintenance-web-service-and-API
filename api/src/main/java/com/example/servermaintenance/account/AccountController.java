@@ -43,4 +43,9 @@ public class AccountController {
         return "login";
     }
 
+    @GetMapping("/admin-tools")
+    public String getAdminPage() {
+        return "admin-tools";
+    }
+
 }
