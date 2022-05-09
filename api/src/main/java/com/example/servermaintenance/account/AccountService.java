@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @Service
@@ -47,5 +48,11 @@ public class AccountService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return accountRepository.findByEmail(username).orElseThrow();
+    }
+
+    public List<Account> searchAccounts(String search) {
+        List<Account> accounts = accountRepository.findAll();
+        accounts.removeIf(p -> !p.getName().toLowerCase(Locale.ROOT).contains(search.toLowerCase(Locale.ROOT)));
+        return accounts;
     }
 }

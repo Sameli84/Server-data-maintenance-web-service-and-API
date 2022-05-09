@@ -5,10 +5,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
+import java.util.Optional;
 
 @Controller
 public class AccountController {
@@ -49,7 +54,13 @@ public class AccountController {
     }
 
     @PostMapping("/search")
-    public String searchAccounts() {
+    public String searchAccounts(Model model, @RequestParam Optional<String> search) {
+        System.out.println(search.get());
+        if (!search.isEmpty()) {
+            List<Account> accounts = accountService.searchAccounts(search.get());
+            model.addAttribute("accounts", accounts);
+        }
+
         return "account-table";
     }
 

@@ -1,4 +1,4 @@
-<tr>
-    <td>Sasu</td>
-    <td>Email@joku</td>
+<tr th:each="account : ${accounts}">
+    <td>[[${account.name}]]</td>
+    <td>[[${account.email}]]</td>
 </tr>
