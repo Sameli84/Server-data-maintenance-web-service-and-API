@@ -51,8 +51,9 @@ public class AccountService implements UserDetailsService {
     }
 
     public List<Account> searchAccounts(String search) {
-        List<Account> accounts = accountRepository.findAll();
-        accounts.removeIf(p -> !p.getName().toLowerCase(Locale.ROOT).contains(search.toLowerCase(Locale.ROOT)));
+//        List<Account> accounts = accountRepository.findAll();
+//        accounts.removeIf(p -> !p.getName().toLowerCase(Locale.ROOT).contains(search.toLowerCase(Locale.ROOT)));
+        var accounts = accountRepository.findAccountsByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(search, search);
         return accounts;
     }
 }
