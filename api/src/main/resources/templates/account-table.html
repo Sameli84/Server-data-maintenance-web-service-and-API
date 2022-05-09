@@ -1,4 +1,13 @@
 <tr th:each="account : ${accounts}">
     <td>[[${account.name}]]</td>
     <td>[[${account.email}]]</td>
+    <td>Yes: <span th:text="${#lists.contains(account.roles, 1)}"/></td>
+    <td>Yes: <span th:text="${#lists.contains(account.roles, 2)}"/></td>
+    <td>Yes: <span th:text="${#lists.contains(account.roles, 3)}"/></td>
+    <td>
+        <form action="/logout" method="post">
+            <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+            <input type="submit" value="Logout">
+        </form>
+    </td>
 </tr>
