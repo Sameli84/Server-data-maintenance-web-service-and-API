@@ -59,6 +59,24 @@ public class CourseService {
         return true;
     }
 
+    @Transactional
+    public boolean kickFromCourse(String courseUrl, Account account) {
+        var course = courseRepository.findCourseByUrl(courseUrl);
+        System.out.println(account);
+        System.out.println(course.get());
+        if (course.isEmpty()) {
+            return false;
+        }
+        if (!course.get().getStudents().contains(account)) {
+            return false;
+        }
+        course.get().removeStudent(account);
+        account.getCourses().remove(course.get());
+        courseRepository.save(course.get());
+        accountRepository.save(account);
+        return true;
+    }
+
     public boolean joinToCourseContext(String courseUrl) {
         var account = accountService.getContextAccount();
         if (account.isEmpty()) {
@@ -86,4 +104,5 @@ public class CourseService {
     public Course getCourseById(Long id) {
         return courseRepository.getById(id);
     }
+
 }

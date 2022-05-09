@@ -55,4 +55,9 @@ public class Course extends AbstractPersistable<Long> {
         this.students.add(a);
         a.getStudentCourses().add(this);
     }
+
+    public void removeStudent(Account a) {
+        this.students.remove(a);
+        a.getStudentCourses().remove(this);
+    }
 }

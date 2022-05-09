@@ -1,5 +1,6 @@
 package com.example.servermaintenance.course;
 
+import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.account.RoleService;
 import com.example.servermaintenance.datarow.DataRow;
 import com.example.servermaintenance.datarow.DataRowService;
@@ -64,6 +65,16 @@ public class CourseController {
     @PostMapping("/courses/{courseUrl}/join")
     public String joinCourse(@PathVariable String courseUrl) {
         if (courseService.joinToCourseContext(courseUrl)) {
+            return "redirect:/courses/" + courseUrl;
+        } else {
+            return "redirect:/courses/" + courseUrl + "?error";
+        }
+    }
+
+    @PostMapping("/courses/{courseUrl}/{accountId}/kick")
+    public String kickFromCourse(@PathVariable String courseUrl, @PathVariable Long accountId) {
+        Account account = accountService.getAccountById(accountId);
+        if (courseService.kickFromCourse(courseUrl, account)) {
             return "redirect:/courses/" + courseUrl;
         } else {
             return "redirect:/courses/" + courseUrl + "?error";

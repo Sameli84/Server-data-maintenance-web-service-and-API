@@ -18,7 +18,13 @@
 
     <h3>STUDENTS!</h3>
     <ul>
-        <li th:each="student : ${course.getStudents()}">[[${student.getName()}]]</li>
+        <li th:each="student : ${course.getStudents()}">
+            [[${student.getName()}]]
+            <form method="post" th:action="@{/courses/{url}/{student}/kick(url=${course.url},student=${student.id})}" sec:authorize="hasRole('ROLE_ADMIN')">
+                <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+                <input type="submit" value="Kick">
+            </form>
+        </li>
     </ul>
 
     <th:block th:if="${datarows.size() > 0}">
