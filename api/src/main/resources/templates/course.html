@@ -13,6 +13,11 @@
         <input type="submit" value="Join">
     </form>
 
+    <h3>STUDENTS!</h3>
+    <ul>
+        <li th:each="student : ${course.getStudents()}">[[${student.getName()}]]</li>
+    </ul>
+
     <th:block th:if="${datarows}">
         <table class="table" id="myTableId">
             <thead>

@@ -40,8 +40,8 @@ public class Course extends AbstractPersistable<Long> {
     @ManyToMany
     @JoinTable(
             name = "student_course",
-            joinColumns = { @JoinColumn(name = "account_id") },
-            inverseJoinColumns = { @JoinColumn(name = "course_id") }
+            joinColumns = { @JoinColumn(name = "course_id") },
+            inverseJoinColumns = { @JoinColumn(name = "account_id") }
     )
     private Set<Account> students = new HashSet<>();
 
