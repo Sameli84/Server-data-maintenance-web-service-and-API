@@ -7,23 +7,44 @@
     <title>REGISTER</title>
 </head>
 <body>
+<!--<section layout:fragment="content">-->
+<!--    <div th:if="${param.error}">Email already taken!</div>-->
+<!--    <form action="/register" method="post">-->
+<!--        <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>-->
+<!--        <div>-->
+<!--            <label for="name-input">Name</label><br>-->
+<!--            <input type="text" name="name" id="name-input">-->
+<!--        </div>-->
+<!--        <div>-->
+<!--            <label for="email-input">Email</label><br>-->
+<!--            <input type="email" name="email" id="email-input">-->
+<!--        </div>-->
+<!--        <div>-->
+<!--            <label for="password-input">Password</label><br>-->
+<!--            <input type="password" name="password" id="password-input">-->
+<!--        </div>-->
+<!--        <input type="submit" value="Signup">-->
+<!--    </form>-->
+<!--</section>-->
 <section layout:fragment="content">
-    <div th:if="${param.error}">Email already taken!</div>
+    <div th:if="${param.error}" class="alert alert-warning">Invalid email or password</div>
     <form action="/register" method="post">
         <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
-        <div>
-            <label for="name-input">Name</label><br>
-            <input type="text" name="name" id="name-input">
+        <div class="form-floating mb-3">
+            <input type="text" name="name" id="name-input" class="form-control" placeholder="Pikku Kalle" required>
+            <label for="name-input">Name</label>
         </div>
-        <div>
-            <label for="email-input">Email</label><br>
-            <input type="email" name="email" id="email-input">
+        <div class="form-floating mb-3">
+            <input type="email" name="email" id="email-input" class="form-control" placeholder="pikkukalle@tuni.fi"
+                   required>
+            <label for="email-input">Email</label>
         </div>
-        <div>
-            <label for="password-input">Password</label><br>
-            <input type="password" name="password" id="password-input">
+        <div class="form-floating mb-3">
+            <input type="password" name="password" id="password-input" class="form-control" placeholder="salasana123"
+                   required>
+            <label for="password-input">Password</label>
         </div>
-        <input type="submit" value="Signup">
+        <input type="submit" value="Login" class="btn btn-primary btn-lg">
     </form>
 </section>
 </body>
