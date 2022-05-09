@@ -1,17 +1,11 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+<html lang="en" layout:decorate="~{layout}" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security" xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>COURSES</title>
 </head>
 <body>
 <section layout:fragment="content">
-    <h1>my courses</h1>
-    <ul>
-        <li th:each="course : ${courses}">
-            <a th:href="@{/courses/{url}(url=${course.url})}">[[${course.name}]]</a>
-        </li>
-    </ul>
-
     <h1>attending courses</h1>
     <ul>
         <li th:each="course : ${studentCourses}">
@@ -19,7 +13,16 @@
         </li>
     </ul>
 
-    <a href="/courses/create">NEW COURSE</a>
+    <th:block sec:authorize="hasRole('ROLE_TEACHER')">
+        <h1>my courses</h1>
+        <ul>
+            <li th:each="course : ${courses}">
+                <a th:href="@{/courses/{url}(url=${course.url})}">[[${course.name}]]</a>
+            </li>
+        </ul>
+
+        <a href="/courses/create" sec:authorize="hasRole('ROLE_TEACHER')">NEW COURSE</a>
+    </th:block>
 </section>
 </body>
 </html>

@@ -6,6 +6,7 @@ import com.example.servermaintenance.datarow.DataRowService;
 import com.example.servermaintenance.account.AccountService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -69,11 +70,13 @@ public class CourseController {
         }
     }
 
+    @Secured("ROLE_TEACHER")
     @GetMapping("/courses/create")
     public String getCourseCreationPage() {
         return "create_course";
     }
 
+    @Secured("ROLE_TEACHER")
     @PostMapping("/courses/create")
     public String createCourse(@RequestParam String name, @RequestParam String url) {
         var course = courseService.newCourseContext(name, url);
