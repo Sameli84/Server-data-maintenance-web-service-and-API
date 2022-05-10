@@ -5,14 +5,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -58,6 +57,29 @@ public class AccountController {
         return "admin-tools";
     }
 
+    @Secured("ROLE_ADMIN")
+    @PostMapping("/admin-tools/{accountId}/grant")
+    public String grantRights(@PathVariable int accountId, @RequestParam Optional<String> selectRole) {
+        if(!accountService.getAccounts().contains(accountService.getAccountById(accountId))) {
+            return "redirect:/admin-tools/" + "?error";
+        }
+        if(selectRole.isEmpty()) {
+            return "redirect:/admin-tools/" + "?error";
+        }
+        var account = accountService.getAccountById(accountId);
+        Collection<Role> roles = account.getRoles();
+        String roleString = "ROLE_" + selectRole.get().toUpperCase(Locale.ROOT);
+        Role role = roleRepository.findByName(roleString);
+        role.getAccounts().add(account);
+        roles.add(role);
+        account.setRoles(roles);
+        accountService.updateAccount(account);
+        roleRepository.save(role);
+
+        return "redirect:/admin-tools";
+    }
+
+    @Secured("ROLE_ADMIN")
     @PostMapping("/search")
     public String searchAccounts(Model model, @RequestParam Optional<String> search) {
         System.out.println(search.get());
@@ -65,7 +87,9 @@ public class AccountController {
             List<Account> accounts = accountService.searchAccounts(search.get());
             model.addAttribute("accounts", accounts);
             List<String> roles = roleRepository.findAll().stream().map(Role::getName).map(n -> n.substring(n.indexOf("_") + 1).toLowerCase(Locale.ROOT)).toList();
-            model.addAttribute("roles", roles);
+            model.addAttribute("roleNames", roles);
+            List<Role> roleList = roleRepository.findAll();
+            model.addAttribute("roles", roleList);
         }
 
         return "account-table";

@@ -1,16 +1,21 @@
 <tr th:each="account : ${accounts}">
     <td>[[${account.name}]]</td>
     <td>[[${account.email}]]</td>
-    <td>Yes: <span th:text="${#lists.contains(account.roles, 1)}"/></td>
-    <td>Yes: <span th:text="${#lists.contains(account.roles, 2)}"/></td>
-    <td>Yes: <span th:text="${#lists.contains(account.roles, 3)}"/></td>
+    <td><span th:text="${#lists.contains(account.roles, roles[2])}"/></td>
+    <td><span th:text="${#lists.contains(account.roles, roles[1])}"/></td>
+    <td><span th:text="${#lists.contains(account.roles, roles[0])}"/></td>
     <td>
 <!--        <form action="/logout" method="post">-->
 <!--            <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>-->
 <!--            <input type="submit" value="Logout">-->
 <!--        </form>-->
-        <select name="select-role" id="select-role">
-            <option th:each="role : ${roles}" th:value="${role}">[[${role}]]</option>
-        </select>
+        <form method="POST" th:action="@{/admin-tools/{accountId}/grant (accountId=${account.id})}">
+            <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+            <select name="selectRole" id="selectRole">
+                <option th:each="role : ${roleNames}" th:value="${role}">[[${role}]]</option>
+            </select>
+            <input type="submit" value="Grant" class="btn btn-primary mb-3">
+        </form>
+
     </td>
 </tr>
