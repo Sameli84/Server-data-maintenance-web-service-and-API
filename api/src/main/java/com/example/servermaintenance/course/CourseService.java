@@ -73,7 +73,7 @@ public class CourseService {
         courseRepository.save(course);
         accountRepository.save(account);
 
-        dataRowService.removeDataRow(course.get(), account);
+        dataRowService.removeDataRow(course, account);
 
         return true;
     }
