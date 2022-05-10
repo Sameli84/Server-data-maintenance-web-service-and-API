@@ -60,4 +60,9 @@ public class AccountService implements UserDetailsService {
     public Account getAccountById(int accountId) {
         return accountRepository.getById((long)accountId);
     }
+
+    @Transactional
+    public void updateAccount(Account account) {
+        accountRepository.save(account);
+    }
 }

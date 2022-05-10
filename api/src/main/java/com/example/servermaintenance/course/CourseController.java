@@ -121,8 +121,8 @@ public class CourseController {
         var course = courseService.getCourseByUrl(courseUrl);
 
         if (course.isEmpty()) {
-            // erroria? not foundia?
-            return "redirect:/courses?error";
+            // erroria? not foundia?return "redirect:/courses?error";
+
         }
 
         Boolean check = courseService.checkIfStudentOnCourse(course.get(), account);
