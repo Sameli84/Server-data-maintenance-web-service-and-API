@@ -141,7 +141,7 @@ public class CourseController {
         }
 
         Boolean check = courseService.checkIfStudentOnCourse(course.get(), account);
-        if(!check) {
+        if (!check) {
             ra.addFlashAttribute("error", "You must sign up for course to create projects!");
             return "redirect:/courses/" + courseUrl;
         }
@@ -166,6 +166,35 @@ public class CourseController {
         var courseUrl = courseKey.get().getCourse().getUrl();
         if (courseService.joinToCourseContext(courseUrl, key)) {
             return "redirect:/courses/" + courseUrl + "?joined";
+        } else {
+            return "redirect:/courses/" + courseUrl + "?error";
+        }
+    }
+
+    @Secured("ROLE_TEACHER")
+    @PostMapping("/courses/{courseUrl}/keys/create")
+    public String createCourseKey(@PathVariable String courseUrl, @RequestParam String key) {
+        var course = courseService.getCourseByUrl(courseUrl);
+        if (course.isEmpty()) {
+            return "redirect:/courses?error";
+        }
+        if (courseService.addKey(course.get(), key)) {
+            return "redirect:/courses/" + courseUrl + "?key";
+        } else {
+            return "redirect:/courses/" + courseUrl + "?error";
+        }
+    }
+
+    @Secured("ROLE_TEACHER")
+    @PostMapping("/courses/{courseUrl}/keys/{keyId}/revoke")
+    public String revokeCourseKey(@PathVariable String courseUrl, @PathVariable int keyId) {
+        var course = courseService.getCourseByUrl(courseUrl);
+        if (course.isEmpty()) {
+            return "redirect:/courses?error";
+        }
+
+        if (courseService.deleteKey(course.get(), keyId)) {
+            return "redirect:/courses/" + courseUrl;
         } else {
             return "redirect:/courses/" + courseUrl + "?error";
         }
