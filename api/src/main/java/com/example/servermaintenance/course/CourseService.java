@@ -74,6 +74,11 @@ public class CourseService {
         account.getCourses().remove(course.get());
         courseRepository.save(course.get());
         accountRepository.save(account);
+
+        if(dataRowRepository.findDataRowByCourseAndAccount(course.get(), account).isPresent()) {
+            DataRow dr = dataRowRepository.findDataRowByCourseAndAccount(course.get(), account).get();
+            dataRowRepository.delete(dr);
+        }
         return true;
     }
 

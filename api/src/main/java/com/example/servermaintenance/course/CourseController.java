@@ -71,6 +71,7 @@ public class CourseController {
         }
     }
 
+    @Secured("ROLE_TEACHER")
     @PostMapping("/courses/{courseUrl}/{accountId}/kick")
     public String kickFromCourse(@PathVariable String courseUrl, @PathVariable Long accountId) {
         Account account = accountService.getAccountById(accountId);
