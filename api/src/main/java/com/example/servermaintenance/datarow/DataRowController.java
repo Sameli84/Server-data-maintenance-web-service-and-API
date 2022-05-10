@@ -71,7 +71,7 @@ public class DataRowController {
         } else {
             System.out.println(selectCourse);
             List<DataRow> dataRows;
-            if(selectCourse.get() == -1) {
+            if(selectCourse.get() == 0) {
                 dataRows = dataRowService.getDataRows();
             } else {
                 Course course = courseService.getCourseById(selectCourse.get());
