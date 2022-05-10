@@ -42,7 +42,7 @@ public class Account extends AbstractPersistable<Long> implements UserDetails {
     @OneToMany(mappedBy = "account")
     private List<DataRow> data;
 
-    @OneToMany(mappedBy = "account")
+    @OneToMany(mappedBy = "owner")
     private List<Course> courses;
 
     @ManyToMany(mappedBy = "students")

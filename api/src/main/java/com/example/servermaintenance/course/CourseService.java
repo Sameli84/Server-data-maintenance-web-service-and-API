@@ -60,19 +60,13 @@ public class CourseService {
     }
 
     @Transactional
-    public boolean kickFromCourse(String courseUrl, Account account) {
-        var course = courseRepository.findCourseByUrl(courseUrl);
-        System.out.println(account);
-        System.out.println(course.get());
-        if (course.isEmpty()) {
+    public boolean kickFromCourse(Course course, Account account) {
+        if (!course.getStudents().contains(account)) {
             return false;
         }
-        if (!course.get().getStudents().contains(account)) {
-            return false;
-        }
-        course.get().removeStudent(account);
-        account.getCourses().remove(course.get());
-        courseRepository.save(course.get());
+        course.removeStudent(account);
+        account.getCourses().remove(course);
+        courseRepository.save(course);
         accountRepository.save(account);
         return true;
     }

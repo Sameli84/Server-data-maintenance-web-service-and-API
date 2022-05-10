@@ -9,21 +9,19 @@
 <body>
 <section layout:fragment="content">
     <h1>attending courses</h1>
-    <ul>
-        <li th:each="course : ${studentCourses}">
-            <a th:href="@{/courses/{url}(url=${course.url})}">[[${course.name}]]</a>
-        </li>
-    </ul>
+    <div class="list-group list-group-flush mb-3">
+        <a th:each="course : ${studentCourses}" th:href="@{/courses/{url}(url=${course.url})}"
+           class="list-group-item list-group-item-action">[[${course.name}]]</a>
+    </div>
 
     <th:block sec:authorize="hasRole('ROLE_TEACHER')">
         <h1>my courses</h1>
-        <ul>
-            <li th:each="course : ${courses}">
-                <a th:href="@{/courses/{url}(url=${course.url})}">[[${course.name}]]</a>
-            </li>
-        </ul>
+        <div class="list-group list-group-flush mb-3">
+            <a th:each="course : ${courses}" th:href="@{/courses/{url}(url=${course.url})}"
+               class="list-group-item list-group-item-action">[[${course.name}]]</a>
+        </div>
 
-        <a href="/courses/create" sec:authorize="hasRole('ROLE_TEACHER')">NEW COURSE</a>
+        <a href="/courses/create" sec:authorize="hasRole('ROLE_TEACHER')" class="btn btn-primary">NEW COURSE</a>
     </th:block>
 </section>
 </body>

@@ -9,26 +9,28 @@
 <body>
 <section layout:fragment="content">
     <h1>[[${course.name}]]</h1>
-    <p>by [[${course.getAccount().getName()}]]</p>
+    <p>by [[${course.getOwner()?.getName()}]]</p>
 
     <form method="post" th:action="@{/courses/{url}/join(url=${course.url})}" sec:authorize="hasRole('ROLE_STUDENT')"
-          th:if="${!isStudent}">
-        <input type="submit" value="Join">
+          th:if="${!isStudent}" class="mb-3">
+        <input type="submit" value="Join" class="btn btn-primary">
     </form>
 
     <h3>STUDENTS!</h3>
-    <ul>
-        <li th:each="student : ${course.getStudents()}">
-            [[${student.getName()}]]
-            <form method="post" th:action="@{/courses/{url}/{student}/kick(url=${course.url},student=${student.id})}" sec:authorize="hasRole('ROLE_ADMIN')">
+    <ul class="list-group mb-3">
+        <li th:each="student : ${course.getStudents()}" class="list-group-item">
+            <span class="col">[[${student.getName()}]]</span>
+            <form method="post"
+                  th:action="@{/courses/{url}/students/{student}/kick(url=${course.url},student=${student.id})}"
+                  sec:authorize="hasRole('ROLE_ADMIN')">
                 <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
-                <input type="submit" value="Kick">
+                <input type="submit" value="Kick" class="btn btn-danger btn-sm">
             </form>
         </li>
     </ul>
 
     <th:block th:if="${datarows.size() > 0}">
-        <table class="table" id="myTableId">
+        <table class="table table-striped">
             <thead>
             <tr>
                 <th>student name</th>
@@ -62,56 +64,58 @@
 
     <td th:text="${error} ?: 'UNKNOWN'"/>
 
+    <p>DATA</p>
     <form method="post" th:action="@{/courses/{url}/students/{id}/update-data(url=${course.url}, id=${user.getId()})}"
           th:if="${isStudent}">
         <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
-        <div>
-            <label for="student-alias-input">student alias</label>
+        <div class="form-floating mb-3">
             <input type="text" name="studentAlias" id="student-alias-input" th:value="${data?.getStudentAlias()}"
-                   placeholder="student alias" required>
+                   placeholder="student alias" class="form-control" required>
+            <label for="student-alias-input">student alias</label>
         </div>
-        <div>
-            <label for="csc-username-input">csc username</label>
+        <div class="form-floating mb-3">
             <input type="text" name="cscUsername" id="csc-username-input" th:value="${data?.getCscUsername()}"
-                   placeholder="student alias" required>
+                   placeholder="student alias" class="form-control" required>
+            <label for="csc-username-input">csc username</label>
         </div>
-        <div>
+        <div class="form-floating mb-3">
+            <input type="number" name="uid" id="uid-input" th:value="${data?.getUid()}" placeholder="55555"
+                   class="form-control" required>
             <label for="uid-input">uid</label>
-            <input type="number" name="uid" id="uid-input" th:value="${data?.getUid()}" placeholder="55555" required>
         </div>
-        <div>
-            <label for="self-made-dns-name-input">self made dns name</label>
+        <div class="form-floating mb-3">
             <input type="text" name="selfMadeDnsName" id="self-made-dns-name-input"
-                   th:value="${data?.getSelfMadeDnsName()}" placeholder="self made dns name" required>
+                   th:value="${data?.getSelfMadeDnsName()}" placeholder="self made dns name" class="form-control" required>
+            <label for="self-made-dns-name-input">self made dns name</label>
         </div>
-        <div>
-            <label for="vps-user-name-input">vps user name</label>
+        <div class="form-floating mb-3">
             <input type="text" name="vpsUsername" id="vps-user-name-input" th:value="${data?.getVpsUserName()}"
-                   placeholder="vps username" required>
+                   placeholder="vps username" class="form-control" required>
+            <label for="vps-user-name-input">vps user name</label>
         </div>
-        <div>
-            <label for="dns-name-input">Dns name</label>
+        <div class="form-floating mb-3">
             <input type="text" name="dnsName" id="dns-name-input" th:value="${data?.getDnsName()}"
-                   placeholder="dns name" required>
+                   placeholder="dns name" class="form-control" required>
+            <label for="dns-name-input">Dns name</label>
         </div>
-        <div>
+        <div class="form-floating mb-3">
+            <input type="text" name="name" id="name-input" th:value="${data?.getName()}" placeholder="name" class="form-control" required>
             <label for="name-input">Name</label>
-            <input type="text" name="name" id="name-input" th:value="${data?.getName()}" placeholder="name" required>
         </div>
-        <div>
-            <label for="pouta-dns-input">pouta dns</label>
+        <div class="form-floating mb-3">
             <input type="text" name="poutaDns" id="pouta-dns-input" th:value="${data?.getPoutaDns()}"
-                   placeholder="pouta dns" required>
+                   placeholder="pouta dns" class="form-control" required>
+            <label for="pouta-dns-input">pouta dns</label>
         </div>
-        <div>
-            <label for="ip-address-input">ip address</label>
+        <div class="form-floating mb-3">
             <input type="text" name="ipAddress" id="ip-address-input" th:value="${data?.getIpAddress()}" minlength="7"
                    maxlength="15" size="15" required
                    pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$"
-                   placeholder="255.255.255.255">
+                   placeholder="255.255.255.255" class="form-control">
+            <label for="ip-address-input">ip address</label>
         </div>
 
-        <input type="submit" value="Update information">
+        <input type="submit" value="Update information" class="btn btn-primary mb-3">
     </form>
 </section>
 </body>

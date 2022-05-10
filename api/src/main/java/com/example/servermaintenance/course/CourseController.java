@@ -13,6 +13,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Objects;
+
 @Controller
 @AllArgsConstructor
 public class CourseController {
@@ -71,10 +73,20 @@ public class CourseController {
         }
     }
 
-    @PostMapping("/courses/{courseUrl}/{accountId}/kick")
-    public String kickFromCourse(@PathVariable String courseUrl, @PathVariable Long accountId) {
-        Account account = accountService.getAccountById(accountId);
-        if (courseService.kickFromCourse(courseUrl, account)) {
+    @Secured("ROLE_TEACHER")
+    @PostMapping("/courses/{courseUrl}/students/{studentId}/kick")
+    public String kickFromCourse(@PathVariable String courseUrl, @PathVariable int studentId) {
+        var contextUser = accountService.getContextAccount().get();
+        var course = courseService.getCourseByUrl(courseUrl);
+        if (course.isEmpty()) {
+            return "redirect:/courses/" + courseUrl + "?error";
+        }
+        if (course.get().getOwner().getId().intValue() != contextUser.getId().intValue()) {
+            return "redirect:/courses/" + courseUrl + "?error";
+        }
+
+        Account account = accountService.getAccountById(studentId);
+        if (courseService.kickFromCourse(course.get(), account)) {
             return "redirect:/courses/" + courseUrl;
         } else {
             return "redirect:/courses/" + courseUrl + "?error";
@@ -101,8 +113,8 @@ public class CourseController {
                              @RequestParam String name, @RequestParam String vpsUsername,
                              @RequestParam String poutaDns, @RequestParam String ipAddress, RedirectAttributes ra) {
 
-        var account = accountService.getContextAccount();
-        if (account.get().getId() != studentId && !roleService.isTeacher(account.get())) {
+        var account = accountService.getContextAccount().get();
+        if (account.getId() != studentId && !roleService.isTeacher(account)) {
             return "redirect:/courses/" + courseUrl + "?error";
         }
 
@@ -113,15 +125,15 @@ public class CourseController {
             return "redirect:/courses?error";
         }
 
-        Boolean check = courseService.checkIfStudentOnCourse(course.get(), account.get());
+        Boolean check = courseService.checkIfStudentOnCourse(course.get(), account);
         if(!check) {
             ra.addFlashAttribute("error", "You must sign up for course to create projects!");
             return "redirect:/courses/" + courseUrl;
         }
 
-        var data = dataRowService.getStudentData(course.get(), account.get());
+        var data = dataRowService.getStudentData(course.get(), account);
         if (data.isEmpty()) {
-            courseService.updateStudentsData(new DataRow(studentAlias, cscUsername, uid, dnsName, selfMadeDnsName, name, vpsUsername, poutaDns, ipAddress, account.get(), course.get()));
+            courseService.updateStudentsData(new DataRow(studentAlias, cscUsername, uid, dnsName, selfMadeDnsName, name, vpsUsername, poutaDns, ipAddress, account, course.get()));
         } else {
             data.get().update(studentAlias, cscUsername, uid, dnsName, selfMadeDnsName, name, vpsUsername, poutaDns, ipAddress);
             courseService.updateStudentsData(data.get());

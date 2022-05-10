@@ -35,7 +35,7 @@ public class Course extends AbstractPersistable<Long> {
 
     @ManyToOne
     @JoinColumn(name = "owner_id")
-    private Account account;
+    private Account owner;
 
     @ManyToMany
     @JoinTable(
@@ -48,7 +48,7 @@ public class Course extends AbstractPersistable<Long> {
     public Course(String name, String url, Account account) {
         this.name = name;
         this.url = url;
-        this.account = account;
+        this.owner = account;
     }
 
     public void addStudent(Account a) {

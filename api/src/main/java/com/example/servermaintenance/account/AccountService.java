@@ -57,7 +57,7 @@ public class AccountService implements UserDetailsService {
         return accounts;
     }
 
-    public Account getAccountById(Long accountId) {
-        return accountRepository.getById(accountId);
+    public Account getAccountById(int accountId) {
+        return accountRepository.getById((long)accountId);
     }
 }

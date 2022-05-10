@@ -12,18 +12,20 @@
 
     <form method="get" action="/datarowpage">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-        <select name="selectCourse" id="selectCourse">
-            <option value=-1>All courses</option>
+        <select name="selectCourse" id="selectCourse" class="form-select">
+            <option value=0
+                    th:selected="${param.selectCourse} == null or ${param.selectCourse[0]} == 0">All courses
+            </option>
             <option th:each="course : ${courses}"
-                    th:value="${course.id}"
-                    th:text="${course.name}"
-                    th:selected="${param.selectCourse} != null and ${course.id}==${param.selectCourse[0]}">
+                    th:value="${course.getId()}"
+                    th:selected="${param.selectCourse} != null and ${course.getId()}==${param.selectCourse[0]}"
+                    class="dropdown-item">[[${course.getName()}]]
             </option>
         </select>
-        <button type="submit">Filter</button>
+        <button type="submit" class="btn btn-primary">Filter</button>
     </form>
 
-    <table class="table" id="myTableId">
+    <table class="table table-striped" id="myTableId">
         <thead>
         <tr>
             <th>data id</th>
