@@ -58,7 +58,7 @@ public class AccountController {
     }
 
     @Secured("ROLE_ADMIN")
-    @PostMapping("/admin-tools/{accountId}/grant")
+    @PostMapping("/admin-tools/{accountId}/grant-remove")
     public String grantRights(@PathVariable int accountId, @RequestParam Optional<String> selectRole, @RequestParam Optional<String> submit) {
         if(!accountService.getAccounts().contains(accountService.getAccountById(accountId))) {
             return "redirect:/admin-tools/" + "?error";
