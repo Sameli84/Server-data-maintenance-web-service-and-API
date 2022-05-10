@@ -65,7 +65,9 @@ public class AccountController {
             List<Account> accounts = accountService.searchAccounts(search.get());
             model.addAttribute("accounts", accounts);
             List<String> roles = roleRepository.findAll().stream().map(Role::getName).map(n -> n.substring(n.indexOf("_") + 1).toLowerCase(Locale.ROOT)).toList();
-            model.addAttribute("roles", roles);
+            model.addAttribute("roleNames", roles);
+            List<Role> roleList = roleRepository.findAll();
+            model.addAttribute("roles", roleList);
         }
 
         return "account-table";
