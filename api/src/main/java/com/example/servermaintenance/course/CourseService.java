@@ -6,10 +6,13 @@ import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.account.AccountRepository;
 import com.example.servermaintenance.account.AccountService;
 import com.example.servermaintenance.datarow.DataRowService;
+import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.List;
 import java.util.Optional;
 
@@ -106,4 +109,15 @@ public class CourseService {
         return courseRepository.getById(id);
     }
 
+    public void writeReportContext(String courseUrl, Writer w) throws Exception {
+        var course = getCourseByUrl(courseUrl);
+        if (course.isEmpty()) {
+            throw new Exception("course not found");
+        }
+
+        var beanToCsv = new StatefulBeanToCsvBuilder<DataRow>(w).build();
+
+        var data = dataRowService.getCourseData(course.get());
+        beanToCsv.write(data);
+    }
 }

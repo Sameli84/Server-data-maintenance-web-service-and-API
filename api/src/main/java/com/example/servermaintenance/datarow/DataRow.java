@@ -2,6 +2,7 @@ package com.example.servermaintenance.datarow;
 
 import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.course.Course;
+import com.opencsv.bean.CsvIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -47,10 +48,12 @@ public class DataRow implements Serializable {
     @Column(name = "ip_address")
     private String ipAddress;
 
+    @CsvIgnore
     @ManyToOne
     @JoinColumn(name = "account_id")
     private Account account;
 
+    @CsvIgnore
     @ManyToOne
     @JoinColumn(name = "course_id")
     private Course course;
