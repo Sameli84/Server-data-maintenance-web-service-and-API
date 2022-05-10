@@ -11,9 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -32,6 +32,9 @@ public class CourseService {
 
     @Autowired
     private AccountService accountService;
+
+    @Autowired
+    private CourseKeyRepository courseKeyRepository;
 
     public Optional<Course> newCourse(String name, String url, Account account) {
         // TODO: slugify url?
@@ -127,5 +130,29 @@ public class CourseService {
 
         var data = dataRowService.getCourseData(course.get());
         beanToCsv.write(data);
+    }
+
+    @Transactional
+    public boolean addKey(Course course, String key) {
+        if (courseKeyRepository.existsCourseKeyByKey(key)) {
+            return false;
+        }
+        courseKeyRepository.save(new CourseKey(key, course));
+        return true;
+    }
+
+    @Transactional
+    public boolean deleteKey(Course course, long keyId) {
+        var courseKey = courseKeyRepository.findById(keyId);
+        if (courseKey.isEmpty()) {
+            return false;
+        }
+
+        if (!Objects.equals(courseKey.get().getCourse().getId(), course.getId())) {
+            return false;
+        }
+
+        courseKeyRepository.deleteById(keyId);
+        return true;
     }
 }
