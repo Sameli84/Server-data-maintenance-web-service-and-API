@@ -34,3 +34,5 @@ build/
 
 database.mv.db
 database.trace.db
+
+src/main/resources/application-dev.properties
