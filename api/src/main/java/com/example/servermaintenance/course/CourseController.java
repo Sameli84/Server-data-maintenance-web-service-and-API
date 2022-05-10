@@ -13,7 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.Objects;
+import java.util.Optional;
 
 @Controller
 @AllArgsConstructor
@@ -29,6 +29,9 @@ public class CourseController {
 
     @Autowired
     private RoleService roleService;
+
+    @Autowired
+    private CourseKeyRepository courseKeyRepository;
 
     @GetMapping("/")
     public String getIndexPage() {
@@ -61,13 +64,14 @@ public class CourseController {
         model.addAttribute("datarows", dataRowService.getCourseData(course.get()));
         model.addAttribute("user", account);
         model.addAttribute("isStudent", course.get().getStudents().contains(account));
+        model.addAttribute("hasKey", course.get().getCourseKeys().size() > 0);
         return "course";
     }
 
     @PostMapping("/courses/{courseUrl}/join")
-    public String joinCourse(@PathVariable String courseUrl) {
-        if (courseService.joinToCourseContext(courseUrl)) {
-            return "redirect:/courses/" + courseUrl;
+    public String joinCourse(@PathVariable String courseUrl, @RequestParam Optional<String> key) {
+        if (courseService.joinToCourseContext(courseUrl, key.orElse(""))) {
+            return "redirect:/courses/" + courseUrl + "?joined";
         } else {
             return "redirect:/courses/" + courseUrl + "?error";
         }
@@ -78,18 +82,20 @@ public class CourseController {
     public String kickFromCourse(@PathVariable String courseUrl, @PathVariable int studentId) {
         var contextUser = accountService.getContextAccount().get();
         var course = courseService.getCourseByUrl(courseUrl);
+        var redirect = "redirect:/courses/" + courseUrl;
+        var redirectError = redirect + "?error";
         if (course.isEmpty()) {
-            return "redirect:/courses/" + courseUrl + "?error";
+            return redirectError;
         }
         if (course.get().getOwner().getId().intValue() != contextUser.getId().intValue()) {
-            return "redirect:/courses/" + courseUrl + "?error";
+            return redirectError;
         }
 
         Account account = accountService.getAccountById(studentId);
         if (courseService.kickFromCourse(course.get(), account)) {
-            return "redirect:/courses/" + courseUrl;
+            return redirect;
         } else {
-            return "redirect:/courses/" + courseUrl + "?error";
+            return redirectError;
         }
     }
 
@@ -101,9 +107,16 @@ public class CourseController {
 
     @Secured("ROLE_TEACHER")
     @PostMapping("/courses/create")
-    public String createCourse(@RequestParam String name, @RequestParam String url) {
+    public String createCourse(@RequestParam String name, @RequestParam String url, @RequestParam String key) {
         var course = courseService.newCourseContext(name, url);
-        return course.map(value -> "redirect:/courses/" + value.getUrl()).orElse("redirect:/courses/create?error");
+        if (course.isPresent()) {
+            if (!key.isEmpty()) {
+                courseKeyRepository.save(new CourseKey(key, course.get()));
+            }
+            return "redirect:/courses/" + course.get().getUrl();
+        } else {
+            return "redirect:/courses/create?error";
+        }
     }
 
     @PostMapping("/courses/{courseUrl}/students/{studentId}/update-data")
@@ -121,8 +134,8 @@ public class CourseController {
         var course = courseService.getCourseByUrl(courseUrl);
 
         if (course.isEmpty()) {
-            // erroria? not foundia?return "redirect:/courses?error";
-
+            // erroria? not foundia?
+            return "redirect:/courses/" + courseUrl + "?error";
         }
 
         Boolean check = courseService.checkIfStudentOnCourse(course.get(), account);
@@ -140,5 +153,19 @@ public class CourseController {
         }
 
         return "redirect:/courses/" + course.get().getUrl();
+    }
+
+    @PostMapping("/courses/join")
+    public String joinCourseByKey(@RequestParam String key) {
+        var courseKey = courseKeyRepository.findCourseKeyByKey(key);
+        if (courseKey.isEmpty()) {
+            return "redirect:/courses?error";
+        }
+        var courseUrl = courseKey.get().getCourse().getUrl();
+        if (courseService.joinToCourseContext(courseUrl, key)) {
+            return "redirect:/courses/" + courseUrl + "?joined";
+        } else {
+            return "redirect:/courses/" + courseUrl + "?error";
+        }
     }
 }

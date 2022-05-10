@@ -37,6 +37,9 @@ public class Course extends AbstractPersistable<Long> {
     @JoinColumn(name = "owner_id")
     private Account owner;
 
+    @OneToMany(mappedBy = "course")
+    private List<CourseKey> courseKeys;
+
     @ManyToMany
     @JoinTable(
             name = "student_course",
