@@ -59,10 +59,16 @@ public class AccountController {
 
     @Secured("ROLE_ADMIN")
     @PostMapping("/admin-tools/{accountId}/grant")
-    public String grantRights(@PathVariable int accountId, @RequestParam String selectRole) {
-        Account account = accountService.getAccountById(accountId);
+    public String grantRights(@PathVariable int accountId, @RequestParam Optional<String> selectRole) {
+        if(!accountService.getAccounts().contains(accountService.getAccountById(accountId))) {
+            return "redirect:/admin-tools/" + "?error";
+        }
+        if(selectRole.isEmpty()) {
+            return "redirect:/admin-tools/" + "?error";
+        }
+        var account = accountService.getAccountById(accountId);
         Collection<Role> roles = account.getRoles();
-        String roleString = "ROLE_" + selectRole.toUpperCase(Locale.ROOT);
+        String roleString = "ROLE_" + selectRole.get().toUpperCase(Locale.ROOT);
         Role role = roleRepository.findByName(roleString);
         role.getAccounts().add(account);
         roles.add(role);
