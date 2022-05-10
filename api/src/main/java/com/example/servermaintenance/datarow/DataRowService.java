@@ -25,4 +25,11 @@ public class DataRowService {
     public List<DataRow> getCourseData(Course course) {
         return dataRowRepository.findDataRowsByCourse(course);
     }
+
+    public void removeDataRow(Course course, Account account) {
+        if(dataRowRepository.findDataRowByCourseAndAccount(course, account).isPresent()) {
+            DataRow dr = dataRowRepository.findDataRowByCourseAndAccount(course, account).get();
+            dataRowRepository.delete(dr);
+        }
+    }
 }

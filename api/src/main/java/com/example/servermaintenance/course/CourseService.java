@@ -5,6 +5,7 @@ import com.example.servermaintenance.datarow.DataRowRepository;
 import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.account.AccountRepository;
 import com.example.servermaintenance.account.AccountService;
+import com.example.servermaintenance.datarow.DataRowService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +23,9 @@ public class CourseService {
 
     @Autowired
     private DataRowRepository dataRowRepository;
+
+    @Autowired
+    private DataRowService dataRowService;
 
     @Autowired
     private AccountService accountService;
@@ -68,6 +72,9 @@ public class CourseService {
         account.getCourses().remove(course);
         courseRepository.save(course);
         accountRepository.save(account);
+
+        dataRowService.removeDataRow(course, account);
+
         return true;
     }
 
