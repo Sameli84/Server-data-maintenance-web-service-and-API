@@ -62,25 +62,25 @@ public class DataRowController {
     @Secured("ROLE_TEACHER")
     @GetMapping("/datarowpage")
     public String getDatarows(Model model, @RequestParam Optional<Long> selectCourse) {
-        if (selectCourse.isEmpty()) {
-            List<DataRow> dataRows = dataRowService.getDataRows();
-            List<Course> courses = courseService.getCourses();
-            model.addAttribute("datarows", dataRows);
-            model.addAttribute("courses", courses);
-            return "datarowpage";
+        List<Course> courses = courseService.getCourses();
+        model.addAttribute("courses", courses);
+        List<DataRow> dataRows;
+        if (selectCourse.isEmpty() || selectCourse.get() == 0) {
+            dataRows = dataRowService.getDataRows();
         } else {
-            System.out.println(selectCourse);
-            List<DataRow> dataRows;
-            if(selectCourse.get() == 0) {
-                dataRows = dataRowService.getDataRows();
-            } else {
-                Course course = courseService.getCourseById(selectCourse.get());
-                dataRows = dataRowService.getCourseData(course);
-            }
-            List<Course> courses = courseService.getCourses();
-            model.addAttribute("datarows", dataRows);
-            model.addAttribute("courses", courses);
-            return "datarowpage";
+            Course course = courseService.getCourseById(selectCourse.get());
+            dataRows = dataRowService.getCourseData(course);
         }
+        model.addAttribute("datarows", dataRows);
+        return "datarowpage";
+    }
+
+    @Secured("ROLE_TEACHER")
+    @PostMapping("/datarowpage")
+    public String filterDatarows(@RequestParam Optional<Long> selectCourse) {
+        if (selectCourse.isEmpty() || selectCourse.get() == 0) {
+            return "redirect:/datarowpage";
+        }
+        return "redirect:/datarowpage?selectCourse=" + selectCourse.get();
     }
 }
