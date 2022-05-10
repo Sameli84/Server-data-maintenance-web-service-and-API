@@ -29,7 +29,7 @@
             <span class="col">[[${student.getName()}]]</span>
             <form method="post"
                   th:action="@{/courses/{url}/students/{student}/kick(url=${course.url},student=${student.id})}"
-                  sec:authorize="hasRole('ROLE_ADMIN')">
+                  sec:authorize="hasRole('ROLE_TEACHER')">
                 <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
                 <input type="submit" value="Kick" class="btn btn-danger btn-sm">
             </form>
