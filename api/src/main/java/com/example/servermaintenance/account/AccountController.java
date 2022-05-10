@@ -59,22 +59,27 @@ public class AccountController {
 
     @Secured("ROLE_ADMIN")
     @PostMapping("/admin-tools/{accountId}/grant")
-    public String grantRights(@PathVariable int accountId, @RequestParam Optional<String> selectRole) {
+    public String grantRights(@PathVariable int accountId, @RequestParam Optional<String> selectRole, @RequestParam Optional<String> submit) {
         if(!accountService.getAccounts().contains(accountService.getAccountById(accountId))) {
             return "redirect:/admin-tools/" + "?error";
         }
         if(selectRole.isEmpty()) {
             return "redirect:/admin-tools/" + "?error";
         }
-        var account = accountService.getAccountById(accountId);
-        Collection<Role> roles = account.getRoles();
+
         String roleString = "ROLE_" + selectRole.get().toUpperCase(Locale.ROOT);
         Role role = roleRepository.findByName(roleString);
-        role.getAccounts().add(account);
-        roles.add(role);
-        account.setRoles(roles);
-        accountService.updateAccount(account);
-        roleRepository.save(role);
+
+        if(submit.isPresent()) {
+            if(submit.get().equals("Grant")) {
+                accountService.grantRights(accountId, role);
+            }
+            if(submit.get().equals("Remove")) {
+                accountService.removeRights(accountId, role);
+            }
+        } else {
+            return "redirect:/admin-tools/" + "?error";
+        }
 
         return "redirect:/admin-tools";
     }

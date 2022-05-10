@@ -14,7 +14,8 @@
             <select name="selectRole" id="selectRole">
                 <option th:each="role : ${roleNames}" th:value="${role}">[[${role}]]</option>
             </select>
-            <input type="submit" value="Grant" class="btn btn-primary mb-3">
+            <input name ="submit" type="submit" value="Grant" class="btn btn-primary mb-3">
+            <input name ="submit" type="submit" value="Remove" class="btn btn-danger mb-3">
         </form>
 
     </td>
