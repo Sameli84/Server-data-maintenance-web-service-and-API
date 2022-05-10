@@ -56,4 +56,8 @@ public class AccountService implements UserDetailsService {
         var accounts = accountRepository.findAccountsByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(search, search);
         return accounts;
     }
+
+    public Account getAccountById(Long accountId) {
+        return accountRepository.getById(accountId);
+    }
 }
