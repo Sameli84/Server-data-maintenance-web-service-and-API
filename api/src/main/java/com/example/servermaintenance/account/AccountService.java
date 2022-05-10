@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -68,5 +69,29 @@ public class AccountService implements UserDetailsService {
 
     public List<Account> getAccounts() {
         return accountRepository.findAll();
+    }
+
+    public void grantRights(int accountId, Role role) {
+        var account = this.getAccountById(accountId);
+        Collection<Role> roles = account.getRoles();
+
+        role.getAccounts().add(account);
+        roles.add(role);
+        account.setRoles(roles);
+
+        this.updateAccount(account);
+        roleRepository.save(role);
+    }
+
+    public void removeRights(int accountId, Role role) {
+        var account = this.getAccountById(accountId);
+        Collection<Role> roles = account.getRoles();
+
+        role.getAccounts().remove(account);
+        roles.remove(role);
+        account.setRoles(roles);
+
+        this.updateAccount(account);
+        roleRepository.save(role);
     }
 }

@@ -66,22 +66,20 @@ public class AccountController {
         if(selectRole.isEmpty()) {
             return "redirect:/admin-tools/" + "?error";
         }
-        var account = accountService.getAccountById(accountId);
-        Collection<Role> roles = account.getRoles();
+
         String roleString = "ROLE_" + selectRole.get().toUpperCase(Locale.ROOT);
         Role role = roleRepository.findByName(roleString);
-        if(submit.get().equals("Grant")){
-            role.getAccounts().add(account);
-            roles.add(role);
-            account.setRoles(roles);
+
+        if(submit.isPresent()) {
+            if(submit.get().equals("Grant")) {
+                accountService.grantRights(accountId, role);
+            }
+            if(submit.get().equals("Remove")) {
+                accountService.removeRights(accountId, role);
+            }
+        } else {
+            return "redirect:/admin-tools/" + "?error";
         }
-        if(submit.get().equals("Remove")){
-            role.getAccounts().remove(account);
-            roles.remove(role);
-            account.setRoles(roles);
-        }
-        accountService.updateAccount(account);
-        roleRepository.save(role);
 
         return "redirect:/admin-tools";
     }
