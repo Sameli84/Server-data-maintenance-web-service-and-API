@@ -121,7 +121,7 @@ public class CourseController {
 
     @PostMapping("/courses/{courseUrl}/students/{studentId}/update-data")
     public String createData(@PathVariable String courseUrl, @PathVariable int studentId,
-                             @RequestParam String studentAlias, @RequestParam String cscUsername, @RequestParam int uid,
+                             @RequestParam String cscUsername, @RequestParam int uid,
                              @RequestParam String dnsName, @RequestParam String selfMadeDnsName,
                              @RequestParam String name, @RequestParam String vpsUsername,
                              @RequestParam String poutaDns, @RequestParam String ipAddress, RedirectAttributes ra) {
@@ -130,6 +130,8 @@ public class CourseController {
         if (account.getId() != studentId && !roleService.isTeacher(account)) {
             return "redirect:/courses/" + courseUrl + "?error";
         }
+
+        String studentAlias = account.getEmail().split("@")[0];
 
         var course = courseService.getCourseByUrl(courseUrl);
 
