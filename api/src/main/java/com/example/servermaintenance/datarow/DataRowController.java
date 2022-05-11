@@ -66,6 +66,7 @@ public class DataRowController {
         dataRows.sort(Comparator.comparing((final DataRow a) -> a.getCourse().getId()).thenComparing(DataRow::getId));
         model.addAttribute("datarows", dataRows);        model.addAttribute("datarows", dataRows);
         return "datarowpage";
+
     }
 
     @Secured("ROLE_TEACHER")
@@ -87,6 +88,8 @@ public class DataRowController {
 
         var data = dataRowService.getDataRowById(datarowId);
 
+        Long selectCourse;
+
         if (data.isEmpty()) {
             return "redirect:/datarowpage" + "?error";
         } else {
@@ -96,9 +99,10 @@ public class DataRowController {
             }
             data.get().update(data.get().getStudentAlias(), cscUsername, data.get().getUid(), dnsName, selfMadeDnsName, name, vpsUserName, poutaDns, ipAddress);
             courseService.updateStudentsData(data.get());
+            selectCourse = data.get().getCourse().getId();
         }
 
-        return "redirect:/datarowpage";
+        return "redirect:/datarowpage?selectCourse=" + selectCourse;
     }
 
 }
