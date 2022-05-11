@@ -1,5 +1,5 @@
 package com.jerepenttinen.ast;
 
-public interface IStatement extends INode {
+public interface IStatement extends IAstNode {
     void statementNode();
 }

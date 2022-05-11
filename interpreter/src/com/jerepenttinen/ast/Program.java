@@ -3,7 +3,7 @@ package com.jerepenttinen.ast;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Program implements INode {
+public class Program implements IAstNode {
     private final List<IStatement> statements;
 
     public Program() {

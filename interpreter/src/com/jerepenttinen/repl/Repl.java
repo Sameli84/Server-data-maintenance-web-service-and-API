@@ -1,5 +1,6 @@
 package com.jerepenttinen.repl;
 
+import com.jerepenttinen.evaluator.Evaluator;
 import com.jerepenttinen.parser.Parser;
 import com.jerepenttinen.token.Token;
 import com.jerepenttinen.token.TokenType;
@@ -21,7 +22,8 @@ public class Repl {
                 return;
             }
 
-            var parser = new Parser(new Lexer(scanned));
+            var lexer = new Lexer(scanned);
+            var parser = new Parser(lexer);
 
             var program = parser.parseProgram();
 
@@ -30,8 +32,9 @@ public class Repl {
                 continue;
             }
 
-            for (var stmt : program.getStatements()) {
-                out.println(stmt);
+            var evaluated = Evaluator.eval(program);
+            if (evaluated != null) {
+                out.println(evaluated);
             }
         }
     }
