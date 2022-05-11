@@ -15,8 +15,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 public class DataRowController {
@@ -80,7 +82,8 @@ public class DataRowController {
             Course course = courseService.getCourseById(selectCourse.get());
             dataRows = dataRowService.getCourseData(course);
         }
-        model.addAttribute("datarows", dataRows);
+        dataRows.sort(Comparator.comparing((final DataRow a) -> a.getCourse().getId()).thenComparing(DataRow::getId));
+        model.addAttribute("datarows", dataRows);        model.addAttribute("datarows", dataRows);
         return "datarowpage";
     }
 
