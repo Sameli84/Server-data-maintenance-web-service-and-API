@@ -32,4 +32,8 @@ public class DataRowService {
             dataRowRepository.delete(dr);
         }
     }
+
+    public Optional<DataRow> getDataRowById(Long id) {
+        return Optional.of(dataRowRepository.getById(id));
+    }
 }

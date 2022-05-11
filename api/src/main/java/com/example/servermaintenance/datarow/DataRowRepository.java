@@ -13,4 +13,5 @@ public interface DataRowRepository extends JpaRepository<DataRow, Long> {
     List<DataRow> findAll();
     List<DataRow> findDataRowsByCourse(Course course);
     Optional<DataRow> findDataRowByCourseAndAccount(Course course, Account account);
+
 }
