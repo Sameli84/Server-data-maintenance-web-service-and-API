@@ -31,8 +31,8 @@ public class AccountController {
 
     @PostMapping("/register")
     public String signUp(@Valid @ModelAttribute Account account, BindingResult bindingResult, HttpServletRequest request) {
-        boolean emailVerified = account.getEmail().indexOf("@tuni.fi") != -1 ? true : false;
-        System.out.println("email "+ account.getEmail() +" verified: " + emailVerified);
+        boolean emailVerified = account.getEmail().endsWith("@tuni.fi") ;
+
         if(emailVerified == false){
             return "redirect:/register?error";
         }
