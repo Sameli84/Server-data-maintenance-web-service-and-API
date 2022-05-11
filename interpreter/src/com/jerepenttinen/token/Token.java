@@ -1,4 +1,4 @@
-package com.jerepenttinen;
+package com.jerepenttinen.token;
 
 public record Token(TokenType type, String literal) {
     @Override

@@ -1,4 +1,4 @@
-package com.jerepenttinen;
+package com.jerepenttinen.token;
 
 import java.util.HashMap;
 
@@ -16,6 +16,8 @@ public enum TokenType {
     MINUS("-"),
     ASTERISK("*"),
     SLASH("/"),
+    PERCENT("%"),
+    CARET("^"),
 
     LPAREN("("),
     RPAREN(")"),

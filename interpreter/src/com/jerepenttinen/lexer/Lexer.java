@@ -1,4 +1,7 @@
-package com.jerepenttinen;
+package com.jerepenttinen.lexer;
+
+import com.jerepenttinen.token.Token;
+import com.jerepenttinen.token.TokenType;
 
 public class Lexer {
     private final String input;
@@ -21,6 +24,8 @@ public class Lexer {
             case '-' -> tok = new Token(TokenType.MINUS, cs);
             case '*' -> tok = new Token(TokenType.ASTERISK, cs);
             case '/' -> tok = new Token(TokenType.SLASH, cs);
+            case '%' -> tok = new Token(TokenType.PERCENT, cs);
+            case '^' -> tok = new Token(TokenType.CARET, cs);
             case '(' -> tok = new Token(TokenType.LPAREN, cs);
             case ')' -> tok = new Token(TokenType.RPAREN, cs);
             case '"' -> tok = new Token(TokenType.STRING, readString());
