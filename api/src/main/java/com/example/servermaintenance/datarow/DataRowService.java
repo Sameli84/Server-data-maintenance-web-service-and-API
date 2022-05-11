@@ -36,4 +36,12 @@ public class DataRowService {
     public Optional<DataRow> getDataRowById(Long id) {
         return Optional.of(dataRowRepository.getById(id));
     }
+
+    public List<DataRow> getDataRowsByTeacher(Account account) {
+        return dataRowRepository.findAllByCourseOwner(account);
+    }
+
+    public List<DataRow> getDataRowsByCourseAndTeacher(Account account, Course course) {
+        return dataRowRepository.findAllByCourseOwnerAndCourse(account, course);
+    }
 }

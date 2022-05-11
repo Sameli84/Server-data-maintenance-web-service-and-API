@@ -155,4 +155,8 @@ public class CourseService {
         courseKeyRepository.deleteById(keyId);
         return true;
     }
+
+    public List<Course> getCoursesByTeacher(Account account) {
+        return courseRepository.findAllByOwner(account);
+    }
 }

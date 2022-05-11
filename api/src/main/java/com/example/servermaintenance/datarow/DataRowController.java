@@ -28,29 +28,40 @@ public class DataRowController {
 
     @Autowired
     private CourseRepository courseRepository;
-
     @Autowired
     private CourseService courseService;
 
     @Autowired
     private AccountRepository accountRepository;
-
     @Autowired
     private AccountService accountService;
-
     @Autowired
     private RoleService roleService;
     @Secured("ROLE_TEACHER")
     @GetMapping("/datarowpage")
     public String getDatarows(Model model, @RequestParam Optional<Long> selectCourse) {
-        List<Course> courses = courseService.getCourses();
+        var account = accountService.getContextAccount().get();
+        List<Course> courses;
+        if (roleService.isAdmin(account)) {
+            courses = courseService.getCourses();
+        } else {
+            courses = courseService.getCoursesByTeacher(account);
+        }
         model.addAttribute("courses", courses);
         List<DataRow> dataRows;
         if (selectCourse.isEmpty() || selectCourse.get() == 0) {
-            dataRows = dataRowService.getDataRows();
+            if (roleService.isAdmin(account)) {
+                dataRows = dataRowService.getDataRows();
+            } else {
+                dataRows = dataRowService.getDataRowsByTeacher(account);
+            }
         } else {
             Course course = courseService.getCourseById(selectCourse.get());
-            dataRows = dataRowService.getCourseData(course);
+            if (roleService.isAdmin(account)) {
+                dataRows = dataRowService.getCourseData(course);
+            } else {
+                dataRows = dataRowService.getDataRowsByCourseAndTeacher(account, course);
+            }
         }
         dataRows.sort(Comparator.comparing((final DataRow a) -> a.getCourse().getId()).thenComparing(DataRow::getId));
         model.addAttribute("datarows", dataRows);        model.addAttribute("datarows", dataRows);

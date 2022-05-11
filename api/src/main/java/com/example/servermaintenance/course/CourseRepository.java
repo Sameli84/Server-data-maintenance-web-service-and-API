@@ -1,5 +1,6 @@
 package com.example.servermaintenance.course;
 
+import com.example.servermaintenance.account.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,4 +12,5 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     List<Course> findAll();
     Optional<Course> findCourseByUrl(String url);
     boolean existsByUrl(String url);
+    List<Course> findAllByOwner(Account account);
 }
