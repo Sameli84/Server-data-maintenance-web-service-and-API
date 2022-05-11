@@ -34,8 +34,10 @@ public class Lexer {
                 if (isLetter(aChar)) {
                     var literal = readIdentifier();
                     tok = new Token(TokenType.lookupIdent(literal), literal);
+                    return tok;
                 } else if (isDigit(aChar)) {
                     tok = new Token(TokenType.INT, readNumber());
+                    return tok;
                 } else {
                     tok = new Token(TokenType.ILLEGAL, cs);
                 }
@@ -57,7 +59,7 @@ public class Lexer {
     }
 
     private void skipWhitespace() {
-        while (aChar == ' ' || aChar == '\t' || aChar == '\n' || aChar == 'r') {
+        while (aChar == ' ' || aChar == '\t' || aChar == '\n' || aChar == '\r') {
             readChar();
         }
     }
