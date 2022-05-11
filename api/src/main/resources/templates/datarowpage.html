@@ -29,37 +29,97 @@
     <table class="table table-striped" id="myTableId">
         <thead>
         <tr>
-            <th>data id</th>
-            <th>student alias</th>
-            <th>csc username</th>
-            <th>uid</th>
-            <th>dns name</th>
-            <th>self made dns name</th>
-            <th>name</th>
-            <th>vps user name</th>
-            <th>pouta dns</th>
-            <th>ip address</th>
-            <th>account</th>
-            <th>course</th>
+            <th>Project Name</th>
+            <th>Student Alias</th>
+            <th>Csc Username</th>
+            <th>Uid</th>
+            <th>Vps User Name</th>
+            <th>Ip Address</th>
+            <th>Pouta Dns</th>
+            <th>Self Made Dns Name</th>
+            <th>Dns Name</th>
+            <th>Course</th>
+            <th></th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="dataRow : ${datarows}">
-            <td>[[${dataRow.id}]]</td>
-            <td>[[${dataRow.studentAlias}]]</td>
-            <td>[[${dataRow.cscUsername}]]</td>
-            <td>[[${dataRow.uid}]]</td>
-            <td>[[${dataRow.dnsName}]]</td>
-            <td>[[${dataRow.selfMadeDnsName}]]</td>
-            <td>[[${dataRow.name}]]</td>
-            <td>[[${dataRow.vpsUserName}]]</td>
-            <td>[[${dataRow.poutaDns}]]</td>
-            <td>[[${dataRow.ipAddress}]]</td>
-            <td>[[${dataRow.account.name}]]</td>
-            <td>[[${dataRow.course.name}]]</td>
+            <form th:action="@{/datarowpage/{datarowId}/update (datarowId=${dataRow.id})}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                <td><input type="text" name="name" id="name" th:value="${dataRow?.getName()}"
+                           placeholder="projectName" class="form-control" required></td>
+                <td>[[${dataRow.studentAlias}]]</td>
+                <td><input type="text" name="cscUsername" id="csc-username-input" th:value="${dataRow?.getCscUsername()}"
+                           placeholder="cscUsername" class="form-control" required></td>
+                <td>[[${dataRow.uid}]]</td>
+                <td><input type="text" name="vpsUserName" id="vpsUserName" th:value="${dataRow?.getVpsUserName()}"
+                           placeholder="vpsUserName" class="form-control" required></td>
+                <td><input type="text" name="ipAddress" id="ipAddress" th:value="${dataRow?.getIpAddress()}"
+                           placeholder="ipAddress" class="form-control" required></td>
+                <td><input type="text" name="poutaDns" id="poutaDns" th:value="${dataRow?.getPoutaDns()}"
+                           placeholder="poutaDns" class="form-control" required></td>
+                <td><input type="text" name="selfMadeDnsName" id="selfMadeDnsName-input" th:value="${dataRow?.getSelfMadeDnsName()}"
+                           placeholder="selfMadeDnsName" class="form-control" required></td>
+                <td><input type="text" name="dnsName" id="dns-Name-input" th:value="${dataRow?.getDnsName()}"
+                           placeholder="dnsName" class="form-control" required></td>
+                <td>[[${dataRow.course.name}]]</td>
+                <td><input type="submit" value="Update information" class="btn btn-primary mb-3"></td>
+            </form>
         </tr>
         </tbody>
     </table>
 </section>
 </body>
 </html>
+
+<!--
+<form method="post" th:action="@{/courses/{url}/students/{id}/update-data(url=${course.url}, id=${user.getId()})}"
+      th:if="${isStudent}">
+    <div class="form-floating mb-3">
+        <input type="text" name="cscUsername" id="csc-username-input" th:value="${data?.getCscUsername()}"
+               placeholder="student alias" class="form-control" required>
+        <label for="csc-username-input">csc username</label>
+    </div>
+    <div class="form-floating mb-3">
+        <input type="number" name="uid" id="uid-input" th:value="${data?.getUid()}" placeholder="55555"
+               class="form-control" required>
+        <label for="uid-input">uid</label>
+    </div>
+    <div class="form-floating mb-3">
+        <input type="text" name="selfMadeDnsName" id="self-made-dns-name-input"
+               th:value="${data?.getSelfMadeDnsName()}" placeholder="self made dns name" class="form-control"
+               required>
+        <label for="self-made-dns-name-input">self made dns name</label>
+    </div>
+    <div class="form-floating mb-3">
+        <input type="text" name="vpsUsername" id="vps-user-name-input" th:value="${data?.getVpsUserName()}"
+               placeholder="vps username" class="form-control" required>
+        <label for="vps-user-name-input">vps user name</label>
+    </div>
+    <div class="form-floating mb-3">
+        <input type="text" name="dnsName" id="dns-name-input" th:value="${data?.getDnsName()}"
+               placeholder="dns name" class="form-control" required>
+        <label for="dns-name-input">Dns name</label>
+    </div>
+    <div class="form-floating mb-3">
+        <input type="text" name="name" id="name-input" th:value="${data?.getName()}" placeholder="name"
+               class="form-control" required>
+        <label for="name-input">Name</label>
+    </div>
+    <div class="form-floating mb-3">
+        <input type="text" name="poutaDns" id="pouta-dns-input" th:value="${data?.getPoutaDns()}"
+               placeholder="pouta dns" class="form-control" required>
+        <label for="pouta-dns-input">pouta dns</label>
+    </div>
+    <div class="form-floating mb-3">
+        <input type="text" name="ipAddress" id="ip-address-input" th:value="${data?.getIpAddress()}" minlength="7"
+               maxlength="15" size="15" required
+               pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$"
+               placeholder="255.255.255.255" class="form-control">
+        <label for="ip-address-input">ip address</label>
+    </div>
+
+    <input type="submit" value="Update information" class="btn btn-primary mb-3">
+</form>
+-->

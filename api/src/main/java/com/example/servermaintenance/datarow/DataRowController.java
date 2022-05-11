@@ -1,6 +1,8 @@
 package com.example.servermaintenance.datarow;
 
 import com.example.servermaintenance.account.AccountRepository;
+import com.example.servermaintenance.account.AccountService;
+import com.example.servermaintenance.account.RoleService;
 import com.example.servermaintenance.course.Course;
 import com.example.servermaintenance.course.CourseRepository;
 import com.example.servermaintenance.course.CourseService;
@@ -11,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,6 +35,12 @@ public class DataRowController {
 
     @Autowired
     private AccountRepository accountRepository;
+
+    @Autowired
+    private AccountService accountService;
+
+    @Autowired
+    private RoleService roleService;
 
     @GetMapping("/bulkcreate")
     public String bulkcreate(Authentication authentication) {
@@ -83,4 +92,29 @@ public class DataRowController {
         }
         return "redirect:/datarowpage?selectCourse=" + selectCourse.get();
     }
+
+    @Secured("ROLE_TEACHER")
+    @PostMapping("/datarowpage/{datarowId}/update")
+    public String createData(@PathVariable Long datarowId,
+                             @RequestParam String cscUsername,
+                             @RequestParam String dnsName, @RequestParam String selfMadeDnsName,
+                             @RequestParam String name, @RequestParam String vpsUserName,
+                             @RequestParam String poutaDns, @RequestParam String ipAddress) {
+
+        var data = dataRowService.getDataRowById(datarowId);
+
+        if (data.isEmpty()) {
+            return "redirect:/datarowpage" + "?error";
+        } else {
+            var account = accountService.getContextAccount().get();
+            if ((account != data.get().getCourse().getOwner()) && (!roleService.isAdmin(account))) {
+                return "redirect:/datarowpage" + "?error";
+            }
+            data.get().update(data.get().getStudentAlias(), cscUsername, data.get().getUid(), dnsName, selfMadeDnsName, name, vpsUserName, poutaDns, ipAddress);
+            courseService.updateStudentsData(data.get());
+        }
+
+        return "redirect:/datarowpage";
+    }
+
 }
