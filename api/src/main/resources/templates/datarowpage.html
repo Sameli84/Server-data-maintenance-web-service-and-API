@@ -5,8 +5,18 @@
       xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>DATAROW</title>
+    <script>
+        function myFunction() {
+            var e = document.getElementById("selectCourse");
+            const list = document.getElementsByName("myParam")
+            list.forEach(mySetter);
+            function mySetter(item) {
+                item.setAttribute("value", e.options[e.selectedIndex].value)
+            }
+        }
+    </script>
 </head>
-<body>
+<body onload="myFunction()">
 <section layout:fragment="content">
     <h1>Available Data</h1>
 
@@ -64,6 +74,7 @@
                            placeholder="dnsName" class="form-control" required></td>
                 <td>[[${dataRow.course.name}]]</td>
                 <td><input type="submit" value="Update information" class="btn btn-primary mb-3"></td>
+                <input type="hidden" name="myParam" id="myParam" value="5">
             </form>
         </tr>
         </tbody>

@@ -80,15 +80,16 @@ public class DataRowController {
 
     @Secured("ROLE_TEACHER")
     @PostMapping("/datarowpage/{datarowId}/update")
-    public String createData(@PathVariable Long datarowId,
+    public String createData(@PathVariable Long datarowId, @RequestParam String myParam,
                              @RequestParam String cscUsername,
                              @RequestParam String dnsName, @RequestParam String selfMadeDnsName,
                              @RequestParam String name, @RequestParam String vpsUserName,
                              @RequestParam String poutaDns, @RequestParam String ipAddress) {
 
         var data = dataRowService.getDataRowById(datarowId);
+        System.out.println(myParam);
 
-        Long selectCourse;
+        String selectCourse = myParam;
 
         if (data.isEmpty()) {
             return "redirect:/datarowpage" + "?error";
@@ -99,7 +100,6 @@ public class DataRowController {
             }
             data.get().update(data.get().getStudentAlias(), cscUsername, data.get().getUid(), dnsName, selfMadeDnsName, name, vpsUserName, poutaDns, ipAddress);
             courseService.updateStudentsData(data.get());
-            selectCourse = data.get().getCourse().getId();
         }
 
         return "redirect:/datarowpage?selectCourse=" + selectCourse;
