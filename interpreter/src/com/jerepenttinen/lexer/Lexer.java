@@ -28,7 +28,14 @@ public class Lexer {
             case '^' -> tok = new Token(TokenType.CARET, cs);
             case '(' -> tok = new Token(TokenType.LPAREN, cs);
             case ')' -> tok = new Token(TokenType.RPAREN, cs);
-            case '"' -> tok = new Token(TokenType.STRING, readString());
+            case '"' -> {
+                var str = readString();
+                if (str == null) {
+                    tok = new Token(TokenType.UNTERMINATED_STRING, "");
+                } else {
+                    tok = new Token(TokenType.STRING, str);
+                }
+            }
             case 0, '\n' -> tok = new Token(TokenType.EOL, "");
             default -> {
                 if (isLetter(aChar)) {
@@ -85,6 +92,9 @@ public class Lexer {
         do {
             readChar();
         } while (aChar != '"' && aChar != 0);
+        if (aChar == 0) {
+            return null;
+        }
         return input.substring(pos, position);
     }
 

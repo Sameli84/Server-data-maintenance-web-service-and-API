@@ -1,6 +1,6 @@
 package com.jerepenttinen.evaluator;
 
-public record EvalError(String message) implements IEvalObject {
+public record EvalError(String message) implements EvalObject {
     @Override
     public EvalObjectType getType() {
         return EvalObjectType.ERROR;

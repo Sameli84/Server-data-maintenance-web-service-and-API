@@ -43,6 +43,7 @@ public class CourseController {
         var account = accountService.getContextAccount().get();
         model.addAttribute("courses", account.getCourses());
         model.addAttribute("studentCourses", account.getStudentCourses());
+        System.out.println("TESTING");
 
         return "courses";
     }

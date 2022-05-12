@@ -1,6 +1,6 @@
 package com.jerepenttinen.evaluator;
 
-public record EvalInteger(int value) implements IEvalObject {
+public record EvalInteger(int value) implements EvalObject {
     @Override
     public EvalObjectType getType() {
         return EvalObjectType.INTEGER;

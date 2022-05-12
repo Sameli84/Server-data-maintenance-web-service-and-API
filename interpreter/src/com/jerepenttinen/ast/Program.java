@@ -3,8 +3,8 @@ package com.jerepenttinen.ast;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Program implements IAstNode {
-    private final List<IStatement> statements;
+public class Program implements AstNode {
+    private final List<Statement> statements;
 
     public Program() {
         this.statements = new ArrayList<>();
@@ -28,11 +28,11 @@ public class Program implements IAstNode {
         }
     }
 
-    public List<IStatement> getStatements() {
+    public List<Statement> getStatements() {
         return statements;
     }
 
-    public void addStatement(IStatement statement) {
+    public void addStatement(Statement statement) {
         statements.add(statement);
     }
 }

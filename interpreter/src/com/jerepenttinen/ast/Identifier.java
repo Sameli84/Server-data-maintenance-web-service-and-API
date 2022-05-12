@@ -2,10 +2,7 @@ package com.jerepenttinen.ast;
 
 import com.jerepenttinen.token.Token;
 
-public record Identifier(Token token, String value) implements IExpression {
-    @Override
-    public void expressionNode() {
-    }
+public record Identifier(Token token, String value) implements Expression {
 
     @Override
     public String tokenLiteral() {

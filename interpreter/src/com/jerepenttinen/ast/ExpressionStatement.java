@@ -2,11 +2,7 @@ package com.jerepenttinen.ast;
 
 import com.jerepenttinen.token.Token;
 
-public record ExpressionStatement(Token token, IExpression expression) implements IStatement {
-    @Override
-    public void statementNode() {
-    }
-
+public record ExpressionStatement(Token token, Expression expression) implements Statement {
     @Override
     public String tokenLiteral() {
         return token.literal();
@@ -25,7 +21,7 @@ public record ExpressionStatement(Token token, IExpression expression) implement
         return token;
     }
 
-    public IExpression getExpression() {
+    public Expression getExpression() {
         return expression;
     }
 }
