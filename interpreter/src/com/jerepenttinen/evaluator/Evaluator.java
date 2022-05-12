@@ -5,7 +5,7 @@ import com.jerepenttinen.ast.*;
 import java.util.Objects;
 
 public class Evaluator {
-    public static IEvalObject eval(IAstNode node) {
+    public static EvalObject eval(AstNode node) {
         switch (node) {
             // statement
             case Program program:
@@ -50,8 +50,8 @@ public class Evaluator {
         }
     }
 
-    private static IEvalObject evalProgram(Program program) {
-        IEvalObject result = null;
+    private static EvalObject evalProgram(Program program) {
+        EvalObject result = null;
 
         for (var statement : program.getStatements()) {
             result = eval(statement);
@@ -69,7 +69,7 @@ public class Evaluator {
         return result;
     }
 
-    private static IEvalObject evalPrefixExpression(String operator, IEvalObject right) {
+    private static EvalObject evalPrefixExpression(String operator, EvalObject right) {
         if (Objects.equals(operator, "-")) {
             if (right.getType() != EvalObjectType.INTEGER) {
                 return newError("unknown operator: -%s", right.getType());
@@ -80,7 +80,7 @@ public class Evaluator {
         }
     }
 
-    private static IEvalObject evalInfixExpression(String operator, IEvalObject left, IEvalObject right) {
+    private static EvalObject evalInfixExpression(String operator, EvalObject left, EvalObject right) {
         if (left.getType() == EvalObjectType.INTEGER && right.getType() == EvalObjectType.INTEGER) {
             return evalIntegerInfixExpression(operator, left, right);
 
@@ -100,11 +100,11 @@ public class Evaluator {
         }
     }
 
-    private static IEvalObject evalIdentifier(Identifier identifier) {
+    private static EvalObject evalIdentifier(Identifier identifier) {
         return newError("evalIdentifier not implemented!");
     }
 
-    private static IEvalObject evalIntegerInfixExpression(String operator, IEvalObject left, IEvalObject right) {
+    private static EvalObject evalIntegerInfixExpression(String operator, EvalObject left, EvalObject right) {
         int leftVal = ((EvalInteger) left).getValue();
         int rightVal = ((EvalInteger) right).getValue();
         return switch (operator) {
@@ -118,7 +118,7 @@ public class Evaluator {
         };
     }
 
-    private static IEvalObject evalStringInfixExpression(String operator, IEvalObject left, IEvalObject right) {
+    private static EvalObject evalStringInfixExpression(String operator, EvalObject left, EvalObject right) {
         if (!Objects.equals(operator, "+")) {
             return newError("unknown operator: %s %s %s", left.getType(), operator, right.getType());
         }
@@ -127,7 +127,7 @@ public class Evaluator {
         return new EvalString(leftVal + rightVal);
     }
 
-    private static boolean isError(IEvalObject object) {
+    private static boolean isError(EvalObject object) {
         if (object != null) {
             return object.getType() == EvalObjectType.ERROR;
         }

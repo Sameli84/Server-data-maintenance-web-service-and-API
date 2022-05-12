@@ -1,6 +1,6 @@
 package com.jerepenttinen.ast;
 
-public interface IAstNode {
+public interface AstNode {
     String tokenLiteral();
     String toString();
 }

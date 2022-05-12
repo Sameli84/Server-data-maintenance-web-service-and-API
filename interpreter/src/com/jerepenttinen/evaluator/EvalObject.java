@@ -1,6 +1,6 @@
 package com.jerepenttinen.evaluator;
 
-public interface IEvalObject {
+public interface EvalObject {
     EvalObjectType getType();
     String toString();
 }

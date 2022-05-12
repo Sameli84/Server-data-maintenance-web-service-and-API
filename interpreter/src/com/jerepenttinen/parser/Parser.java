@@ -18,7 +18,7 @@ public class Parser {
     private Token curToken;
     private Token peekToken;
 
-    private final HashMap<TokenType, Function<IExpression, IExpression>> infixParseFn = new HashMap<>() {{
+    private final HashMap<TokenType, Function<Expression, Expression>> infixParseFn = new HashMap<>() {{
         put(TokenType.PLUS, parseInfixExpression());
         put(TokenType.MINUS, parseInfixExpression());
         put(TokenType.SLASH, parseInfixExpression());
@@ -27,12 +27,13 @@ public class Parser {
         put(TokenType.CARET, parseInfixExpression());
     }};
 
-    private final HashMap<TokenType, Supplier<IExpression>> prefixParseFn = new HashMap<>() {{
+    private final HashMap<TokenType, Supplier<Expression>> prefixParseFn = new HashMap<>() {{
         put(TokenType.IDENT, parseIdentifier());
         put(TokenType.INT, parseIntegerLiteral());
         put(TokenType.MINUS, parsePrefixExpression());
         put(TokenType.LPAREN, parseGroupedExpression());
         put(TokenType.STRING, parseStringExpression());
+        put(TokenType.UNTERMINATED_STRING, parseUnterminatedStringExpression());
         put(TokenType.ID, parseIdentifier());
     }};
 
@@ -89,7 +90,7 @@ public class Parser {
         return new ExpressionStatement(curToken, parseExpression(pre.LOWEST));
     }
 
-    private IExpression parseExpression(pre precedence) {
+    private Expression parseExpression(pre precedence) {
         var prefix = prefixParseFn.get(curToken.type());
         if (prefix == null) {
             noPrefixParseFnError(curToken.type());
@@ -119,8 +120,8 @@ public class Parser {
         return precedences.getOrDefault(curToken.type(), pre.LOWEST);
     }
 
-    private Function<IExpression, IExpression> parseInfixExpression() {
-        return (IExpression left) -> {
+    private Function<Expression, Expression> parseInfixExpression() {
+        return (Expression left) -> {
             var expression = new InfixExpression(curToken, left, curToken.literal());
             var precedence = curPrecedence();
             nextToken();
@@ -129,11 +130,11 @@ public class Parser {
         };
     }
 
-    private Supplier<IExpression> parseIdentifier() {
+    private Supplier<Expression> parseIdentifier() {
         return () -> new Identifier(curToken, curToken.literal());
     }
 
-    private Supplier<IExpression> parseIntegerLiteral() {
+    private Supplier<Expression> parseIntegerLiteral() {
         return () -> {
             try {
                 int value = Integer.parseInt(curToken.literal());
@@ -145,7 +146,7 @@ public class Parser {
         };
     }
 
-    private Supplier<IExpression> parsePrefixExpression() {
+    private Supplier<Expression> parsePrefixExpression() {
         return () -> {
             var expression = new PrefixExpression(curToken, curToken.literal());
             nextToken();
@@ -154,7 +155,7 @@ public class Parser {
         };
     }
 
-    private Supplier<IExpression> parseGroupedExpression() {
+    private Supplier<Expression> parseGroupedExpression() {
         return () -> {
             nextToken();
             var expression = parseExpression(pre.LOWEST);
@@ -165,8 +166,15 @@ public class Parser {
         };
     }
 
-    private Supplier<IExpression> parseStringExpression() {
+    private Supplier<Expression> parseStringExpression() {
         return () -> new StringLiteral(curToken, curToken.literal());
+    }
+
+    private Supplier<Expression> parseUnterminatedStringExpression() {
+        return () -> {
+            errors.add("unterminated string found");
+            return null;
+        };
     }
 
     private static final HashMap<TokenType, pre> precedences = new HashMap<>() {{

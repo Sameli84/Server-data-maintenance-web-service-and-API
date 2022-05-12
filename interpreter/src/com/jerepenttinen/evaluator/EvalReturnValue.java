@@ -1,6 +1,6 @@
 package com.jerepenttinen.evaluator;
 
-public record EvalReturnValue(IEvalObject value) implements IEvalObject {
+public record EvalReturnValue(EvalObject value) implements EvalObject {
     @Override
     public EvalObjectType getType() {
         return EvalObjectType.RETURN_VALUE;
@@ -11,7 +11,7 @@ public record EvalReturnValue(IEvalObject value) implements IEvalObject {
         return value.toString();
     }
 
-    public IEvalObject getValue() {
+    public EvalObject getValue() {
         return value;
     }
 }

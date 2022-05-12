@@ -2,18 +2,15 @@ package com.jerepenttinen.ast;
 
 import com.jerepenttinen.token.Token;
 
-public class PrefixExpression implements IExpression {
+public class PrefixExpression implements Expression {
     private final Token token;
     private final String operator;
-    private IExpression right;
+    private Expression right;
 
     public PrefixExpression(Token token, String operator) {
         this.token = token;
         this.operator = operator;
     }
-
-    @Override
-    public void expressionNode() {}
 
     @Override
     public String tokenLiteral() {
@@ -33,11 +30,11 @@ public class PrefixExpression implements IExpression {
         return operator;
     }
 
-    public IExpression getRight() {
+    public Expression getRight() {
         return right;
     }
 
-    public void setRight(IExpression right) {
+    public void setRight(Expression right) {
         this.right = right;
     }
 }

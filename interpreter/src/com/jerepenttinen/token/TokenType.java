@@ -10,6 +10,7 @@ public enum TokenType {
     IDENT("IDENT"),
     INT("INT"),
     STRING("STRING"),
+    UNTERMINATED_STRING("UNTERMINATED_STRING"),
 
     // operators
     PLUS("+"),
