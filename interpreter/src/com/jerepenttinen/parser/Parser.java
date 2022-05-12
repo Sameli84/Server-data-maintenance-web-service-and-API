@@ -34,7 +34,6 @@ public class Parser {
         put(TokenType.LPAREN, parseGroupedExpression());
         put(TokenType.STRING, parseStringExpression());
         put(TokenType.UNTERMINATED_STRING, parseUnterminatedStringExpression());
-        put(TokenType.ID, parseIdentifier());
     }};
 
     public Parser(Lexer lexer) {

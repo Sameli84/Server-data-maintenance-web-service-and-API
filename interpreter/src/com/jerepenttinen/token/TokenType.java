@@ -21,10 +21,8 @@ public enum TokenType {
     CARET("^"),
 
     LPAREN("("),
-    RPAREN(")"),
+    RPAREN(")");
 
-    // keywords
-    ID("ID");
 
     private final String s;
 
@@ -32,12 +30,12 @@ public enum TokenType {
         this.s = string;
     }
 
-    private static final HashMap<String, TokenType> keywords = new HashMap<>() {{
-        put("id", ID);
-    }};
+//    private static final HashMap<String, TokenType> keywords = new HashMap<>() {{
+//    }};
 
     public static TokenType lookupIdent(String ident) {
-        return keywords.getOrDefault(ident, IDENT);
+//        return keywords.getOrDefault(ident, IDENT);
+        return IDENT;
     }
 
     @Override
