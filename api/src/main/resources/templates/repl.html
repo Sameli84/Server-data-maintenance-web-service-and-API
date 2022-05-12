@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en" layout:decorate="~{layout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>REPL</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="form-floating mb-3">
+        <input type="text" name="statement" id="statement-input" class="form-control" placeholder="1 + 1" required>
+        <label for="statement-input">Statement</label>
+    </div>
+    <button class="btn btn-primary btn-lg" hx-include="#statement-input" hx-get="/repl-exec" hx-swap="afterend">Execute</button>
+</section>
+</body>
+</html>
