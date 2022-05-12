@@ -8,10 +8,9 @@ import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-record Pair(TokenType type, String literal) {
-}
-
 class LexerTest {
+    record Pair(TokenType type, String literal) {
+    }
     @Test
     void testNextToken() {
         var input = """
