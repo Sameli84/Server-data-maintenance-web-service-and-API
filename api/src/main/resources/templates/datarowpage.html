@@ -6,10 +6,8 @@
 <head>
     <title>DATAROW</title>
 </head>
-<body>
 <section layout:fragment="content">
     <h1>Available Data</h1>
-
     <form method="post" action="/datarowpage">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         <select name="selectCourse" id="selectCourse" class="form-select">
@@ -23,7 +21,6 @@
             </option>
         </select>
         <input type="submit" value="Filter" class="btn btn-primary">
-<!--        <button type="submit" class="btn btn-primary">Filter</button>-->
     </form>
 
     <table class="table table-striped" id="myTableId">
@@ -64,6 +61,7 @@
                            placeholder="dnsName" class="form-control" required></td>
                 <td>[[${dataRow.course.name}]]</td>
                 <td><input type="submit" value="Update information" class="btn btn-primary mb-3"></td>
+                <input type="hidden" name="myParam" id="myParam" th:value="${param.selectCourse} != null? ${param.selectCourse[0]}:0">
             </form>
         </tr>
         </tbody>
