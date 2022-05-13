@@ -21,6 +21,16 @@ services:
       - "5432:5432"
     volumes:
       - db:/var/lib/postgresql/data
+  caddy:
+    image: caddy:2.5.1-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    links:
+      - api
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:z
 volumes:
   db:
     driver: local
