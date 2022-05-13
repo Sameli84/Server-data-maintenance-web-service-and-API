@@ -19,7 +19,7 @@
         <td><input type="text" name="dnsName" id="dns-Name-input" th:value="${dataRow?.getDnsName()}"
                    placeholder="dnsName" class="form-control" required></td>
         <td>[[${dataRow.course.name}]]</td>
-        <td><input type="submit" value="Update information" class="btn btn-primary mb-3"></td>
+        <td><input type="submit" value="Update information" class="btn btn-primary mb-3" style="width: 10rem"></td>
         <input type="hidden" name="myParam" id="myParam" th:value="${param.selectCourse} != null? ${param.selectCourse[0]}:0">
     </form>
 </tr>

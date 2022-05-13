@@ -53,10 +53,12 @@
                 <td>[[${dataRow.course.name}]]</td>
 
                 <td>
-                    <button th:hx-get="'/datarowpage/'+${dataRow.id}"
+                    <button th:hx-get="'/datarowpage/'+ ${dataRow.id}"
                             hx-trigger="click"
                             hx-target="closest tr"
-                            hx-swap="datarow">
+                            hx-swap="outerHTML"
+                            class="btn btn-outline-primary mb-3"
+                            style="width: 10rem">
                         Edit
                     </button>
                 </td>
