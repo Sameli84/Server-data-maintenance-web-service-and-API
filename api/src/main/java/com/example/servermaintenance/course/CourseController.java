@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Controller
 @AllArgsConstructor
@@ -41,8 +43,8 @@ public class CourseController {
     @GetMapping("/courses")
     public String getCoursesPage(Model model) {
         var account = accountService.getContextAccount().get();
-        model.addAttribute("courses", account.getCourses());
-        model.addAttribute("studentCourses", account.getStudentCourses());
+        account.getStudentCourses().addAll(account.getCourses());
+        model.addAttribute("courses", account.getStudentCourses());
         System.out.println("TESTING");
 
         return "courses";
