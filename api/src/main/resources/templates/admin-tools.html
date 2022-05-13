@@ -17,8 +17,7 @@
                name="search" placeholder="Begin Typing To Search Accounts..."
                hx-post="/search"
                hx-trigger="load, keyup changed delay:500ms, search"
-               hx-target="#account-table"
-               hx-indicator=".htmx-indicator">
+               hx-target="#account-table">
         <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
     </form>
 

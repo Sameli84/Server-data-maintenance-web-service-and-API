@@ -64,7 +64,7 @@ public class DataRowController {
             }
         }
         dataRows.sort(Comparator.comparing((final DataRow a) -> a.getCourse().getId()).thenComparing(DataRow::getId));
-        model.addAttribute("datarows", dataRows);        model.addAttribute("datarows", dataRows);
+        model.addAttribute("datarows", dataRows);
         return "datarowpage";
 
     }
@@ -103,6 +103,16 @@ public class DataRowController {
         }
 
         return "redirect:/datarowpage?selectCourse=" + selectCourse;
+    }
+
+    @Secured("ROLE_TEACHER")
+    @GetMapping("/datarowpage/{datarowId}")
+    public String getDatarow(@PathVariable Long datarowId, Model model) {
+
+        DataRow dataRow = dataRowService.getDataRowById(datarowId).get();
+
+        model.addAttribute("dataRow", dataRow);
+        return "datarow";
     }
 
 }
