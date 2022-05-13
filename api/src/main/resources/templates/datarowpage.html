@@ -41,28 +41,27 @@
         </thead>
         <tbody>
         <tr th:each="dataRow : ${datarows}">
-            <form th:action="@{/datarowpage/{datarowId}/update (datarowId=${dataRow.id})}" method="post">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-                <td><input type="text" name="name" id="name" th:value="${dataRow?.getName()}"
-                           placeholder="projectName" class="form-control" required></td>
+                <td>[[${dataRow.name}]]</td>
                 <td>[[${dataRow.studentAlias}]]</td>
-                <td><input type="text" name="cscUsername" id="csc-username-input" th:value="${dataRow?.getCscUsername()}"
-                           placeholder="cscUsername" class="form-control" required></td>
+                <td>[[${dataRow.cscUsername}]]</td>
                 <td>[[${dataRow.uid}]]</td>
-                <td><input type="text" name="vpsUserName" id="vpsUserName" th:value="${dataRow?.getVpsUserName()}"
-                           placeholder="vpsUserName" class="form-control" required></td>
-                <td><input type="text" name="ipAddress" id="ipAddress" th:value="${dataRow?.getIpAddress()}"
-                           placeholder="ipAddress" class="form-control" required></td>
-                <td><input type="text" name="poutaDns" id="poutaDns" th:value="${dataRow?.getPoutaDns()}"
-                           placeholder="poutaDns" class="form-control" required></td>
-                <td><input type="text" name="selfMadeDnsName" id="selfMadeDnsName-input" th:value="${dataRow?.getSelfMadeDnsName()}"
-                           placeholder="selfMadeDnsName" class="form-control" required></td>
-                <td><input type="text" name="dnsName" id="dns-Name-input" th:value="${dataRow?.getDnsName()}"
-                           placeholder="dnsName" class="form-control" required></td>
+                <td>[[${dataRow.vpsUserName}]]"</td>
+                <td>[[${dataRow.ipAddress}]]"</td>
+                <td>[[${dataRow.poutaDns}]]"</td>
+                <td>[[${dataRow.selfMadeDnsName}]]</td>
+                <td>[[${dataRow.dnsName}]]</td>
                 <td>[[${dataRow.course.name}]]</td>
-                <td><input type="submit" value="Update information" class="btn btn-primary mb-3"></td>
-                <input type="hidden" name="myParam" id="myParam" th:value="${param.selectCourse} != null? ${param.selectCourse[0]}:0">
-            </form>
+
+                <td>
+                    <button th:hx-get="'/datarowpage/'+ ${dataRow.id}"
+                            hx-trigger="click"
+                            hx-target="closest tr"
+                            hx-swap="outerHTML"
+                            class="btn btn-outline-primary mb-3"
+                            style="width: 10rem">
+                        Edit
+                    </button>
+                </td>
         </tr>
         </tbody>
     </table>
