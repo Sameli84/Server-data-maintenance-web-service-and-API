@@ -108,11 +108,14 @@ class ParserTest {
     }
 
     void testLiteralExpression(Object o, Expression expression) {
-        switch (o) {
-            case Integer i -> testIntegerLiteral(i, expression);
-            case String s -> testStringLiteral(s, expression);
-            case Identifier i -> testIdentifier(i, expression);
-            case null, default -> fail("no type branch for " + o);
+        if (o instanceof Integer i) {
+            testIntegerLiteral(i, expression);
+        } else if (o instanceof String s) {
+            testStringLiteral(s, expression);
+        } else if (o instanceof Identifier i) {
+            testIdentifier(i, expression);
+        } else {
+            fail("no type branch for " + o);
         }
     }
 

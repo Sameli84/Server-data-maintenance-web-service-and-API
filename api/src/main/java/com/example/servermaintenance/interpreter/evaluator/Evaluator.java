@@ -7,47 +7,36 @@ import java.util.Objects;
 
 public class Evaluator {
     public static EvalObject eval(AstNode node, Environment env) {
-        switch (node) {
-            // statement
-            case Program program:
-                return evalProgram(program, env);
-
-            case ExpressionStatement expressionStatement:
-                return eval(expressionStatement.getExpression(), env);
-
-            // expressions
-            case IntegerLiteral integerLiteral:
-                return new EvalInteger(integerLiteral.getValue());
-
-            case StringLiteral stringLiteral:
-                return new EvalString(stringLiteral.getValue());
-
-            case PrefixExpression prefixExpression: {
-                var right = eval(prefixExpression.getRight(), env);
-                if (isError(right)) {
-                    return right;
-                }
-                return evalPrefixExpression(prefixExpression.getOperator(), right);
+        if (node instanceof Program program) {
+            return evalProgram(program, env);
+        } else if (node instanceof ExpressionStatement expressionStatement) {
+            return eval(expressionStatement.getExpression(), env);
+        } else if (node instanceof IntegerLiteral integerLiteral) {
+            return new EvalInteger(integerLiteral.getValue());
+        } else if (node instanceof StringLiteral stringLiteral) {
+            return new EvalString(stringLiteral.getValue());
+        } else if (node instanceof PrefixExpression prefixExpression) {
+            var right = eval(prefixExpression.getRight(), env);
+            if (isError(right)) {
+                return right;
+            }
+            return evalPrefixExpression(prefixExpression.getOperator(), right);
+        } else if (node instanceof InfixExpression infixExpression) {
+            var left = eval(infixExpression.getLeft(), env);
+            if (left == null || isError(left)) {
+                return left;
             }
 
-            case InfixExpression infixExpression:
-                var left = eval(infixExpression.getLeft(), env);
-                if (left == null || isError(left)) {
-                    return left;
-                }
+            var right = eval(infixExpression.getRight(), env);
+            if (right == null || isError(right)) {
+                return right;
+            }
 
-                var right = eval(infixExpression.getRight(), env);
-                if (right == null || isError(right)) {
-                    return right;
-                }
-
-                return evalInfixExpression(infixExpression.getOperator(), left, right);
-
-            case Identifier identifier:
-                return evalIdentifier(identifier, env);
-
-            default:
-                return null;
+            return evalInfixExpression(infixExpression.getOperator(), left, right);
+        } else if (node instanceof Identifier identifier) {
+            return evalIdentifier(identifier, env);
+        } else {
+            return null;
         }
     }
 
@@ -56,14 +45,12 @@ public class Evaluator {
 
         for (var statement : program.getStatements()) {
             result = eval(statement, env);
-            switch (result) {
-                case EvalReturnValue evalReturnValue:
-                    return evalReturnValue.getValue();
-                case EvalError evalError:
-                    return evalError;
-                case null:
-                    break;
-                default:
+            if (result instanceof EvalReturnValue evalReturnValue) {
+                return evalReturnValue.getValue();
+            } else if (result instanceof EvalError evalError) {
+                return evalError;
+            } else if (result == null) {
+                return null;
             }
         }
         return result;
