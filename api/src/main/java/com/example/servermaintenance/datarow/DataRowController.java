@@ -108,9 +108,7 @@ public class DataRowController {
     @Secured("ROLE_TEACHER")
     @GetMapping("/datarowpage/{datarowId}")
     public String getDatarow(@PathVariable Long datarowId, Model model) {
-
         DataRow dataRow = dataRowService.getDataRowById(datarowId).get();
-
         model.addAttribute("dataRow", dataRow);
         return "datarow";
     }
