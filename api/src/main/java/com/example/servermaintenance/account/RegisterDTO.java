@@ -23,6 +23,6 @@ public class RegisterDTO {
     private String email;
 
     @NotEmpty(message = "Password is required")
-    @Size(min = 8, message = "Password should be atleast 8 characters long")
+    @Size(min = 8, message = "Password should be at least 8 characters long")
     private String password;
 }
