@@ -4,5 +4,16 @@
       "name": "spring.security.user.email",
       "type": "java.lang.String",
       "description": "Default Security user email."
-  }
-] }
+    },
+    {
+      "name": "spring.security.user.firstname",
+      "type": "java.lang.String",
+      "description": "Default Security user first name."
+    },
+    {
+      "name": "spring.security.user.lastname",
+      "type": "java.lang.String",
+      "description": "Default Security user last name."
+    }
+  ]
+}

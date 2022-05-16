@@ -9,10 +9,10 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -26,30 +26,28 @@ public class AccountController {
     private RoleRepository roleRepository;
 
     @GetMapping("/register")
-    public String getRegisterPage() {
+    public String getRegisterPage(@ModelAttribute RegisterDTO registerDTO) {
         return "register";
     }
 
     @PostMapping("/register")
-    public String signUp(@Valid @ModelAttribute Account account, BindingResult bindingResult, HttpServletRequest request) {
-        boolean emailVerified = account.getEmail().endsWith("@tuni.fi") ;
-
-        if(emailVerified == false){
-            return "redirect:/register?error";
-        }
+    public String signUp(@Valid @ModelAttribute RegisterDTO registerDTO, BindingResult bindingResult, HttpServletRequest request, Model model, RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
+            // TODO: change to PRG
             return "register";
         }
 
-        if (accountService.registerStudent(account.getName(), account.getEmail(), account.getPassword())) {
+        if (accountService.registerStudent(registerDTO)) {
             try {
-                request.login(account.getEmail(), account.getPassword());
+                request.login(registerDTO.getEmail(), registerDTO.getPassword());
                 return "redirect:/";
             } catch (ServletException e) {
-                return "redirect:/login?error";
+                redirectAttributes.addFlashAttribute("success", "Please log in");
+                return "redirect:/login";
             }
         } else {
-            return "redirect:/register?error";
+            bindingResult.addError(new FieldError("registerDTO", "email", "Email already in use"));
+            return "register";
         }
     }
 
@@ -60,9 +58,7 @@ public class AccountController {
 
     @GetMapping("/admin-tools")
     public String getAdminPage(Model model, @ModelAttribute("searchName") Optional<String> email) {
-        if (email.isPresent()) {
-            model.addAttribute("searchName", email.get());
-        }
+        email.ifPresent(s -> model.addAttribute("searchName", s));
         return "admin-tools";
     }
 
@@ -76,9 +72,7 @@ public class AccountController {
             return "redirect:/admin-tools/" + "?error";
         }
 
-        if(searchName.isPresent()) {
-            ra.addFlashAttribute("searchName", searchName.get());
-        }
+        searchName.ifPresent(s -> ra.addFlashAttribute("searchName", s));
 
         String roleString = "ROLE_" + selectRole.get().toUpperCase(Locale.ROOT);
         Role role = roleRepository.findByName(roleString);
@@ -100,7 +94,6 @@ public class AccountController {
     @Secured("ROLE_ADMIN")
     @PostMapping("/search")
     public String searchAccounts(Model model, @RequestParam Optional<String> search) {
-        System.out.println(search.get());
         if (search.isPresent()) {
             List<Account> accounts = accountService.searchAccounts(search.get());
             model.addAttribute("accounts", accounts);

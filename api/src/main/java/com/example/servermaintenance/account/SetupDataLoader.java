@@ -37,10 +37,13 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
         createRoleIfNotFound("ROLE_TEACHER");
         createRoleIfNotFound("ROLE_STUDENT");
 
-        var email = env.getProperty("spring.security.user.email");
-        var name = env.getProperty("spring.security.user.name");
-        var password = env.getProperty("spring.security.user.password");
-        accountService.registerAccount(name, email, password, List.of(adminRole));
+        var root = new RegisterDTO();
+        root.setFirstName(env.getProperty("spring.security.user.firstname"));
+        root.setLastName(env.getProperty("spring.security.user.lastname"));
+        root.setEmail(env.getProperty("spring.security.user.email"));
+        root.setPassword(env.getProperty("spring.security.user.password"));
+
+        accountService.registerAccount(root, List.of(adminRole));
 
         alreadySetup = true;
     }
