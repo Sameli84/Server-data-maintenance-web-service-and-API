@@ -4,10 +4,9 @@ import com.example.servermaintenance.datarow.DataRow;
 import com.example.servermaintenance.datarow.DataRowRepository;
 import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.account.AccountRepository;
-import com.example.servermaintenance.account.AccountService;
 import com.example.servermaintenance.datarow.DataRowService;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -17,41 +16,26 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Service
+@AllArgsConstructor
 public class CourseService {
-    @Autowired
-    private CourseRepository courseRepository;
+    private final CourseRepository courseRepository;
+    private final AccountRepository accountRepository;
+    private final DataRowRepository dataRowRepository;
+    private final DataRowService dataRowService;
+    private final CourseKeyRepository courseKeyRepository;
 
-    @Autowired
-    private AccountRepository accountRepository;
-
-    @Autowired
-    private DataRowRepository dataRowRepository;
-
-    @Autowired
-    private DataRowService dataRowService;
-
-    @Autowired
-    private AccountService accountService;
-
-    @Autowired
-    private CourseKeyRepository courseKeyRepository;
-
-    public Optional<Course> newCourse(String name, String url, Account account) {
+    @Transactional
+    public Optional<Course> newCourse(String name, String url, Account account, String key) {
         // TODO: slugify url?
         if (courseRepository.existsByUrl(url)) {
             return Optional.empty();
         }
 
-        return Optional.of(courseRepository.save(new Course(name, url, account)));
-    }
-
-    public Optional<Course> newCourseContext(String name, String url) {
-        var account = accountService.getContextAccount();
-        if (account.isPresent()) {
-            return newCourse(name, url, account.get());
-        } else {
-            return Optional.empty();
+        var course = courseRepository.save(new Course(name, url, account));
+        if (!key.isEmpty()) {
+            courseKeyRepository.save(new CourseKey(key, course));
         }
+        return Optional.of(course);
     }
 
     @Transactional
@@ -86,14 +70,6 @@ public class CourseService {
         dataRowService.removeDataRow(course, account);
 
         return true;
-    }
-
-    public boolean joinToCourseContext(Course course, String key) {
-        var account = accountService.getContextAccount();
-        if (account.isEmpty()) {
-            return false;
-        }
-        return joinToCourse(course, account.get(), key);
     }
 
     public Optional<Course> getCourseByUrl(String url) {

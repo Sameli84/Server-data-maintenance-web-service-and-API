@@ -26,14 +26,14 @@ public class CourseController {
     private final CourseKeyRepository courseKeyRepository;
 
     @ExceptionHandler(AccountNotFoundException.class)
-    public String processAccountException(AccountNotFoundException e, HttpServletRequest request) {
+    public String processAccountException(HttpServletRequest request) {
         request.getSession().invalidate();
         return "redirect:/login";
     }
 
     // TODO: specific exception for courses!
     @ExceptionHandler(NoSuchElementException.class)
-    public String processCourseNotFoundException(NoSuchElementException e, RedirectAttributes redirectAttributes) {
+    public String processCourseNotFoundException(RedirectAttributes redirectAttributes) {
         redirectAttributes.addFlashAttribute("error", "Course not found");
         return "redirect:/courses";
     }
@@ -50,7 +50,7 @@ public class CourseController {
 
     @GetMapping("/courses")
     public String getCoursesPage(@ModelAttribute Account user, Model model) {
-        var courses = new HashSet<Course>(user.getStudentCourses());
+        var courses = new HashSet<>(user.getStudentCourses());
 
         var userCourses = user.getCourses();
         if (userCourses != null) {
@@ -88,11 +88,8 @@ public class CourseController {
     @Secured("ROLE_TEACHER")
     @PostMapping("/courses/create")
     public String createCourse(@ModelAttribute Account user, @RequestParam String name, @RequestParam String url, @RequestParam String key, RedirectAttributes redirectAttributes) {
-        var course = courseService.newCourse(name, url, user);
+        var course = courseService.newCourse(name, url, user, key);
         if (course.isPresent()) {
-            if (!key.isEmpty()) {
-                courseKeyRepository.save(new CourseKey(key, course.get()));
-            }
             return "redirect:/courses/" + course.get().getUrl();
         } else {
             redirectAttributes.addFlashAttribute("error", "Couldn't create a new course");
@@ -101,7 +98,7 @@ public class CourseController {
     }
 
     @GetMapping("/courses/{course}")
-    public String getCoursePage(@PathVariable Course course, @ModelAttribute Account user, RedirectAttributes redirectAttributes, Model model) {
+    public String getCoursePage(@PathVariable Course course, @ModelAttribute Account user, Model model) {
         var data = dataRowService.getStudentData(course, user);
 
         model.addAttribute("data", data.orElse(null));
@@ -141,13 +138,13 @@ public class CourseController {
     }
 
     @PostMapping("/courses/{course}/students/{studentId}/update-data")
-    public String createData(@PathVariable Course course, @PathVariable int studentId, @ModelAttribute Account user,
+    public String createData(@PathVariable Course course, @PathVariable Long studentId, @ModelAttribute Account user,
                              @RequestParam String cscUsername, @RequestParam int uid,
                              @RequestParam String dnsName, @RequestParam String selfMadeDnsName,
                              @RequestParam String name, @RequestParam String vpsUsername,
                              @RequestParam String poutaDns, @RequestParam String ipAddress, RedirectAttributes redirectAttributes) {
 
-        if (user.getId() != studentId && !roleService.isTeacher(user)) {
+        if (!Objects.equals(user.getId(), studentId) && !roleService.isTeacher(user)) {
             redirectAttributes.addFlashAttribute("error", "Unauthorized action");
             return "redirect:/courses/" + course;
         }
