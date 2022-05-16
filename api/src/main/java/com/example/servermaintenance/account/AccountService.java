@@ -52,7 +52,7 @@ public class AccountService implements UserDetailsService {
     }
 
     public List<Account> searchAccounts(String search) {
-        return accountRepository.findAccountsByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(search, search);
+        return accountRepository.findAccountsByEmailContainingIgnoreCase(search);
     }
 
     public Account getAccountById(int accountId) {
