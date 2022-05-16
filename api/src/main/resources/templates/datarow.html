@@ -1,6 +1,6 @@
 
 <tr class="editing">
-    <script>document.getElementsByName("edits").forEach(element => element.setAttribute("disabled", true))</script>
+    <script>document.getElementsByName("edits").forEach(element => {element.setAttribute("disabled", true), element.setAttribute("title", "Edit one row at a time!")})</script>
     <form th:action="@{/datarowpage/{datarowId}/update (datarowId=${dataRow.id})}" method="post">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         <td><input type="text" name="name" id="name" th:value="${dataRow?.getName()}"
