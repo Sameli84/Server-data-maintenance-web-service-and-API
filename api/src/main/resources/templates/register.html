@@ -4,27 +4,45 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>REGISTER</title>
+    <title>Register</title>
 </head>
 <body>
 <section layout:fragment="content">
     <div class="row">
         <div class="col-lg-4 col-md-7">
-            <div th:if="${param.error}" class="alert alert-warning">Invalid email or password</div>
-            <form action="/register" method="post">
+            <form action="/register" method="post" th:object="${registerDTO}">
                 <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
-                <div class="input-group mb-3">
-                    <input type="text" name="name" id="name-input" class="form-control" placeholder="Name"
-                           required aria-label="Name">
+                <div class="mb-3">
+                    <label for="first-name-input" class="form-label">First name</label>
+                    <input type="text" name="firstName" id="first-name-input" class="form-control" required
+                           th:value="${registerDTO.getFirstName()}"
+                           th:classappend="${#fields.hasErrors('firstName') ? 'is-invalid' : ''}">
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('firstName')}"
+                         th:text="${#fields.errors('firstName')[0]}"></div>
                 </div>
-                <div class="input-group mb-3">
-                    <input type="email" name="email" id="email-input" class="form-control"
-                           placeholder="Email" required aria-label="Email">
-<!--                    <span class="input-group-text">@tuni.fi</span>-->
+                <div class="mb-3">
+                    <label for="last-name-input" class="form-label">Last name</label>
+                    <input type="text" name="lastName" id="last-name-input" class="form-control" required
+                           th:value="${registerDTO.getLastName()}"
+                           th:classappend="${#fields.hasErrors('lastName') ? 'is-invalid' : ''}">
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('lastName')}"
+                         th:text="${#fields.errors('lastName')[0]}"></div>
                 </div>
-                <div class="input-group mb-3">
-                    <input type="password" name="password" id="password-input" class="form-control"
-                           placeholder="Password" required aria-label="Password">
+                <div class="mb-3">
+                    <label for="email-input" class="form-label">Email</label>
+                    <input type="text" name="email" id="email-input" class="form-control" required
+                           th:value="${registerDTO.getEmail()}"
+                           th:classappend="${#fields.hasErrors('email') ? 'is-invalid' : ''}">
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}"
+                         th:text="${#fields.errors('email')[0]}"></div>
+                </div>
+                <div class="mb-3">
+                    <label for="password-input" class="form-label">Password</label>
+                    <input type="password" name="password" id="password-input" class="form-control" required
+                           th:value="${registerDTO.getPassword()}"
+                           th:classappend="${#fields.hasErrors('password') ? 'is-invalid' : ''}">
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('password')}"
+                         th:text="${#fields.errors('password')[0]}"></div>
                 </div>
                 <input type="submit" value="Register" class="btn btn-primary btn-lg">
             </form>

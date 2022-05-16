@@ -12,8 +12,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.util.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
 
 @Entity
 @NoArgsConstructor
@@ -26,17 +24,16 @@ public class Account extends AbstractPersistable<Long> implements UserDetails {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @NotEmpty(message = "Password is mandatory")
-    @Column(name = "name")
-    private String name;
+    @Column
+    private String firstName;
 
-    @NotEmpty(message = "Name is mandatory")
-    @Email
-    @Column(name = "email", unique = true)
+    @Column
+    private String lastName;
+
+    @Column(unique = true)
     private String email;
 
-    @NotEmpty(message = "Password is mandatory")
-    @Column(name = "password")
+    @Column
     private String password;
 
     @OneToMany(mappedBy = "account")
@@ -56,10 +53,15 @@ public class Account extends AbstractPersistable<Long> implements UserDetails {
     )
     private Collection<Role> roles;
 
-    public Account(String name, String email, String password) {
-        this.name = name;
+    public Account(String firstName, String lastName, String email, String password) {
+        this.firstName = firstName;
+        this.lastName = lastName;
         this.email = email;
         this.password = password;
+    }
+
+    public String getName() {
+        return firstName + " " + lastName;
     }
 
     @Override
