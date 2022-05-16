@@ -1,12 +1,14 @@
 <tr th:each="account : ${accounts}">
     <td>[[${account.name}]]</td>
     <td>[[${account.email}]]</td>
-    <td><span th:text="${#lists.contains(account.roles, roles[2])}"/></td>
+    <td><span th:text="${#lists.contains(account.roles, roles[2])}"/>
+        <input type="checkbox" name="nameOfChoice" value="1" th:checked="${#lists.contains(account.roles, roles[2])}" /></td>
     <td><span th:text="${#lists.contains(account.roles, roles[1])}"/></td>
     <td><span th:text="${#lists.contains(account.roles, roles[0])}"/></td>
     <td>
         <form method="POST" th:action="@{/admin-tools/{accountId}/grant-remove (accountId=${account.id})}">
             <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+            <input type="hidden" th:name="searchName" th:value="${account.email}"/>
             <select name="selectRole" id="selectRole">
                 <option th:each="role : ${roleNames}" th:value="${role}">[[${role}]]</option>
             </select>

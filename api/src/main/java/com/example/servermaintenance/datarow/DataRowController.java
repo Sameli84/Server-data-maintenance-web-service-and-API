@@ -80,16 +80,15 @@ public class DataRowController {
 
     @Secured("ROLE_TEACHER")
     @PostMapping("/datarowpage/{datarowId}/update")
-    public String createData(@PathVariable Long datarowId, @RequestParam String myParam,
+    public String createData(@PathVariable Long datarowId, @RequestParam Optional<Long> myParam,
                              @RequestParam String cscUsername,
                              @RequestParam String dnsName, @RequestParam String selfMadeDnsName,
                              @RequestParam String name, @RequestParam String vpsUserName,
                              @RequestParam String poutaDns, @RequestParam String ipAddress) {
 
         var data = dataRowService.getDataRowById(datarowId);
-        System.out.println(myParam);
 
-        String selectCourse = myParam;
+        Long selectCourse = myParam.get();
 
         if (data.isEmpty()) {
             return "redirect:/datarowpage" + "?error";
@@ -102,14 +101,19 @@ public class DataRowController {
             courseService.updateStudentsData(data.get());
         }
 
+        if (selectCourse == 0) {
+            return "redirect:/datarowpage";
+        }
         return "redirect:/datarowpage?selectCourse=" + selectCourse;
     }
 
     @Secured("ROLE_TEACHER")
     @GetMapping("/datarowpage/{datarowId}")
-    public String getDatarow(@PathVariable Long datarowId, Model model) {
+    public String getDatarow(@PathVariable Long datarowId, Model model, @RequestParam Optional<Long> selectCourse) {
+        System.out.println(selectCourse.get());
         DataRow dataRow = dataRowService.getDataRowById(datarowId).get();
         model.addAttribute("dataRow", dataRow);
+        model.addAttribute("selectCourse", selectCourse.get());
         return "datarow";
     }
 

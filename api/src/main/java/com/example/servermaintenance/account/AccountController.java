@@ -31,12 +31,11 @@ public class AccountController {
     }
 
     @PostMapping("/register")
-    public String signUp(@Valid @ModelAttribute Account account, BindingResult bindingResult, HttpServletRequest request, RedirectAttributes redirectAttributes) {
-        boolean emailVerified = account.getEmail().endsWith("@tuni.fi");
+    public String signUp(@Valid @ModelAttribute Account account, BindingResult bindingResult, HttpServletRequest request) {
+        boolean emailVerified = account.getEmail().endsWith("@tuni.fi") ;
 
-        if (!emailVerified) {
-            redirectAttributes.addFlashAttribute("error", "Unauthorized email provider");
-            return "redirect:/register";
+        if(emailVerified == false){
+            return "redirect:/register?error";
         }
         if (bindingResult.hasErrors()) {
             return "register";
@@ -60,28 +59,35 @@ public class AccountController {
     }
 
     @GetMapping("/admin-tools")
-    public String getAdminPage() {
+    public String getAdminPage(Model model, @ModelAttribute("searchName") Optional<String> email) {
+        if (email.isPresent()) {
+            model.addAttribute("searchName", email.get());
+        }
         return "admin-tools";
     }
 
     @Secured("ROLE_ADMIN")
     @PostMapping("/admin-tools/{accountId}/grant-remove")
-    public String grantRights(@PathVariable int accountId, @RequestParam Optional<String> selectRole, @RequestParam Optional<String> submit) {
-        if (!accountService.getAccounts().contains(accountService.getAccountById(accountId))) {
+    public String grantRights(RedirectAttributes ra, @PathVariable int accountId, @RequestParam Optional<String> selectRole, @RequestParam Optional<String> submit, @RequestParam Optional<String> searchName) {
+        if(!accountService.getAccounts().contains(accountService.getAccountById(accountId))) {
             return "redirect:/admin-tools/" + "?error";
         }
-        if (selectRole.isEmpty()) {
+        if(selectRole.isEmpty()) {
             return "redirect:/admin-tools/" + "?error";
+        }
+
+        if(searchName.isPresent()) {
+            ra.addFlashAttribute("searchName", searchName.get());
         }
 
         String roleString = "ROLE_" + selectRole.get().toUpperCase(Locale.ROOT);
         Role role = roleRepository.findByName(roleString);
 
-        if (submit.isPresent()) {
-            if (submit.get().equals("Grant")) {
+        if(submit.isPresent()) {
+            if(submit.get().equals("Grant")) {
                 accountService.grantRights(accountId, role);
             }
-            if (submit.get().equals("Remove")) {
+            if(submit.get().equals("Remove")) {
                 accountService.removeRights(accountId, role);
             }
         } else {

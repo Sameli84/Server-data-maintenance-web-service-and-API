@@ -7,7 +7,7 @@
     <title>DATAROW</title>
 </head>
 <section layout:fragment="content">
-    <h1>Available Data</h1>
+    <h2>Available Data</h2>
     <div class="row mx-0">
         <div class="mb-3 col col-lg-6 col-md-8 px-0">
             <form method="post" action="/datarowpage" class="row mx-0">
@@ -60,7 +60,12 @@
                             hx-trigger="click"
                             hx-target="closest tr"
                             hx-swap="outerHTML"
-                            class="btn btn-outline-primary mb-3">
+                            class="btn btn-outline-primary mb-3"
+                            style="pointer-events: all"
+                            hx-include="[name='selectCourse']"
+                            name="edits"
+                            >
+                        <input type="hidden" th:value="${selectCourse} != null? ${selectCourse}:0" name="selectCourse">
                         Edit
                     </button>
                 </td>
