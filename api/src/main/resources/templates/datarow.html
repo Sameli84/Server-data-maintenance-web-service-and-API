@@ -4,10 +4,12 @@
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         <td><input type="text" name="name" id="name" th:value="${dataRow?.getName()}"
                    placeholder="projectName" class="form-control" required></td>
-        <td>[[${dataRow.studentAlias}]]</td>
+        <td><input type="text" name="studentAlias" id="studentAlias" th:value="${dataRow?.getStudentAlias()}"
+                   placeholder="studentAlias" class="form-control" disabled></td>
         <td><input type="text" name="cscUsername" id="csc-username-input" th:value="${dataRow?.getCscUsername()}"
                    placeholder="cscUsername" class="form-control" required></td>
-        <td>[[${dataRow.uid}]]</td>
+        <td><input type="text" name="uid" id="uid" th:value="${dataRow?.getUid()}"
+                   placeholder="uid" class="form-control" disabled></td>
         <td><input type="text" name="vpsUserName" id="vpsUserName" th:value="${dataRow?.getVpsUserName()}"
                    placeholder="vpsUserName" class="form-control" required></td>
         <td><input type="text" name="ipAddress" id="ipAddress" th:value="${dataRow?.getIpAddress()}"
@@ -18,8 +20,9 @@
                    placeholder="selfMadeDnsName" class="form-control" required></td>
         <td><input type="text" name="dnsName" id="dns-Name-input" th:value="${dataRow?.getDnsName()}"
                    placeholder="dnsName" class="form-control" required></td>
-        <td>[[${dataRow.course.name}]]</td>
-        <td><input type="submit" value="Update information" class="btn btn-primary mb-3" style="width: 10rem"></td>
+        <td><input type="text" name="courseName" id="courseName" th:value="${dataRow?.getCourse()?.getName()}"
+                   placeholder="courseName" class="form-control" disabled></td>
+        <td><input type="submit" value="Update" class="btn btn-primary mb-3"></td>
         <input type="hidden" name="myParam" id="myParam" th:value="${param.selectCourse} != null? ${param.selectCourse[0]}:0">
     </form>
 </tr>
