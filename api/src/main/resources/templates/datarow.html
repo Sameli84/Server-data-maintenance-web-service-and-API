@@ -23,6 +23,6 @@
         <td><input type="text" name="courseName" id="courseName" th:value="${dataRow?.getCourse()?.getName()}"
                    placeholder="courseName" class="form-control" disabled></td>
         <td><input type="submit" value="Update" class="btn btn-primary mb-3"></td>
-        <input type="hidden" name="myParam" id="myParam" th:value="${param.selectCourse} != null? ${param.selectCourse[0]}:0">
+        <input type="hidden" name="myParam" id="myParam" th:value="${selectCourse} != null? ${selectCourse}:0">
     </form>
 </tr>

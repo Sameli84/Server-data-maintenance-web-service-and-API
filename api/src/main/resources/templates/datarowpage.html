@@ -60,7 +60,9 @@
                             hx-trigger="click"
                             hx-target="closest tr"
                             hx-swap="outerHTML"
-                            class="btn btn-outline-primary mb-3">
+                            class="btn btn-outline-primary mb-3"
+                            hx-include="[name='selectCourse']">
+                        <input type="hidden" th:value="${selectCourse} != null? ${selectCourse}:0" name="selectCourse">
                         Edit
                     </button>
                 </td>
