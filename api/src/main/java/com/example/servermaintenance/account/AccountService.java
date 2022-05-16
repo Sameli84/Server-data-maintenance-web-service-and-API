@@ -30,17 +30,17 @@ public class AccountService implements UserDetailsService {
         return accountRepository.findByEmail(email);
     }
 
-    public boolean registerStudent(String name, String email, String password) {
-        return registerAccount(name, email, password, List.of(roleRepository.findByName("ROLE_STUDENT")));
+    public boolean registerStudent(RegisterDTO registerDTO) {
+        return registerAccount(registerDTO, List.of(roleRepository.findByName("ROLE_STUDENT")));
     }
 
     @Transactional
-    public boolean registerAccount(String name, String email, String password, List<Role> roles) {
-        if (accountRepository.findByEmail(email).isPresent()) {
+    public boolean registerAccount(RegisterDTO registerDTO, List<Role> roles) {
+        if (accountRepository.findByEmail(registerDTO.getEmail()).isPresent()) {
             return false;
         }
 
-        Account a = new Account(name, email, passwordEncoder.encode(password));
+        Account a = new Account(registerDTO.getFirstName(), registerDTO.getLastName(), registerDTO.getEmail(), passwordEncoder.encode(registerDTO.getPassword()));
         a.setRoles(roles);
         accountRepository.save(a);
         return true;
@@ -52,14 +52,11 @@ public class AccountService implements UserDetailsService {
     }
 
     public List<Account> searchAccounts(String search) {
-//        List<Account> accounts = accountRepository.findAll();
-//        accounts.removeIf(p -> !p.getName().toLowerCase(Locale.ROOT).contains(search.toLowerCase(Locale.ROOT)));
-        var accounts = accountRepository.findAccountsByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(search, search);
-        return accounts;
+        return accountRepository.findAccountsByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(search, search);
     }
 
     public Account getAccountById(int accountId) {
-        return accountRepository.getById((long)accountId);
+        return accountRepository.getById((long) accountId);
     }
 
     @Transactional
