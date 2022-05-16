@@ -38,7 +38,7 @@ public class CourseController {
         return "redirect:/courses";
     }
 
-    @ModelAttribute("user")
+    @ModelAttribute("account")
     public Account addAccountToModel() throws AccountNotFoundException {
         return accountService.getContextAccount().orElseThrow(AccountNotFoundException::new);
     }
@@ -49,10 +49,10 @@ public class CourseController {
     }
 
     @GetMapping("/courses")
-    public String getCoursesPage(@ModelAttribute Account user, Model model) {
-        var courses = new HashSet<>(user.getStudentCourses());
+    public String getCoursesPage(@ModelAttribute Account account, Model model) {
+        var courses = new HashSet<>(account.getStudentCourses());
 
-        var userCourses = user.getCourses();
+        var userCourses = account.getCourses();
         if (userCourses != null) {
             courses.addAll(userCourses);
         }
@@ -63,14 +63,14 @@ public class CourseController {
     }
 
     @PostMapping("/courses/join")
-    public String joinCourseByKey(@ModelAttribute Account user, @RequestParam String key, RedirectAttributes redirectAttributes) {
+    public String joinCourseByKey(@ModelAttribute Account account, @RequestParam String key, RedirectAttributes redirectAttributes) {
         var courseKey = courseKeyRepository.findCourseKeyByKey(key);
         if (courseKey.isEmpty()) {
             redirectAttributes.addFlashAttribute("error", "Given course key not found!");
             return "redirect:/courses";
         }
         var course = courseKey.get().getCourse();
-        if (courseService.joinToCourse(course, user, key)) {
+        if (courseService.joinToCourse(course, account, key)) {
             redirectAttributes.addFlashAttribute("success", "Joined course");
             return "redirect:/courses/" + course.getUrl();
         } else {
@@ -87,8 +87,8 @@ public class CourseController {
 
     @Secured("ROLE_TEACHER")
     @PostMapping("/courses/create")
-    public String createCourse(@ModelAttribute Account user, @RequestParam String name, @RequestParam String url, @RequestParam String key, RedirectAttributes redirectAttributes) {
-        var course = courseService.newCourse(name, url, user, key);
+    public String createCourse(@ModelAttribute Account account, @RequestParam("course-name") String courseName, @RequestParam String url, @RequestParam String key, RedirectAttributes redirectAttributes) {
+        var course = courseService.newCourse(courseName, url, account, key);
         if (course.isPresent()) {
             return "redirect:/courses/" + course.get().getUrl();
         } else {
@@ -98,19 +98,19 @@ public class CourseController {
     }
 
     @GetMapping("/courses/{course}")
-    public String getCoursePage(@PathVariable Course course, @ModelAttribute Account user, Model model) {
-        var data = dataRowService.getStudentData(course, user);
+    public String getCoursePage(@PathVariable Course course, @ModelAttribute Account account, Model model) {
+        var data = dataRowService.getStudentData(course, account);
 
         model.addAttribute("data", data.orElse(null));
         model.addAttribute("datarows", dataRowService.getCourseData(course));
-        model.addAttribute("isStudent", course.getStudents().contains(user));
+        model.addAttribute("isStudent", course.getStudents().contains(account));
         model.addAttribute("hasKey", course.getCourseKeys().size() > 0);
         return "course";
     }
 
     @PostMapping("/courses/{course}/join")
-    public String joinCourse(@PathVariable Course course, @RequestParam Optional<String> key, @ModelAttribute Account user, RedirectAttributes redirectAttributes) {
-        if (courseService.joinToCourse(course, user, key.orElse(""))) {
+    public String joinCourse(@PathVariable Course course, @RequestParam Optional<String> key, @ModelAttribute Account account, RedirectAttributes redirectAttributes) {
+        if (courseService.joinToCourse(course, account, key.orElse(""))) {
             redirectAttributes.addFlashAttribute("success", "Joined course");
         } else {
             redirectAttributes.addFlashAttribute("error", "Failed to join course " + course.getName());
@@ -120,8 +120,8 @@ public class CourseController {
 
     @Secured("ROLE_TEACHER")
     @PostMapping("/courses/{course}/students/{studentId}/kick")
-    public String kickFromCourse(@PathVariable Course course, @PathVariable int studentId, @ModelAttribute Account user, RedirectAttributes redirectAttributes) {
-        if (!Objects.equals(course.getOwner().getId(), user.getId())) {
+    public String kickFromCourse(@PathVariable Course course, @PathVariable int studentId, @ModelAttribute Account account, RedirectAttributes redirectAttributes) {
+        if (!Objects.equals(course.getOwner().getId(), account.getId())) {
             redirectAttributes.addFlashAttribute("error", "Unauthorized action");
             return "redirect:/courses";
         }
@@ -138,28 +138,28 @@ public class CourseController {
     }
 
     @PostMapping("/courses/{course}/students/{studentId}/update-data")
-    public String createData(@PathVariable Course course, @PathVariable Long studentId, @ModelAttribute Account user,
+    public String createData(@PathVariable Course course, @PathVariable Long studentId, @ModelAttribute Account account,
                              @RequestParam String cscUsername, @RequestParam int uid,
                              @RequestParam String dnsName, @RequestParam String selfMadeDnsName,
                              @RequestParam String name, @RequestParam String vpsUsername,
                              @RequestParam String poutaDns, @RequestParam String ipAddress, RedirectAttributes redirectAttributes) {
 
-        if (!Objects.equals(user.getId(), studentId) && !roleService.isTeacher(user)) {
+        if (!Objects.equals(account.getId(), studentId) && !roleService.isTeacher(account)) {
             redirectAttributes.addFlashAttribute("error", "Unauthorized action");
             return "redirect:/courses/" + course;
         }
 
-        String studentAlias = user.getEmail().split("@")[0];
+        String studentAlias = account.getEmail().split("@")[0];
 
 
-        if (!courseService.checkIfStudentOnCourse(course, user)) {
+        if (!courseService.checkIfStudentOnCourse(course, account)) {
             redirectAttributes.addFlashAttribute("error", "You must sign up for course before submitting data!");
             return "redirect:/courses/" + course;
         }
 
-        var data = dataRowService.getStudentData(course, user);
+        var data = dataRowService.getStudentData(course, account);
         if (data.isEmpty()) {
-            courseService.updateStudentsData(new DataRow(studentAlias, cscUsername, uid, dnsName, selfMadeDnsName, name, vpsUsername, poutaDns, ipAddress, user, course));
+            courseService.updateStudentsData(new DataRow(studentAlias, cscUsername, uid, dnsName, selfMadeDnsName, name, vpsUsername, poutaDns, ipAddress, account, course));
         } else {
             data.get().update(studentAlias, cscUsername, uid, dnsName, selfMadeDnsName, name, vpsUsername, poutaDns, ipAddress);
             courseService.updateStudentsData(data.get());
@@ -171,7 +171,7 @@ public class CourseController {
 
     @Secured("ROLE_TEACHER")
     @PostMapping("/courses/{course}/keys/create")
-    public String createCourseKey(@PathVariable Course course, @RequestParam String key, @ModelAttribute Account user, RedirectAttributes redirectAttributes) {
+    public String createCourseKey(@PathVariable Course course, @RequestParam String key, @ModelAttribute Account account, RedirectAttributes redirectAttributes) {
         if (courseService.addKey(course, key)) {
             redirectAttributes.addFlashAttribute("success", "New key created");
         } else {
@@ -182,7 +182,7 @@ public class CourseController {
 
     @Secured("ROLE_TEACHER")
     @PostMapping("/courses/{course}/keys/{keyId}/revoke")
-    public String revokeCourseKey(@PathVariable Course course, @PathVariable int keyId, @ModelAttribute Account user, RedirectAttributes redirectAttributes) {
+    public String revokeCourseKey(@PathVariable Course course, @PathVariable int keyId, @ModelAttribute Account account, RedirectAttributes redirectAttributes) {
         if (!courseService.deleteKey(course, keyId)) {
             redirectAttributes.addFlashAttribute("error", "Failed to delete the key");
         }
