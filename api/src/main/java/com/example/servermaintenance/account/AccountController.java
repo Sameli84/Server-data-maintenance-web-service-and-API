@@ -4,6 +4,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import com.example.servermaintenance.datarow.DataRow;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
@@ -59,9 +60,9 @@ public class AccountController {
     }
 
     @GetMapping("/admin-tools")
-    public String getAdminPage(Model model, @ModelAttribute("searchName") Optional<String> email) {
-        if (email.isPresent()) {
-            model.addAttribute("searchName", email.get());
+    public String getAdminPage(Model model, @ModelAttribute("searchName") Optional<String> searchString) {
+        if (searchString.isPresent()) {
+            model.addAttribute("searchName", searchString.get().split(",")[0]);
         }
         return "admin-tools";
     }
@@ -100,7 +101,6 @@ public class AccountController {
     @Secured("ROLE_ADMIN")
     @PostMapping("/search")
     public String searchAccounts(Model model, @RequestParam Optional<String> search) {
-        System.out.println(search.get());
         if (search.isPresent()) {
             List<Account> accounts = accountService.searchAccounts(search.get());
             model.addAttribute("accounts", accounts);
@@ -108,9 +108,51 @@ public class AccountController {
             model.addAttribute("roleNames", roles);
             List<Role> roleList = roleRepository.findAll();
             model.addAttribute("roles", roleList);
+            model.addAttribute("searchString", search.get());
         }
 
         return "account-table";
+    }
+
+    @Secured("ROLE_ADMIN")
+    @GetMapping("/admin-tools/{accountId}")
+    public String getDatarow(@PathVariable int accountId, Model model, @RequestParam Optional<String> searchString) {
+        Account account = accountService.getAccountById(accountId);
+        model.addAttribute("account", account);
+        List<Role> roleList = roleRepository.findAll();
+        model.addAttribute("roles", roleList);
+        model.addAttribute("searchString", searchString.get());
+        return "account-rights";
+    }
+
+    @Secured("ROLE_ADMIN")
+    @PostMapping("/admin-tools/{accountId}/update")
+    public String updateRights(RedirectAttributes ra, @PathVariable int accountId, @RequestParam Optional<String> student, @RequestParam Optional<String> teacher,
+                               @RequestParam Optional<String> admin, @RequestParam Optional<String> searchString) {
+
+        if(searchString.isPresent()) {
+            ra.addFlashAttribute("searchName", searchString.get());
+        }
+
+        if(student.isPresent()) {
+            accountService.grantRights(accountId, roleRepository.findByName("ROLE_STUDENT"));
+        } else {
+            accountService.removeRights(accountId, roleRepository.findByName("ROLE_STUDENT"));
+        }
+
+        if(teacher.isPresent()) {
+            accountService.grantRights(accountId, roleRepository.findByName("ROLE_TEACHER"));
+        } else {
+            accountService.removeRights(accountId, roleRepository.findByName("ROLE_TEACHER"));
+        }
+
+        if(admin.isPresent()) {
+            accountService.grantRights(accountId, roleRepository.findByName("ROLE_ADMIN"));
+        } else {
+            accountService.removeRights(accountId, roleRepository.findByName("ROLE_ADMIN"));
+        }
+
+        return "redirect:/admin-tools";
     }
 
 }
