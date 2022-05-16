@@ -9,7 +9,7 @@
 <body>
 <section layout:fragment="content">
     <div class="row mx-0">
-        <div class="mb-3 col col-lg-6 col-md-8 px-0">
+        <div class="col col-lg-6 col-md-8 px-0 mb-3">
             <form method="post" action="/courses/join" class="row mx-0">
                 <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
                 <input name="key" id="join-key-input" class="form-control form-control-lg col me-3"
@@ -21,7 +21,7 @@
     </div>
 
     <div class="row mx-0">
-        <div class="col col-lg-6 col-md-8 px-0">
+        <div class="col col-lg-6 col-md-8 px-0 mb-3">
             <h2>Courses</h2>
             <div class="list-group mb-3">
                 <a th:each="course : ${courses}" th:href="@{/courses/{url}(url=${course.getUrl()})}"
@@ -31,7 +31,7 @@
     </div>
 
     <th:block sec:authorize="hasRole('ROLE_TEACHER')">
-        <a href="/courses/create" sec:authorize="hasRole('ROLE_TEACHER')" class="btn btn-primary">NEW COURSE</a>
+        <a href="/courses/create"class="btn btn-primary">Create course</a>
     </th:block>
 </section>
 </body>

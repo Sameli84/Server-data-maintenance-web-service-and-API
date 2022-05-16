@@ -55,24 +55,20 @@ public class CourseService {
     }
 
     @Transactional
-    public boolean joinToCourse(String courseUrl, Account account, String key) {
-        var course = courseRepository.findCourseByUrl(courseUrl);
-        if (course.isEmpty()) {
-            return false;
-        }
-        if (course.get().getStudents().contains(account)) {
+    public boolean joinToCourse(Course course, Account account, String key) {
+        if (course.getStudents().contains(account)) {
             return false;
         }
 
-        var courseKeys = course.get().getCourseKeys();
+        var courseKeys = course.getCourseKeys();
         if (courseKeys.size() > 0) {
             if (!courseKeys.stream().map(CourseKey::getKey).toList().contains(key)) {
                 return false;
             }
         }
 
-        course.get().addStudent(account);
-        courseRepository.save(course.get());
+        course.addStudent(account);
+        courseRepository.save(course);
         accountRepository.save(account);
         return true;
     }
@@ -92,12 +88,12 @@ public class CourseService {
         return true;
     }
 
-    public boolean joinToCourseContext(String courseUrl, String key) {
+    public boolean joinToCourseContext(Course course, String key) {
         var account = accountService.getContextAccount();
         if (account.isEmpty()) {
             return false;
         }
-        return joinToCourse(courseUrl, account.get(), key);
+        return joinToCourse(course, account.get(), key);
     }
 
     public Optional<Course> getCourseByUrl(String url) {

@@ -8,9 +8,6 @@
 </head>
 <body>
 <section layout:fragment="content">
-    <div th:if="${param.joined}" class="alert alert-success">Joined!</div>
-    <div th:if="${param.error}" class="alert alert-danger">ERROR!</div>
-    <div th:if="${param.key}" class="alert alert-success">Added a new key!</div>
     <h1>[[${course.name}]]</h1>
     <p>by [[${course.getOwner()?.getName()}]]</p>
 
