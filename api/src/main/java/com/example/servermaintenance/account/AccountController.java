@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Collection;
 import java.util.List;
@@ -58,18 +59,25 @@ public class AccountController {
     }
 
     @GetMapping("/admin-tools")
-    public String getAdminPage() {
+    public String getAdminPage(Model model, @ModelAttribute("searchName") Optional<String> email) {
+        if (email.isPresent()) {
+            model.addAttribute("searchName", email.get());
+        }
         return "admin-tools";
     }
 
     @Secured("ROLE_ADMIN")
     @PostMapping("/admin-tools/{accountId}/grant-remove")
-    public String grantRights(@PathVariable int accountId, @RequestParam Optional<String> selectRole, @RequestParam Optional<String> submit) {
+    public String grantRights(RedirectAttributes ra, @PathVariable int accountId, @RequestParam Optional<String> selectRole, @RequestParam Optional<String> submit, @RequestParam Optional<String> searchName) {
         if(!accountService.getAccounts().contains(accountService.getAccountById(accountId))) {
             return "redirect:/admin-tools/" + "?error";
         }
         if(selectRole.isEmpty()) {
             return "redirect:/admin-tools/" + "?error";
+        }
+
+        if(searchName.isPresent()) {
+            ra.addFlashAttribute("searchName", searchName.get());
         }
 
         String roleString = "ROLE_" + selectRole.get().toUpperCase(Locale.ROOT);
