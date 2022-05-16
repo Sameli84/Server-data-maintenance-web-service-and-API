@@ -4,7 +4,7 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>COURSES</title>
+    <title>Courses</title>
 </head>
 <body>
 <section layout:fragment="content">
@@ -20,7 +20,7 @@
         </div>
     </div>
 
-    <div class="row mx-0">
+    <div class="row mx-0" th:if="${courses?.size() > 0}">
         <div class="col col-lg-6 col-md-8 px-0 mb-3">
             <h2>Courses</h2>
             <div class="list-group mb-3">
@@ -31,7 +31,7 @@
     </div>
 
     <th:block sec:authorize="hasRole('ROLE_TEACHER')">
-        <a href="/courses/create"class="btn btn-primary">Create course</a>
+        <a href="/courses/create" class="btn btn-primary">Create course</a>
     </th:block>
 </section>
 </body>
