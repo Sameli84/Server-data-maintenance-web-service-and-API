@@ -5,6 +5,7 @@ import com.example.servermaintenance.datarow.DataRowRepository;
 import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.account.AccountRepository;
 import com.example.servermaintenance.datarow.DataRowService;
+import com.github.slugify.Slugify;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,17 +26,13 @@ public class CourseService {
     private final CourseKeyRepository courseKeyRepository;
 
     @Transactional
-    public Optional<Course> newCourse(String name, String url, Account account, String key) {
-        // TODO: slugify url?
-        if (courseRepository.existsByUrl(url)) {
-            return Optional.empty();
+    public Course newCourse(CourseCreationDTO courseCreationDTO, Account account) {
+        var slug = String.format("%s-%d", new Slugify().slugify(courseCreationDTO.getCourseName()), courseRepository.count() + 1);
+        var course = courseRepository.save(new Course(courseCreationDTO.getCourseName(), slug, account));
+        if (!courseCreationDTO.getKey().isEmpty()) {
+            courseKeyRepository.save(new CourseKey(courseCreationDTO.getKey(), course));
         }
-
-        var course = courseRepository.save(new Course(name, url, account));
-        if (!key.isEmpty()) {
-            courseKeyRepository.save(new CourseKey(key, course));
-        }
-        return Optional.of(course);
+        return course;
     }
 
     @Transactional

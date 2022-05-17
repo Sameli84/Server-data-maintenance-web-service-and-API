@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" layout:decorate="~{layout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Create course</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="row mx-0">
+        <div class="col col-lg-6 col-md-8 px-0 mb-3">
+            <form action="/courses/create" method="post" th:object="${courseCreationDTO}">
+                <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+                <div class="mb-3">
+                    <label for="course-name-input">Course name</label>
+                    <input type="text" name="courseName" id="course-name-input" class="form-control" required
+                           placeholder="Enter course name"
+                           th:value="${courseCreationDTO.getCourseName()}"
+                           th:classappend="${#fields.hasErrors('courseName') ? 'is-invalid' : ''}">
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('courseName')}"
+                         th:text="${#fields.errors('courseName')[0]}"></div>
+                </div>
+                <div class="mb-3">
+                    <label for="key-input">Course key</label>
+                    <input type="text" name="key" id="key-input" class="form-control"
+                           placeholder="Enter course key (optional)"
+                           th:value="${courseCreationDTO.getKey()}"
+                           th:classappend="${#fields.hasErrors('key') ? 'is-invalid' : ''}">
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('key')}"
+                         th:text="${#fields.errors('key')[0]}"></div>
+                </div>
+                <input type="submit" value="Create" class="btn btn-primary btn-lg">
+            </form>
+        </div>
+    </div>
+</section>
+</body>
+</html>
