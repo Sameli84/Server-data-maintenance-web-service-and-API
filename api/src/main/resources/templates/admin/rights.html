@@ -16,20 +16,19 @@
     <form th:hx-post="@{/admin-tools/{id}/update(id=${account.getId()})}" hx-target="closest tr" hx-swap="outerHTML"
           onsubmit="enableStuff()">
         <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
-        <input type="hidden" th:value="${searchString}" name="searchString"/>
         <td>
             <input type="checkbox" class="btn-check" th:name="student" id="student" autocomplete="off"
-                   th:checked="${#lists.contains(account.roles, roles[2])}" value="student">
+                   th:checked="${#lists.contains(account.roles, roles[2])}">
             <label class="btn btn-outline-primary" for="student">Student</label>
         </td>
         <td>
             <input type="checkbox" class="btn-check" th:name="teacher" id="teacher" autocomplete="off"
-                   th:checked="${#lists.contains(account.roles, roles[1])}" value="teacher">
+                   th:checked="${#lists.contains(account.roles, roles[1])}">
             <label class="btn btn-outline-primary" for="teacher">Teacher</label>
         </td>
         <td>
             <input type="checkbox" class="btn-check" th:name="admin" id="admin" autocomplete="off"
-                   th:checked="${#lists.contains(account.roles, roles[0])}" value="admin">
+                   th:checked="${#lists.contains(account.roles, roles[0])}">
             <label class="btn btn-outline-primary" for="admin">Admin</label>
         </td>
         <td>
