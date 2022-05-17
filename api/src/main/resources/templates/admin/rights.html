@@ -4,12 +4,17 @@
             element.disabled = true;
             element.title = "Edit one row at a time!";
         })
+        function enableStuff() {
+            document.getElementsByName("editRights").forEach(element => {
+                element.disabled = false;
+                element.title = null;
+            })
+        }
     </script>
     <td>[[${account.name}]]</td>
     <td>[[${account.email}]]</td>
-    <form th:hx-post="@{/admin-tools/{id}/update(id=${account.getId()})}"
-          hx-target="closest tr"
-          hx-swap="outerHTML">
+    <form th:hx-post="@{/admin-tools/{id}/update(id=${account.getId()})}" hx-target="closest tr" hx-swap="outerHTML"
+          onsubmit="enableStuff()">
         <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
         <input type="hidden" th:value="${searchString}" name="searchString"/>
         <td>
