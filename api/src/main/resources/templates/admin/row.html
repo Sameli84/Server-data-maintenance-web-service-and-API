@@ -2,19 +2,19 @@
     <td>[[${account.name}]]</td>
     <td>[[${account.email}]]</td>
     <td>
-        <input disabled type="checkbox" class="btn-check" th:id="'buttonStudent' + ${account.getId()}"
+        <input disabled type="checkbox" class="form-check-input" th:id="'buttonStudent' + ${account.getId()}"
                th:checked="${#lists.contains(account.roles, roles[2])}">
-        <label class="btn btn-outline-primary" th:for="'buttonStudent' + ${account.getId()}">Student</label>
+        <label class="form-check-label" th:for="'buttonStudent' + ${account.getId()}">Student</label>
     </td>
     <td>
-        <input disabled type="checkbox" class="btn-check" th:id="'buttonTeacher' + ${account.getId()}"
+        <input disabled type="checkbox" class="form-check-input" th:id="'buttonTeacher' + ${account.getId()}"
                th:checked="${#lists.contains(account.roles, roles[1])}">
-        <label class="btn btn-outline-primary" th:for="'buttonTeacher' + ${account.getId()}">Teacher</label>
+        <label class="form-check-label" th:for="'buttonTeacher' + ${account.getId()}">Teacher</label>
     </td>
     <td>
-        <input disabled type="checkbox" class="btn-check" th:id="'buttonAdmin' + ${account.getId()}"
+        <input disabled type="checkbox" class="form-check-input" th:id="'buttonAdmin' + ${account.getId()}"
                th:checked="${#lists.contains(account.roles, roles[0])}">
-        <label class="btn btn-outline-primary" th:for="'buttonAdmin' + ${account.getId()}">Admin</label>
+        <label class="form-check-label" th:for="'buttonAdmin' + ${account.getId()}">Admin</label>
     </td>
     <td>
         <button th:hx-get="@{/admin-tools/{id}/edit(id=${account.getId()})}" hx-trigger="click" hx-target="closest tr"
