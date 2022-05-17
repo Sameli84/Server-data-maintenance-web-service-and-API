@@ -51,7 +51,7 @@ public class Account extends AbstractPersistable<Long> implements UserDetails {
             joinColumns = @JoinColumn(name = "account_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
     )
-    private Collection<Role> roles;
+    private Set<Role> roles = new HashSet<>();
 
     public Account(String firstName, String lastName, String email, String password) {
         this.firstName = firstName;

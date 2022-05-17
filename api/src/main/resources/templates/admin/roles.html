@@ -1,0 +1,29 @@
+<tr hx-swap="outerHTML" hx-target="this">
+    <td>[[${account.name}]]</td>
+    <td>[[${account.email}]]</td>
+    <td>
+        <input type="checkbox" class="form-check-input" th:name="student" id="student" autocomplete="off"
+               th:checked="${#lists.contains(account.roles, roles[2])}">
+        <label class="form-check-label" for="student">Student</label>
+    </td>
+    <td>
+        <input type="checkbox" class="form-check-input" th:name="teacher" id="teacher" autocomplete="off"
+               th:checked="${#lists.contains(account.roles, roles[1])}">
+        <label class="form-check-label" for="teacher">Teacher</label>
+    </td>
+    <td>
+        <input type="checkbox" class="form-check-input" th:name="admin" id="admin" autocomplete="off"
+               th:checked="${#lists.contains(account.roles, roles[0])}">
+        <label class="form-check-label" for="admin">Admin</label>
+    </td>
+    <td>
+        <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+        <button class="btn btn-danger" onclick="enableStuff()" th:hx-get="@{/admin-tools/{id}(id=${account.getId()})}">
+            Cancel
+        </button>
+        <button class="btn btn-primary" th:hx-put="@{/admin-tools/{id}(id=${account.getId()})}" hx-include="closest tr"
+                onclick="enableStuff()">
+            Update
+        </button>
+    </td>
+</tr>
