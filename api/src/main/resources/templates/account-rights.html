@@ -1,5 +1,4 @@
 <tr>
-    <form th:action="@{/admin-tools/{accountId}/update (accountId=${account.id})}" method="post">
     <script>document.getElementsByName("editRights").forEach(element => {element.setAttribute("disabled", true), element.setAttribute("title", "Edit one row at a time!")})</script>
     <td>[[${account.name}]]</td>
     <td>[[${account.email}]]</td>
@@ -19,9 +18,23 @@
         <label class="btn btn-outline-primary" for="admin">Admin</label>
     </td>
     <td>
-        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-        <input type="hidden" th:value="${searchString}" name="searchString">
-        <input type="submit" value="Update" class="btn btn-primary mb-3">
+        <button
+                th:hx-post="'/admin-tools/'+ ${account.id} + '/update'"
+                hx-trigger="click, updateRights"
+                hx-target="closest tbody"
+                hx-swap="outerHTML"
+                class="btn btn-primary mb-3"
+                style="pointer-events: all"
+                name="updateRights"
+                hx-include="[name='searchString']"
+                th:hx-include="'[name=' + ${_csrf?.parameterName} +']'"
+                hx-include="[name='student']"
+                hx-include="[name='teacher']"
+                hx-include="[name='admin']">
+            Update
+            <input type="hidden" th:value="${searchString}" name="searchString"/>
+            <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+        </button>
+
     </td>
-    </form>
 </tr>

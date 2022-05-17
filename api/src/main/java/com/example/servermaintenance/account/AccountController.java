@@ -125,11 +125,22 @@ public class AccountController {
     @Secured("ROLE_ADMIN")
     @PostMapping("/admin-tools/{accountId}/update")
     public String updateRights(RedirectAttributes ra, @PathVariable int accountId, @RequestParam Optional<String> student, @RequestParam Optional<String> teacher,
-                               @RequestParam Optional<String> admin, @RequestParam Optional<String> searchString) {
+                               @RequestParam Optional<String> admin, @RequestParam Optional<String> searchString, Model model) {
+
+        List<Account> accounts;
+
+        System.out.println("HELLOU");
 
         if(searchString.isPresent()) {
             ra.addFlashAttribute("searchName", searchString.get());
+            accounts = accountService.searchAccounts(searchString.get());
         }
+
+        accounts = accountService.getAccounts();
+        model.addAttribute("accounts", accounts);
+
+        List<Role> roleList = roleRepository.findAll();
+        model.addAttribute("roles", roleList);
 
         if(student.isPresent()) {
             accountService.grantRights(accountId, roleRepository.findByName("ROLE_STUDENT"));
@@ -149,7 +160,7 @@ public class AccountController {
             accountService.removeRights(accountId, roleRepository.findByName("ROLE_ADMIN"));
         }
 
-        return "redirect:/admin-tools";
+        return "account-table";
     }
 
 }
