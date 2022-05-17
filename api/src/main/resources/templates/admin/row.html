@@ -17,13 +17,10 @@
         <label class="btn btn-outline-primary" th:for="'buttonAdmin' + ${account.getId()}">Admin</label>
     </td>
     <td>
-        <button th:hx-get="@{/admin-tools/{id}(id=${account.getId()})}"
-                hx-trigger="click"
-                hx-target="closest tr"
-                hx-swap="outerHTML"
-                class="btn btn-outline-primary"
-                style="pointer-events: all"
-                name="editRights">Edit
+        <button th:hx-get="@{/admin-tools/{id}/edit(id=${account.getId()})}" hx-trigger="click" hx-target="closest tr"
+                hx-swap="outerHTML" class="btn btn-outline-primary" style="pointer-events: all" name="editRights"
+                onclick="disableStuff()">
+            Edit
         </button>
     </td>
 </tr>

@@ -1,17 +1,33 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}" xmlns:th="http://www.thymeleaf.org">>
-<script src="https://unpkg.com/htmx.org@1.7.0" integrity="sha384-EzBXYPt0/T6gxNp0nuPtLkmRpmDBbjg6WmCUZRLXBBwYYmwAUxzlSGej0ARHX0Bo" crossorigin="anonymous" defer></script>
+<html lang="en" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}"
+      xmlns:th="http://www.thymeleaf.org">>
+<script src="https://unpkg.com/htmx.org@1.7.0"
+        integrity="sha384-EzBXYPt0/T6gxNp0nuPtLkmRpmDBbjg6WmCUZRLXBBwYYmwAUxzlSGej0ARHX0Bo" crossorigin="anonymous"
+        defer></script>
 <head>
     <title>ADMIN TOOLS</title>
 </head>
 <body>
 <section layout:fragment="content">
-    <h2>
-        Search Accounts
-        <span class="htmx-indicator">
-    <img src="/img/bars.svg"/> Searching...
-   </span>
-    </h2>
+    <script>
+        function disableStuff() {
+            document.getElementsByName("editRights").forEach(element => {
+                element.setAttribute("disabled", true);
+                element.setAttribute("title", "Edit one row at a time!")
+            })
+            document.getElementById("account-search").setAttribute("disabled", true);
+        }
+
+        function enableStuff() {
+            document.getElementsByName("editRights").forEach(element => {
+                element.removeAttribute("disabled");
+                element.removeAttribute("title");
+            })
+            document.getElementById("account-search").removeAttribute("disabled");
+        }
+    </script>
+
+    <h2>Search Accounts</h2>
     <div class="mb-3 col col-lg-6 col-md-8 px-0">
         <form onsubmit="return false;">
             <input class="form-control form-control-lg col me-3" type="search" th:value="${searchName}"
