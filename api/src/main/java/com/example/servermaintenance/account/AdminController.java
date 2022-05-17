@@ -53,4 +53,14 @@ public class AdminController {
 
         return "admin/row";
     }
+
+    @Secured("ROLE_ADMIN")
+    @GetMapping("/admin-tools/{accountId}/update")
+    public String cancelUpdate(RedirectAttributes ra, @PathVariable int accountId, @RequestParam Optional<String> student, @RequestParam Optional<String> teacher,
+                               @RequestParam Optional<String> admin, Model model) {
+        model.addAttribute("account", accountService.getAccountById(accountId));
+        model.addAttribute("roles", roleRepository.findAll());
+
+        return "admin/row";
+    }
 }
