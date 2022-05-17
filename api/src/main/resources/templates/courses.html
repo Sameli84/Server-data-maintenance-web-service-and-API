@@ -12,9 +12,9 @@
         <div class="col col-lg-6 col-md-8 px-0 mb-3">
             <form method="post" action="/courses/join" class="row mx-0">
                 <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+                <label for="join-key-input" class="h2 px-0">Course key</label>
                 <input name="key" id="join-key-input" class="form-control form-control-lg col me-3"
-                       placeholder="Course key"
-                       aria-label="Course key">
+                       placeholder="Enter course key">
                 <input type="submit" value="Join" class="btn btn-success px-5 fw-bold col-auto">
             </form>
         </div>

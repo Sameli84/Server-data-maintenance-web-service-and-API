@@ -10,10 +10,13 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import java.util.*;
 
 @Controller
@@ -81,20 +84,18 @@ public class CourseController {
 
     @Secured("ROLE_TEACHER")
     @GetMapping("/courses/create")
-    public String getCourseCreationPage() {
-        return "create_course";
+    public String getCourseCreationPage(@ModelAttribute CourseCreationDTO courseCreationDTO) {
+        return "create-course";
     }
 
     @Secured("ROLE_TEACHER")
     @PostMapping("/courses/create")
-    public String createCourse(@ModelAttribute Account account, @RequestParam("course-name") String courseName, @RequestParam String url, @RequestParam String key, RedirectAttributes redirectAttributes) {
-        var course = courseService.newCourse(courseName, url, account, key);
-        if (course.isPresent()) {
-            return "redirect:/courses/" + course.get().getUrl();
-        } else {
-            redirectAttributes.addFlashAttribute("error", "Couldn't create a new course");
-            return "redirect:/courses/create";
+    public String createCourse(@ModelAttribute Account account, @Valid @ModelAttribute CourseCreationDTO courseCreationDTO, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+        if (bindingResult.hasErrors()) {
+            return "create-course";
         }
+        var course = courseService.newCourse(courseCreationDTO, account);
+        return "redirect:/courses/" + course.getUrl();
     }
 
     @GetMapping("/courses/{course}")
