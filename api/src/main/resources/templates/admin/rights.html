@@ -4,11 +4,13 @@
             element.disabled = true;
             element.title = "Edit one row at a time!";
         })
+        document.getElementById("account-search").setAttribute("disabled", true)
         function enableStuff() {
             document.getElementsByName("editRights").forEach(element => {
                 element.disabled = false;
                 element.title = null;
             })
+            document.getElementById("account-search").removeAttribute("disabled");
         }
     </script>
     <td>[[${account.name}]]</td>
@@ -33,7 +35,16 @@
             <label class="btn btn-outline-primary" for="admin">Admin</label>
         </td>
         <td>
-            <input type="submit" value="Update" class="btn btn-primary">
-        </td>
+            <input type="submit" value="Update" class="btn btn-primary" name="submit">
     </form>
+            <button th:hx-get="@{/admin-tools/{id}/update(id=${account.getId()})}"
+                    hx-trigger="click"
+                    hx-target="closest tr"
+                    hx-swap="outerHTML"
+                    class="btn btn-danger"
+                    name="cancelButton"
+                    onclick="enableStuff()">
+                Cancel
+            </button>
+        </td>
 </tr>

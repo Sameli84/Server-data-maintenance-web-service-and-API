@@ -77,14 +77,16 @@ public class AdminController {
         model.addAttribute("account", account);
         List<Role> roleList = roleRepository.findAll();
         model.addAttribute("roles", roleList);
-        model.addAttribute("searchString", searchString.get());
+        if(searchString.isPresent()) {
+            model.addAttribute("searchString", searchString.get());
+        }
         return "admin/rights";
     }
 
     @Secured("ROLE_ADMIN")
     @PostMapping("/admin-tools/{accountId}/update")
     public String updateRights(RedirectAttributes ra, @PathVariable int accountId, @RequestParam Optional<String> student, @RequestParam Optional<String> teacher,
-                               @RequestParam Optional<String> admin, @RequestParam Optional<String> searchString, Model model) {
+                               @RequestParam Optional<String> admin, Model model) {
         model.addAttribute("account", accountService.getAccountById(accountId));
         model.addAttribute("roles", roleRepository.findAll());
 
@@ -105,6 +107,16 @@ public class AdminController {
         } else {
             accountService.removeRights(accountId, roleRepository.findByName("ROLE_ADMIN"));
         }
+
+        return "admin/row";
+    }
+
+    @Secured("ROLE_ADMIN")
+    @GetMapping("/admin-tools/{accountId}/update")
+    public String cancelUpdate(RedirectAttributes ra, @PathVariable int accountId, @RequestParam Optional<String> student, @RequestParam Optional<String> teacher,
+                               @RequestParam Optional<String> admin, Model model) {
+        model.addAttribute("account", accountService.getAccountById(accountId));
+        model.addAttribute("roles", roleRepository.findAll());
 
         return "admin/row";
     }
