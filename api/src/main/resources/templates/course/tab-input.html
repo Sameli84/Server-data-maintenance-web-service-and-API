@@ -11,7 +11,7 @@
                     <div class="mb-3 col">
                         <label for="name-input">Project</label>
                         <input type="text" name="project" id="name-input" th:value="${studentData?.getProject()}"
-                               placeholder="Enter project" class="form-control">
+                               placeholder="Enter project" class="form-control" maxlength="255">
                     </div>
                     <div class="mb-3 col">
                         <label for="student-alias-input">Student alias</label>
@@ -23,7 +23,7 @@
                         <label for="csc-username-input">CSC Username</label>
                         <input type="text" name="cscUsername" id="csc-username-input"
                                th:value="${studentData?.getCscUsername()}"
-                               placeholder="Enter CSC username" class="form-control">
+                               placeholder="Enter CSC username" class="form-control" maxlength="255">
                     </div>
                     <div class="mb-3 col">
                         <label for="uid-input">Uid</label>
@@ -34,7 +34,7 @@
                         <label for="vps-user-name-input">VPS username</label>
                         <input type="text" name="vpsUsername" id="vps-user-name-input"
                                th:value="${studentData?.getVpsUserName()}"
-                               placeholder="Enter VPS username" class="form-control">
+                               placeholder="Enter VPS username" class="form-control" maxlength="255">
                     </div>
                     <div class="mb-3 col">
                         <label for="ip-address-input">IP address</label>
@@ -48,13 +48,13 @@
                     <div class="mb-3 col">
                         <label for="pouta-dns-input">Pouta DNS</label>
                         <input type="text" name="poutaDns" id="pouta-dns-input" th:value="${studentData?.getPoutaDns()}"
-                               placeholder="Enter Pouta DNS" class="form-control">
+                               placeholder="Enter Pouta DNS" class="form-control" maxlength="255">
                     </div>
                     <div class="mb-3 col">
                         <label for="self-made-dns-name-input">Self made DNS name</label>
                         <input type="text" name="selfMadeDnsName" id="self-made-dns-name-input"
                                th:value="${studentData?.getSelfMadeDnsName()}" placeholder="Enter self made DNS name"
-                               class="form-control">
+                               class="form-control" maxlength="255">
                     </div>
                 </form>
                 <input type="submit" value="Update information" class="btn btn-primary btn-lg mb-3"
