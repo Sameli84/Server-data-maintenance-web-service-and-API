@@ -1,0 +1,22 @@
+<ul class="nav nav-tabs" layout:fragment="tabs(tab)">
+    <li class="nav-item">
+        <button class="nav-link" th:classappend="${tab == 'input' ? 'active' : ''}"
+                th:hx-get="@{/courses/{url}/input(url=${course.getUrl()})}">Input
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" th:classappend="${tab == 'data' ? 'active' : ''}"
+                th:hx-get="@{/courses/{url}/data(url=${course.getUrl()})}">Data
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" th:classappend="${tab == 'students' ? 'active' : ''}"
+                th:hx-get="@{/courses/{url}/students(url=${course.getUrl()})}">Students
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" th:classappend="${tab == 'keys' ? 'active' : ''}"
+                th:hx-get="@{/courses/{url}/keys(url=${course.getUrl()})}">Keys
+        </button>
+    </li>
+</ul>

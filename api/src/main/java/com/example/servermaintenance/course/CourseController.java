@@ -3,7 +3,6 @@ package com.example.servermaintenance.course;
 import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.account.AccountNotFoundException;
 import com.example.servermaintenance.account.RoleService;
-import com.example.servermaintenance.datarow.DataRow;
 import com.example.servermaintenance.datarow.DataRowService;
 import com.example.servermaintenance.account.AccountService;
 import lombok.AllArgsConstructor;
@@ -104,12 +103,38 @@ public class CourseController {
             model.addAttribute("studentData", studentData);
             model.addAttribute("courseDataDTO", dataRowService.getCourseDataDTO(studentData));
         }
-        model.addAttribute("datarows", dataRowService.getCourseData(course));
         model.addAttribute("isStudent", course.getStudents().contains(account));
-        model.addAttribute("hasKey", course.getCourseKeys().size() > 0);
-        return "course";
+        model.addAttribute("hasKey", courseService.hasCourseKey(course));
+        return "course/page";
     }
 
+    @GetMapping("/courses/{course}/input")
+    public String getInputTab(@PathVariable Course course, @ModelAttribute Account account, Model model) {
+        var studentData = dataRowService.getStudentData(course, account);
+        if(studentData != null) {
+            model.addAttribute("studentData", studentData);
+            model.addAttribute("courseDataDTO", dataRowService.getCourseDataDTO(studentData));
+        }
+        model.addAttribute("isStudent", course.getStudents().contains(account));
+
+        return "course/tab-input";
+    }
+
+    @GetMapping("/courses/{course}/data")
+    public String getDataTab(@PathVariable Course course, @ModelAttribute Account account, Model model) {
+        model.addAttribute("datarows", dataRowService.getCourseData(course));
+        return "course/tab-data";
+    }
+
+    @GetMapping("/courses/{course}/students")
+    public String getStudentsTab(@PathVariable Course course, @ModelAttribute Account account, Model model) {
+        return "course/tab-students";
+    }
+
+    @GetMapping("/courses/{course}/keys")
+    public String getKeysTab(@PathVariable Course course, @ModelAttribute Account account, Model model) {
+        return "course/tab-keys";
+    }
     @PostMapping("/courses/{course}/join")
     public String joinCourse(@PathVariable Course course, @RequestParam Optional<String> key, @ModelAttribute Account account, RedirectAttributes redirectAttributes) {
         if (courseService.joinToCourse(course, account, key.orElse(""))) {
@@ -121,7 +146,7 @@ public class CourseController {
     }
 
     @Secured("ROLE_TEACHER")
-    @PostMapping("/courses/{course}/students/{studentId}/kick")
+    @DeleteMapping("/courses/{course}/students/{studentId}/kick")
     public String kickFromCourse(@PathVariable Course course, @PathVariable int studentId, @ModelAttribute Account account, RedirectAttributes redirectAttributes) {
         if (!Objects.equals(course.getOwner().getId(), account.getId())) {
             redirectAttributes.addFlashAttribute("error", "Unauthorized action");
@@ -136,7 +161,7 @@ public class CourseController {
                 redirectAttributes.addFlashAttribute("error", "Couldn't kick user from the course");
             }
         }
-        return "redirect:/courses/" + course.getUrl();
+        return "course/tab-students";
     }
 
     @PostMapping("/courses/{course}/students/{studentId}/update-data")
@@ -174,15 +199,15 @@ public class CourseController {
         } else {
             redirectAttributes.addFlashAttribute("error", "Failed to create a new key");
         }
-        return "redirect:/courses/" + course.getUrl();
+        return "course/tab-keys";
     }
 
     @Secured("ROLE_TEACHER")
-    @PostMapping("/courses/{course}/keys/{keyId}/revoke")
+    @DeleteMapping("/courses/{course}/keys/{keyId}/revoke")
     public String revokeCourseKey(@PathVariable Course course, @PathVariable int keyId, @ModelAttribute Account account, RedirectAttributes redirectAttributes) {
         if (!courseService.deleteKey(course, keyId)) {
             redirectAttributes.addFlashAttribute("error", "Failed to delete the key");
         }
-        return "redirect:/courses/" + course.getUrl();
+        return "course/tab-keys";
     }
 }

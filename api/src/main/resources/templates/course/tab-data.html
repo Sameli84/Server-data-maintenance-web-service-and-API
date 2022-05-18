@@ -1,0 +1,34 @@
+<th:block layout:fragment="tab-data()">
+    <th:block layout:insert="~{course/tabs :: tabs('data')}"></th:block>
+    <div class="tab-content">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Project</th>
+                <th>Student name</th>
+                <th>Student alias</th>
+                <th>CSC username</th>
+                <th>Uid</th>
+                <th>Self made DNS name</th>
+                <th>VPS username</th>
+                <th>Pouta DNS</th>
+                <th>IP address</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="dataRow : ${datarows}">
+                <td>[[${dataRow.project}]]</td>
+                <td>[[${dataRow.account.name}]]</td>
+                <td>[[${dataRow.studentAlias}]]</td>
+                <td>[[${dataRow.cscUsername}]]</td>
+                <td>[[${dataRow.uid}]]</td>
+                <td>[[${dataRow.selfMadeDnsName}]]</td>
+                <td>[[${dataRow.vpsUserName}]]</td>
+                <td>[[${dataRow.poutaDns}]]</td>
+                <td>[[${dataRow.ipAddress}]]</td>
+            </tr>
+            </tbody>
+        </table>
+        <p th:if="${datarows.size() == 0}">No entries...</p>
+    </div>
+</th:block>
