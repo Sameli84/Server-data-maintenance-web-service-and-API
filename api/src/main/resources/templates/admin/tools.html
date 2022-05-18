@@ -34,7 +34,8 @@
                    name="search" placeholder="Begin Typing To Search Accounts..." id="account-search"
                    hx-post="/search"
                    hx-trigger="load, keyup changed delay:500ms, search"
-                   hx-target="#account-table">
+                   hx-target="#account-table"
+                   aria-label="Account search bar">
             <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
         </form>
     </div>
