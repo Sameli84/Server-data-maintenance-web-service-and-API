@@ -25,7 +25,7 @@ public class AccountService implements UserDetailsService {
     }
 
     public boolean registerStudent(RegisterDTO registerDTO) {
-        return registerAccount(registerDTO, Set.of(roleService.getRole("ROLE_STUDENT")));
+        return registerAccount(registerDTO, Set.of(roleService.getRole("STUDENT")));
     }
 
     @Transactional
