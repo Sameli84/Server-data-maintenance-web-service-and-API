@@ -125,4 +125,8 @@ public class CourseService {
     public List<Course> getCoursesByTeacher(Account account) {
         return courseRepository.findAllByOwner(account);
     }
+
+    public boolean hasCourseKey(Course course) {
+        return courseKeyRepository.existsCourseKeyByCourse(course);
+    }
 }

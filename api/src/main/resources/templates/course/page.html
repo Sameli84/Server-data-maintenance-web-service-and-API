@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" layout:decorate="~{layout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>[[${course.name}]]</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <h1>[[${course.name}]]</h1>
+    <p>by [[${course.getOwner()?.getName()}]]</p>
+
+    <div class="row mx-0" th:if="${!isStudent}">
+        <div class="mb-3 col col-lg-6 col-md-8 px-0">
+            <form method="post" th:action="@{/courses/{url}/join(url=${course.url})}" class="row mx-0">
+                <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+                <div class="input-group col ps-0" th:if="${hasKey}">
+                    <input name="key" id="join-key-input" class="form-control form-control-lg"
+                           placeholder="Enter course key"
+                           aria-label="Course key" th:if="${hasKey}">
+                </div>
+                <input type="submit" value="Join" class="btn btn-success px-5 fw-bold col-auto">
+            </form>
+        </div>
+    </div>
+
+    <div id="content" layout:insert="~{course/tab-input :: tab-input()}" hx-target="this" hx-swap="innerHTML"></div>
+</section>
+</body>
+</html>

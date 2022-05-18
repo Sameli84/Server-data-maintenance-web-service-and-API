@@ -1,0 +1,30 @@
+<th:block layout:fragment="tab-keys()">
+    <th:block layout:insert="~{course/tabs :: tabs('keys')}"></th:block>
+    <div class="tab-content">
+        <ul class="list-group list-group-flush mb-3 row row-cols-1 mx-0">
+            <li th:each="key : ${course.getCourseKeys()}" class="list-group-item my-2 col col-lg-6 col-md-8">
+                <div class="row">
+                    <div class="col">
+                        <span th:text="${key.getKey()}" class="me-3"></span>
+                    </div>
+                    <div class="col col-auto">
+                        <form th:hx-delete="@{/courses/{url}/keys/{key}/revoke(url=${course.url},key=${key.getId()})}"
+                              class="d-inline">
+                            <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+                            <input type="submit" value="Revoke" class="btn btn-danger btn-sm">
+                        </form>
+                    </div>
+                </div>
+            </li>
+        </ul>
+        <div class="mb-3 col col-lg-6 col-md-8">
+            <form th:hx-post="@{/courses/{url}/keys/create(url=${course.url})}" class="row mx-0">
+                <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+                <div class="input-group col">
+                    <input name="key" class="form-control" placeholder="New key" aria-label="New key">
+                </div>
+                <input type="submit" value="Add" class="btn btn-success px-5 me-2 col-auto">
+            </form>
+        </div>
+    </div>
+</th:block>
