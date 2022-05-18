@@ -100,8 +100,10 @@ public class CourseController {
     @GetMapping("/courses/{course}")
     public String getCoursePage(@PathVariable Course course, @ModelAttribute Account account, Model model) {
         var studentData = dataRowService.getStudentData(course, account);
-        model.addAttribute("studentData", studentData);
-        model.addAttribute("courseDataDTO", dataRowService.getCourseDataDTO(studentData));
+        if(studentData != null) {
+            model.addAttribute("studentData", studentData);
+            model.addAttribute("courseDataDTO", dataRowService.getCourseDataDTO(studentData));
+        }
         model.addAttribute("datarows", dataRowService.getCourseData(course));
         model.addAttribute("isStudent", course.getStudents().contains(account));
         model.addAttribute("hasKey", course.getCourseKeys().size() > 0);
