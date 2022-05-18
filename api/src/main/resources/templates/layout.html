@@ -41,8 +41,8 @@
             <th:block sec:authorize="isAuthenticated()">
                 <div class="navbar-nav">
                     <a href="/courses" class="nav-link">COURSES</a>
-                    <a href="/datarowpage" sec:authorize="hasRole('ROLE_TEACHER')" class="nav-link">DATAROW</a>
-                    <a href="/admin-tools" sec:authorize="hasRole('ROLE_ADMIN')" class="nav-link">ADMIN-TOOLS</a>
+                    <a href="/datarowpage" sec:authorize="hasRole('TEACHER')" class="nav-link">DATAROW</a>
+                    <a href="/admin-tools" sec:authorize="hasRole('ADMIN')" class="nav-link">ADMIN-TOOLS</a>
                 </div>
                 <div class="row">
                     <div class="col">
