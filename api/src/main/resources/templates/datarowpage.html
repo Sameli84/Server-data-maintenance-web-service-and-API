@@ -22,7 +22,7 @@
                                 class="dropdown-item">[[${course.getName()}]]
                         </option>
                     </select>
-                <input type="submit" value="Filter" class="btn btn-primary px-5 fw-bold col-auto">
+                <input type="submit" value="Filter" class="btn btn-primary px-5 fw-bold col-auto" id="filterButton">
             </form>
         </div>
     </div>
@@ -37,7 +37,6 @@
             <th>Ip Address</th>
             <th>Pouta Dns</th>
             <th>Self Made Dns Name</th>
-            <th>Dns Name</th>
             <th>Course</th>
             <th></th>
         </tr>
@@ -52,7 +51,6 @@
                 <td>[[${dataRow.ipAddress}]]</td>
                 <td>[[${dataRow.poutaDns}]]</td>
                 <td>[[${dataRow.selfMadeDnsName}]]</td>
-                <td>[[${dataRow.dnsName}]]</td>
                 <td>[[${dataRow.course.name}]]</td>
 
                 <td>

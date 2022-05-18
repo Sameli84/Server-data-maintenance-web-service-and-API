@@ -1,6 +1,9 @@
 
 <tr class="editing">
-    <script>document.getElementsByName("editRights").forEach(element => {element.setAttribute("disabled", true), element.setAttribute("title", "Edit one row at a time!")})</script>
+    <script>document.getElementsByName("edits").forEach(element => {element.setAttribute("disabled", true), element.setAttribute("title", "Edit one row at a time!")})
+            document.getElementById("filterButton").setAttribute("disabled", true);
+            document.getElementById("selectCourse").setAttribute("disabled", true);
+    </script>
     <form th:action="@{/datarowpage/{datarowId}/update (datarowId=${dataRow.id})}" method="post">
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
         <td><input type="text" name="name" id="name" th:value="${dataRow?.getName()}"
@@ -19,11 +22,14 @@
                    placeholder="poutaDns" class="form-control" required></td>
         <td><input type="text" name="selfMadeDnsName" id="selfMadeDnsName-input" th:value="${dataRow?.getSelfMadeDnsName()}"
                    placeholder="selfMadeDnsName" class="form-control" required></td>
-        <td><input type="text" name="dnsName" id="dns-Name-input" th:value="${dataRow?.getDnsName()}"
-                   placeholder="dnsName" class="form-control" required></td>
         <td><input type="text" name="courseName" id="courseName" th:value="${dataRow?.getCourse()?.getName()}"
                    placeholder="courseName" class="form-control" disabled></td>
-        <td><input type="submit" value="Update" class="btn btn-primary mb-3"></td>
+        <td><input type="submit" value="Update" class="btn btn-primary mb-3">
         <input type="hidden" name="myParam" id="myParam" th:value="${selectCourse} != null? ${selectCourse}:0">
     </form>
+    <form th:action="@{/datarowpage/{datarowId}/cancel (datarowId=${dataRow.id})}" method="get">
+        <input type="hidden" name="myCancelParam" id="myCancelParam" th:value="${selectCourse} != null? ${selectCourse}:0">
+        <input type="submit" value="Cancel" class="btn btn-danger mb-3">
+    </form>
+        </td>
 </tr>

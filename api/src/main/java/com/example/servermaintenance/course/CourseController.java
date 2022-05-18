@@ -140,8 +140,7 @@ public class CourseController {
 
     @PostMapping("/courses/{course}/students/{studentId}/update-data")
     public String createData(@PathVariable Course course, @PathVariable Long studentId, @ModelAttribute Account account,
-                             @RequestParam String cscUsername, @RequestParam int uid,
-                             @RequestParam String dnsName, @RequestParam String selfMadeDnsName,
+                             @RequestParam String cscUsername, @RequestParam int uid, @RequestParam String selfMadeDnsName,
                              @RequestParam String name, @RequestParam String vpsUsername,
                              @RequestParam String poutaDns, @RequestParam String ipAddress, RedirectAttributes redirectAttributes) {
 
@@ -160,9 +159,9 @@ public class CourseController {
 
         var data = dataRowService.getStudentData(course, account);
         if (data.isEmpty()) {
-            courseService.updateStudentsData(new DataRow(studentAlias, cscUsername, uid, dnsName, selfMadeDnsName, name, vpsUsername, poutaDns, ipAddress, account, course));
+            courseService.updateStudentsData(new DataRow(studentAlias, cscUsername, uid, selfMadeDnsName, name, vpsUsername, poutaDns, ipAddress, account, course));
         } else {
-            data.get().update(studentAlias, cscUsername, uid, dnsName, selfMadeDnsName, name, vpsUsername, poutaDns, ipAddress);
+            data.get().update(studentAlias, cscUsername, uid, selfMadeDnsName, name, vpsUsername, poutaDns, ipAddress);
             courseService.updateStudentsData(data.get());
         }
 

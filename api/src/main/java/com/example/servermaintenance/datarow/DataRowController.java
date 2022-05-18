@@ -81,8 +81,7 @@ public class DataRowController {
     @Secured("ROLE_TEACHER")
     @PostMapping("/datarowpage/{datarowId}/update")
     public String createData(@PathVariable Long datarowId, @RequestParam Optional<Long> myParam,
-                             @RequestParam String cscUsername,
-                             @RequestParam String dnsName, @RequestParam String selfMadeDnsName,
+                             @RequestParam String cscUsername, @RequestParam String selfMadeDnsName,
                              @RequestParam String name, @RequestParam String vpsUserName,
                              @RequestParam String poutaDns, @RequestParam String ipAddress) {
 
@@ -97,9 +96,21 @@ public class DataRowController {
             if ((account != data.get().getCourse().getOwner()) && (!roleService.isAdmin(account))) {
                 return "redirect:/datarowpage" + "?error";
             }
-            data.get().update(data.get().getStudentAlias(), cscUsername, data.get().getUid(), dnsName, selfMadeDnsName, name, vpsUserName, poutaDns, ipAddress);
+            data.get().update(data.get().getStudentAlias(), cscUsername, data.get().getUid(), selfMadeDnsName, name, vpsUserName, poutaDns, ipAddress);
             courseService.updateStudentsData(data.get());
         }
+
+        if (selectCourse == 0) {
+            return "redirect:/datarowpage";
+        }
+        return "redirect:/datarowpage?selectCourse=" + selectCourse;
+    }
+
+    @Secured("ROLE_TEACHER")
+    @GetMapping("/datarowpage/{datarowId}/cancel")
+    public String CancelData(@RequestParam Optional<Long> myCancelParam) {
+
+        Long selectCourse = myCancelParam.get();
 
         if (selectCourse == 0) {
             return "redirect:/datarowpage";
