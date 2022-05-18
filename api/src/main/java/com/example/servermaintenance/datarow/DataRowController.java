@@ -4,6 +4,7 @@ import com.example.servermaintenance.account.AccountRepository;
 import com.example.servermaintenance.account.AccountService;
 import com.example.servermaintenance.account.RoleService;
 import com.example.servermaintenance.course.Course;
+import com.example.servermaintenance.course.CourseDataDTO;
 import com.example.servermaintenance.course.CourseRepository;
 import com.example.servermaintenance.course.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,7 +82,7 @@ public class DataRowController {
     @PostMapping("/datarowpage/{datarowId}/update")
     public String createData(@PathVariable Long datarowId, @RequestParam Optional<Long> myParam,
                              @RequestParam String cscUsername, @RequestParam String selfMadeDnsName,
-                             @RequestParam String name, @RequestParam String vpsUserName,
+                             @RequestParam String project, @RequestParam String vpsUserName,
                              @RequestParam String poutaDns, @RequestParam String ipAddress) {
 
         var data = dataRowService.getDataRowById(datarowId);
@@ -95,8 +96,7 @@ public class DataRowController {
             if ((account != data.get().getCourse().getOwner()) && (!roleService.isAdmin(account))) {
                 return "redirect:/datarowpage" + "?error";
             }
-//            data.get().update(data.get().getStudentAlias(), cscUsername, data.get().getUid(), dnsName, selfMadeDnsName, name, vpsUserName, poutaDns, ipAddress);
-//            courseService.updateStudentsData(data.get());
+            dataRowService.updateDataRow(data.get(), new CourseDataDTO(cscUsername, selfMadeDnsName, project, vpsUserName, poutaDns, ipAddress));
         }
 
         if (selectCourse == 0) {
