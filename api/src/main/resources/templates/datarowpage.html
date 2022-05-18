@@ -26,7 +26,19 @@
             </form>
         </div>
     </div>
-    <table class="table table-striped text-center" id="myTableId">
+    <table class="table table-striped text-center" id="myTableId" style="border-top: none !important;">
+        <colgroup style="border-top: none !important;">
+            <col style="width:9.3%">
+            <col style="width:9.3%">
+            <col style="width:9.3%">
+            <col style="width:9.3%">
+            <col style="width:9.3%">
+            <col style="width:9.3%">
+            <col style="width:9.3%">
+            <col style="width:9.3%">
+            <col style="width:9.3%">
+            <col style="width:16.4%">
+        </colgroup>
         <thead>
         <tr>
             <th>Project Name</th>
@@ -64,7 +76,7 @@
                             name="edits"
                             >
                         <input type="hidden" th:value="${selectCourse} != null? ${selectCourse}:0" name="selectCourse">
-                        Edit
+                        Edit data
                     </button>
                 </td>
         </tr>
