@@ -1,7 +1,7 @@
 <th:block layout:fragment="tab-data()">
     <th:block layout:insert="~{course/tabs :: tabs('data')}"></th:block>
     <div class="tab-content">
-        <table class="table table-striped">
+        <table class="table table-striped text-center">
             <thead>
             <tr>
                 <th>Project</th>
@@ -9,7 +9,7 @@
                 <th>Student alias</th>
                 <th>CSC username</th>
                 <th>Uid</th>
-                <th>Self made DNS name</th>
+                <th>Self made DNS</th>
                 <th>VPS username</th>
                 <th>Pouta DNS</th>
                 <th>IP address</th>
@@ -17,15 +17,15 @@
             </thead>
             <tbody>
             <tr th:each="dataRow : ${datarows}">
-                <td>[[${dataRow.project}]]</td>
-                <td>[[${dataRow.account.name}]]</td>
-                <td>[[${dataRow.studentAlias}]]</td>
-                <td>[[${dataRow.cscUsername}]]</td>
-                <td>[[${dataRow.uid}]]</td>
-                <td>[[${dataRow.selfMadeDnsName}]]</td>
-                <td>[[${dataRow.vpsUserName}]]</td>
-                <td>[[${dataRow.poutaDns}]]</td>
-                <td>[[${dataRow.ipAddress}]]</td>
+                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.project})}"></td>
+                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.account.name})}"></td>
+                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.studentAlias})}"></td>
+                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.cscUsername})}"></td>
+                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.uid})}"></td>
+                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.selfMadeDnsName})}"></td>
+                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.vpsUserName})}"></td>
+                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.poutaDns})}"></td>
+                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.ipAddress})}"></td>
             </tr>
             </tbody>
         </table>

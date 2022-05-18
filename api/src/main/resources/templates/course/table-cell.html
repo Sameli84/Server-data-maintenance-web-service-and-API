@@ -1,0 +1,4 @@
+<th:block layout:fragment="table-cell(data)">
+  <td th:if="${data != null && data != ''}" th:text="${data}"></td>
+  <td th:if="${data == null || data == ''}" class="fst-italic text-muted">Empty</td>
+</th:block>
