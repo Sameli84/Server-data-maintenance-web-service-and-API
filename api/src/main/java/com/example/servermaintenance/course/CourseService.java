@@ -51,6 +51,7 @@ public class CourseService {
         course.addStudent(account);
         courseRepository.save(course);
         accountRepository.save(account);
+        dataRowService.generateData(course, account);
         return true;
     }
 
@@ -71,10 +72,6 @@ public class CourseService {
 
     public Optional<Course> getCourseByUrl(String url) {
         return courseRepository.findCourseByUrl(url);
-    }
-
-    public void updateStudentsData(DataRow data) {
-        dataRowRepository.save(data);
     }
 
     public Boolean checkIfStudentOnCourse(Course course, Account account) {

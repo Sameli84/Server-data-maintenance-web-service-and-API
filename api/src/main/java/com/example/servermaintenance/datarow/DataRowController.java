@@ -97,8 +97,8 @@ public class DataRowController {
             if ((account != data.get().getCourse().getOwner()) && (!roleService.isAdmin(account))) {
                 return "redirect:/datarowpage" + "?error";
             }
-            data.get().update(data.get().getStudentAlias(), cscUsername, data.get().getUid(), dnsName, selfMadeDnsName, name, vpsUserName, poutaDns, ipAddress);
-            courseService.updateStudentsData(data.get());
+//            data.get().update(data.get().getStudentAlias(), cscUsername, data.get().getUid(), dnsName, selfMadeDnsName, name, vpsUserName, poutaDns, ipAddress);
+//            courseService.updateStudentsData(data.get());
         }
 
         if (selectCourse == 0) {

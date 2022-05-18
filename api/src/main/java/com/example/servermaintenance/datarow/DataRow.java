@@ -2,6 +2,7 @@ package com.example.servermaintenance.datarow;
 
 import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.course.Course;
+import com.example.servermaintenance.course.CourseDataDTO;
 import com.opencsv.bean.CsvIgnore;
 import lombok.*;
 
@@ -30,14 +31,11 @@ public class DataRow implements Serializable {
     @Column(name = "user_id")
     private int uid;
 
-    @Column(name = "dns_name")
-    private String dnsName;
-
     @Column(name = "self_made_dns_name")
     private String selfMadeDnsName;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "project")
+    private String project;
 
     @Column(name = "vps_user_name")
     private String vpsUserName;
@@ -58,28 +56,15 @@ public class DataRow implements Serializable {
     @JoinColumn(name = "course_id")
     private Course course;
 
-    public void update(String studentAlias, String cscUsername, int uid, String dnsName, String selfMadeDnsName, String name, String vpsUserName, String poutaDns, String ipAddress) {
-        setStudentAlias(studentAlias);
-        setCscUsername(cscUsername);
-        setUid(uid);
-        setDnsName(dnsName);
-        setSelfMadeDnsName(selfMadeDnsName);
-        setName(name);
-        setVpsUserName(vpsUserName);
-        setPoutaDns(poutaDns);
-        setIpAddress(ipAddress);
-    }
-
-    public DataRow(String studentAlias, String cscUsername, int uid, String dnsName, String selfMadeDnsName, String name, String vpsUserName, String poutaDns, String ipAddress, Account account, Course course) {
+    public DataRow(String studentAlias, int uid, CourseDataDTO courseDataDTO, Account account, Course course) {
         this.studentAlias = studentAlias;
-        this.cscUsername = cscUsername;
         this.uid = uid;
-        this.dnsName = dnsName;
-        this.selfMadeDnsName = selfMadeDnsName;
-        this.name = name;
-        this.vpsUserName = vpsUserName;
-        this.poutaDns = poutaDns;
-        this.ipAddress = ipAddress;
+        this.project = courseDataDTO.getProject();
+        this.cscUsername = courseDataDTO.getCscUsername();
+        this.selfMadeDnsName = courseDataDTO.getSelfMadeDnsName();
+        this.vpsUserName = courseDataDTO.getVpsUsername();
+        this.poutaDns = courseDataDTO.getPoutaDns();
+        this.ipAddress = courseDataDTO.getIpAddress();
         this.account = account;
         this.course = course;
     }

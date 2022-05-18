@@ -3,7 +3,6 @@ package com.example.servermaintenance.course;
 import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.account.AccountNotFoundException;
 import com.example.servermaintenance.account.RoleService;
-import com.example.servermaintenance.datarow.DataRow;
 import com.example.servermaintenance.datarow.DataRowService;
 import com.example.servermaintenance.account.AccountService;
 import lombok.AllArgsConstructor;
@@ -11,7 +10,6 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -90,7 +88,7 @@ public class CourseController {
 
     @Secured("ROLE_TEACHER")
     @PostMapping("/courses/create")
-    public String createCourse(@ModelAttribute Account account, @Valid @ModelAttribute CourseCreationDTO courseCreationDTO, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+    public String createCourse(@ModelAttribute Account account, @Valid @ModelAttribute CourseCreationDTO courseCreationDTO, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return "create-course";
         }
@@ -100,9 +98,9 @@ public class CourseController {
 
     @GetMapping("/courses/{course}")
     public String getCoursePage(@PathVariable Course course, @ModelAttribute Account account, Model model) {
-        var data = dataRowService.getStudentData(course, account);
-
-        model.addAttribute("data", data.orElse(null));
+        var studentData = dataRowService.getStudentData(course, account);
+        model.addAttribute("studentData", studentData);
+        model.addAttribute("courseDataDTO", dataRowService.getCourseDataDTO(studentData));
         model.addAttribute("datarows", dataRowService.getCourseData(course));
         model.addAttribute("isStudent", course.getStudents().contains(account));
         model.addAttribute("hasKey", course.getCourseKeys().size() > 0);
@@ -139,19 +137,16 @@ public class CourseController {
     }
 
     @PostMapping("/courses/{course}/students/{studentId}/update-data")
-    public String createData(@PathVariable Course course, @PathVariable Long studentId, @ModelAttribute Account account,
-                             @RequestParam String cscUsername, @RequestParam int uid,
-                             @RequestParam String dnsName, @RequestParam String selfMadeDnsName,
-                             @RequestParam String name, @RequestParam String vpsUsername,
-                             @RequestParam String poutaDns, @RequestParam String ipAddress, RedirectAttributes redirectAttributes) {
+    public String createData(@PathVariable Course course,
+                             @PathVariable Long studentId,
+                             @ModelAttribute Account account,
+                             @ModelAttribute CourseDataDTO courseDataDTO,
+                             RedirectAttributes redirectAttributes) {
 
         if (!Objects.equals(account.getId(), studentId) && !roleService.isTeacher(account)) {
             redirectAttributes.addFlashAttribute("error", "Unauthorized action");
             return "redirect:/courses/" + course;
         }
-
-        String studentAlias = account.getEmail().split("@")[0];
-
 
         if (!courseService.checkIfStudentOnCourse(course, account)) {
             redirectAttributes.addFlashAttribute("error", "You must sign up for course before submitting data!");
@@ -159,13 +154,11 @@ public class CourseController {
         }
 
         var data = dataRowService.getStudentData(course, account);
-        if (data.isEmpty()) {
-            courseService.updateStudentsData(new DataRow(studentAlias, cscUsername, uid, dnsName, selfMadeDnsName, name, vpsUsername, poutaDns, ipAddress, account, course));
-        } else {
-            data.get().update(studentAlias, cscUsername, uid, dnsName, selfMadeDnsName, name, vpsUsername, poutaDns, ipAddress);
-            courseService.updateStudentsData(data.get());
+        if (data == null) {
+            data = dataRowService.generateData(course, account);
         }
 
+        dataRowService.updateDataRow(data, courseDataDTO);
         return "redirect:/courses/" + course.getUrl();
     }
 
