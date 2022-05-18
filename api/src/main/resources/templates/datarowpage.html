@@ -22,11 +22,23 @@
                                 class="dropdown-item">[[${course.getName()}]]
                         </option>
                     </select>
-                <input type="submit" value="Filter" class="btn btn-primary px-5 fw-bold col-auto">
+                <input type="submit" value="Filter" class="btn btn-primary px-5 fw-bold col-auto" id="filterButton">
             </form>
         </div>
     </div>
-    <table class="table table-striped text-center" id="myTableId">
+    <table class="table table-striped text-center" id="myTableId" style="border-top: none !important;">
+        <colgroup style="border-top: none !important;">
+            <col style="width:9.3%">
+            <col style="width:9.3%">
+            <col style="width:9.3%">
+            <col style="width:9.3%">
+            <col style="width:9.3%">
+            <col style="width:9.3%">
+            <col style="width:9.3%">
+            <col style="width:9.3%">
+            <col style="width:9.3%">
+            <col style="width:16.4%">
+        </colgroup>
         <thead>
         <tr>
             <th>Project Name</th>
@@ -37,7 +49,6 @@
             <th>Ip Address</th>
             <th>Pouta Dns</th>
             <th>Self Made Dns Name</th>
-            <th>Dns Name</th>
             <th>Course</th>
             <th></th>
         </tr>
@@ -52,7 +63,6 @@
                 <td>[[${dataRow.ipAddress}]]</td>
                 <td>[[${dataRow.poutaDns}]]</td>
                 <td>[[${dataRow.selfMadeDnsName}]]</td>
-                <td>[[${dataRow.dnsName}]]</td>
                 <td>[[${dataRow.course.name}]]</td>
 
                 <td>
@@ -66,7 +76,7 @@
                             name="edits"
                             >
                         <input type="hidden" th:value="${selectCourse} != null? ${selectCourse}:0" name="selectCourse">
-                        Edit
+                        Edit data
                     </button>
                 </td>
         </tr>

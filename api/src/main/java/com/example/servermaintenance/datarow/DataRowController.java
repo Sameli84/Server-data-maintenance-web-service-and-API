@@ -8,8 +8,6 @@ import com.example.servermaintenance.course.CourseRepository;
 import com.example.servermaintenance.course.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+
 @Controller
 public class DataRowController {
 
@@ -81,8 +80,7 @@ public class DataRowController {
     @Secured("ROLE_TEACHER")
     @PostMapping("/datarowpage/{datarowId}/update")
     public String createData(@PathVariable Long datarowId, @RequestParam Optional<Long> myParam,
-                             @RequestParam String cscUsername,
-                             @RequestParam String dnsName, @RequestParam String selfMadeDnsName,
+                             @RequestParam String cscUsername, @RequestParam String selfMadeDnsName,
                              @RequestParam String name, @RequestParam String vpsUserName,
                              @RequestParam String poutaDns, @RequestParam String ipAddress) {
 
@@ -100,6 +98,18 @@ public class DataRowController {
 //            data.get().update(data.get().getStudentAlias(), cscUsername, data.get().getUid(), dnsName, selfMadeDnsName, name, vpsUserName, poutaDns, ipAddress);
 //            courseService.updateStudentsData(data.get());
         }
+
+        if (selectCourse == 0) {
+            return "redirect:/datarowpage";
+        }
+        return "redirect:/datarowpage?selectCourse=" + selectCourse;
+    }
+
+    @Secured("ROLE_TEACHER")
+    @GetMapping("/datarowpage/{datarowId}/cancel")
+    public String CancelData(@RequestParam Optional<Long> myCancelParam) {
+
+        Long selectCourse = myCancelParam.get();
 
         if (selectCourse == 0) {
             return "redirect:/datarowpage";
