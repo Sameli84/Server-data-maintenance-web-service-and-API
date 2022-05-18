@@ -25,7 +25,8 @@
         </div>
     </div>
 
-    <div id="content" layout:insert="~{course/tab-input :: tab-input()}" hx-target="this" hx-swap="innerHTML"></div>
+    <div th:if="${isStudent}" layout:insert="~{course/tab-input :: tab-input()}" hx-target="this" hx-swap="innerHTML"></div>
+    <div th:if="${!isStudent && canEdit}" layout:insert="~{course/tab-data :: tab-data()}" hx-target="this" hx-swap="innerHTML"></div>
 </section>
 </body>
 </html>

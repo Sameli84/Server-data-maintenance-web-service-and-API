@@ -1,5 +1,5 @@
 <ul class="nav nav-tabs" layout:fragment="tabs(tab)">
-    <li class="nav-item">
+    <li class="nav-item" th:if="${isStudent}">
         <button class="nav-link" th:classappend="${tab == 'input' ? 'active' : ''}"
                 th:hx-get="@{/courses/{url}/input(url=${course.getUrl()})}">Input
         </button>
@@ -9,14 +9,16 @@
                 th:hx-get="@{/courses/{url}/data(url=${course.getUrl()})}">Data
         </button>
     </li>
-    <li class="nav-item">
-        <button class="nav-link" th:classappend="${tab == 'students' ? 'active' : ''}"
-                th:hx-get="@{/courses/{url}/students(url=${course.getUrl()})}">Students
-        </button>
-    </li>
-    <li class="nav-item">
-        <button class="nav-link" th:classappend="${tab == 'keys' ? 'active' : ''}"
-                th:hx-get="@{/courses/{url}/keys(url=${course.getUrl()})}">Keys
-        </button>
-    </li>
+    <th:block th:if="${canEdit}">
+        <li class="nav-item">
+            <button class="nav-link" th:classappend="${tab == 'students' ? 'active' : ''}"
+                    th:hx-get="@{/courses/{url}/students(url=${course.getUrl()})}">Students
+            </button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" th:classappend="${tab == 'keys' ? 'active' : ''}"
+                    th:hx-get="@{/courses/{url}/keys(url=${course.getUrl()})}">Keys
+            </button>
+        </li>
+    </th:block>
 </ul>

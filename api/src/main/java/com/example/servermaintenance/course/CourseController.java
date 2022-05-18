@@ -3,6 +3,7 @@ package com.example.servermaintenance.course;
 import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.account.AccountNotFoundException;
 import com.example.servermaintenance.account.RoleService;
+import com.example.servermaintenance.datarow.DataRow;
 import com.example.servermaintenance.datarow.DataRowService;
 import com.example.servermaintenance.account.AccountService;
 import lombok.AllArgsConstructor;
@@ -42,6 +43,10 @@ public class CourseController {
     @ModelAttribute("account")
     public Account addAccountToModel() throws AccountNotFoundException {
         return accountService.getContextAccount().orElseThrow(AccountNotFoundException::new);
+    }
+
+    private boolean canEdit(Account account, Course course) {
+        return Objects.equals(account.getId(), course.getOwner().getId()) || roleService.isAdmin(account);
     }
 
     @GetMapping("/")
@@ -99,23 +104,31 @@ public class CourseController {
     @GetMapping("/courses/{course}")
     public String getCoursePage(@PathVariable Course course, @ModelAttribute Account account, Model model) {
         var studentData = dataRowService.getStudentData(course, account);
-        if(studentData != null) {
+        if (studentData != null) {
             model.addAttribute("studentData", studentData);
             model.addAttribute("courseDataDTO", dataRowService.getCourseDataDTO(studentData));
         }
-        model.addAttribute("isStudent", course.getStudents().contains(account));
+        boolean isStudent = course.getStudents().contains(account);
+        model.addAttribute("isStudent", isStudent);
         model.addAttribute("hasKey", courseService.hasCourseKey(course));
+        boolean canEdit = canEdit(account, course);
+        model.addAttribute("canEdit", canEdit);
+
+        if (!isStudent && canEdit) {
+            model.addAttribute("datarows", dataRowService.getCourseData(course));
+        }
         return "course/page";
     }
 
     @GetMapping("/courses/{course}/input")
     public String getInputTab(@PathVariable Course course, @ModelAttribute Account account, Model model) {
         var studentData = dataRowService.getStudentData(course, account);
-        if(studentData != null) {
+        if (studentData != null) {
             model.addAttribute("studentData", studentData);
             model.addAttribute("courseDataDTO", dataRowService.getCourseDataDTO(studentData));
         }
         model.addAttribute("isStudent", course.getStudents().contains(account));
+        model.addAttribute("canEdit", canEdit(account, course));
 
         return "course/tab-input";
     }
@@ -123,18 +136,35 @@ public class CourseController {
     @GetMapping("/courses/{course}/data")
     public String getDataTab(@PathVariable Course course, @ModelAttribute Account account, Model model) {
         model.addAttribute("datarows", dataRowService.getCourseData(course));
+        model.addAttribute("canEdit", canEdit(account, course));
+        model.addAttribute("isStudent", course.getStudents().contains(account));
         return "course/tab-data";
     }
 
+    @Secured("ROLE_TEACHER")
     @GetMapping("/courses/{course}/students")
-    public String getStudentsTab(@PathVariable Course course, @ModelAttribute Account account, Model model) {
+    public String getStudentsTab(@PathVariable Course course, @ModelAttribute Account account, Model model, RedirectAttributes redirectAttributes) {
+        if (!canEdit(account, course)) {
+            redirectAttributes.addFlashAttribute("error", "Unauthorized action");
+            return "redirect:/courses";
+        }
+        model.addAttribute("canEdit", true);
+        model.addAttribute("isStudent", course.getStudents().contains(account));
         return "course/tab-students";
     }
 
+    @Secured("ROLE_TEACHER")
     @GetMapping("/courses/{course}/keys")
-    public String getKeysTab(@PathVariable Course course, @ModelAttribute Account account, Model model) {
+    public String getKeysTab(@PathVariable Course course, @ModelAttribute Account account, Model model, RedirectAttributes redirectAttributes) {
+        if (!canEdit(account, course)) {
+            redirectAttributes.addFlashAttribute("error", "Unauthorized action");
+            return "redirect:/courses";
+        }
+        model.addAttribute("canEdit", true);
+        model.addAttribute("isStudent", course.getStudents().contains(account));
         return "course/tab-keys";
     }
+
     @PostMapping("/courses/{course}/join")
     public String joinCourse(@PathVariable Course course, @RequestParam Optional<String> key, @ModelAttribute Account account, RedirectAttributes redirectAttributes) {
         if (courseService.joinToCourse(course, account, key.orElse(""))) {
@@ -147,11 +177,12 @@ public class CourseController {
 
     @Secured("ROLE_TEACHER")
     @DeleteMapping("/courses/{course}/students/{studentId}/kick")
-    public String kickFromCourse(@PathVariable Course course, @PathVariable int studentId, @ModelAttribute Account account, RedirectAttributes redirectAttributes) {
-        if (!Objects.equals(course.getOwner().getId(), account.getId())) {
+    public String kickFromCourse(@PathVariable Course course, @PathVariable int studentId, @ModelAttribute Account account, RedirectAttributes redirectAttributes, Model model) {
+        if (!canEdit(account, course)) {
             redirectAttributes.addFlashAttribute("error", "Unauthorized action");
             return "redirect:/courses";
         }
+        model.addAttribute("canEdit", true);
 
         var student = accountService.getAccountById(studentId);
         if (student == null) {
@@ -161,6 +192,7 @@ public class CourseController {
                 redirectAttributes.addFlashAttribute("error", "Couldn't kick user from the course");
             }
         }
+        model.addAttribute("isStudent", course.getStudents().contains(account));
         return "course/tab-students";
     }
 
@@ -171,7 +203,7 @@ public class CourseController {
                              @ModelAttribute CourseDataDTO courseDataDTO,
                              RedirectAttributes redirectAttributes) {
 
-        if (!Objects.equals(account.getId(), studentId) && !roleService.isTeacher(account)) {
+        if (!Objects.equals(account.getId(), studentId) && !canEdit(account, course)) {
             redirectAttributes.addFlashAttribute("error", "Unauthorized action");
             return "redirect:/courses/" + course;
         }
@@ -193,21 +225,33 @@ public class CourseController {
 
     @Secured("ROLE_TEACHER")
     @PostMapping("/courses/{course}/keys/create")
-    public String createCourseKey(@PathVariable Course course, @RequestParam String key, @ModelAttribute Account account, RedirectAttributes redirectAttributes) {
+    public String createCourseKey(@PathVariable Course course, @RequestParam String key, @ModelAttribute Account account, RedirectAttributes redirectAttributes, Model model) {
+        if (!canEdit(account, course)) {
+            redirectAttributes.addFlashAttribute("error", "Unauthorized action");
+            return "redirect:/courses/" + course.getUrl();
+        }
         if (courseService.addKey(course, key)) {
             redirectAttributes.addFlashAttribute("success", "New key created");
         } else {
             redirectAttributes.addFlashAttribute("error", "Failed to create a new key");
         }
+        model.addAttribute("canEdit", true);
+        model.addAttribute("isStudent", course.getStudents().contains(account));
         return "course/tab-keys";
     }
 
     @Secured("ROLE_TEACHER")
     @DeleteMapping("/courses/{course}/keys/{keyId}/revoke")
-    public String revokeCourseKey(@PathVariable Course course, @PathVariable int keyId, @ModelAttribute Account account, RedirectAttributes redirectAttributes) {
+    public String revokeCourseKey(@PathVariable Course course, @PathVariable int keyId, @ModelAttribute Account account, RedirectAttributes redirectAttributes, Model model) {
+        if (!canEdit(account, course)) {
+            redirectAttributes.addFlashAttribute("error", "Unauthorized action");
+            return "redirect:/courses/" + course.getUrl();
+        }
         if (!courseService.deleteKey(course, keyId)) {
             redirectAttributes.addFlashAttribute("error", "Failed to delete the key");
         }
+        model.addAttribute("canEdit", true);
+        model.addAttribute("isStudent", course.getStudents().contains(account));
         return "course/tab-keys";
     }
 }
