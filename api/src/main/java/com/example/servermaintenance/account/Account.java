@@ -35,7 +35,7 @@ public class Account extends AbstractPersistable<Long> implements UserDetails {
     @Column(unique = true)
     private String email;
 
-    @Column(columnDefinition = "bpchar", length = 72)
+    @Column
     private String password;
 
     @OneToMany(mappedBy = "account")
