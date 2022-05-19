@@ -12,7 +12,10 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.ServletException;
+import java.sql.SQLDataException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -83,7 +86,8 @@ public class DataRowController {
     public String createData(@PathVariable Long datarowId, @RequestParam Optional<Long> myParam,
                              @RequestParam String cscUsername, @RequestParam String selfMadeDnsName,
                              @RequestParam String project, @RequestParam String vpsUserName,
-                             @RequestParam String poutaDns, @RequestParam String ipAddress) {
+                             @RequestParam String poutaDns, @RequestParam String ipAddress,
+                             RedirectAttributes redirectAttributes) {
 
         var data = dataRowService.getDataRowById(datarowId);
 
@@ -96,7 +100,12 @@ public class DataRowController {
             if ((account != data.get().getCourse().getOwner()) && (!roleService.isAdmin(account))) {
                 return "redirect:/datarowpage" + "?error";
             }
-            dataRowService.updateDataRow(data.get(), new CourseDataDTO(cscUsername, selfMadeDnsName, project, vpsUserName, poutaDns, ipAddress));
+            try {
+                dataRowService.updateDataRow(data.get(), new CourseDataDTO(cscUsername, selfMadeDnsName, project, vpsUserName, poutaDns, ipAddress));
+            } catch (Exception exception) {
+                redirectAttributes.addFlashAttribute("warning", "Max length in fields is 255 characters, please try again!");
+                return "redirect:/datarowpage" + "?error";
+            }
         }
 
         if (selectCourse == 0) {

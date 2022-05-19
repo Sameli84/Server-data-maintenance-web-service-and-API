@@ -17,11 +17,21 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
+import org.springframework.web.filter.GenericFilterBean;
 
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,11 +62,27 @@ public class SecurityConfiguration {
         }
     }
 
+    static class LoginPageFilter extends GenericFilterBean {
+        @Override
+        public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+            if (SecurityContextHolder.getContext().getAuthentication() != null
+                    && SecurityContextHolder.getContext().getAuthentication().isAuthenticated()
+                    && (((HttpServletRequest) request).getRequestURI().equals("/login")
+                    || ((HttpServletRequest) request).getRequestURI().equals("/register"))) {
+                System.out.println("user is authenticated but trying to access login or register page, redirecting to /");
+                ((HttpServletResponse) response).sendRedirect("/");
+            }
+            chain.doFilter(request, response);
+        }
+    }
+
     @Configuration
     @Order(2)
     public static class FormWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
+
+            http.addFilterBefore(new LoginPageFilter(), DefaultLoginPageGeneratingFilter.class);
             http.authorizeRequests()
                     .expressionHandler(webExpressionHandler())
                     .antMatchers("/register", "/register/**", "/webjars/**").permitAll()
@@ -76,7 +102,6 @@ public class SecurityConfiguration {
                     .permitAll();
         }
     }
-
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {

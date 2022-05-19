@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,6 +52,7 @@ public class DataRowService {
         return dataRowRepository.save(new DataRow(studentAlias, uid, courseDataDTO, account, course));
     }
 
+    @Transactional
     public DataRow updateDataRow(DataRow dataRow, CourseDataDTO courseDataDTO) {
         dataRow.setProject(courseDataDTO.getProject());
         dataRow.setCscUsername(courseDataDTO.getCscUsername());
