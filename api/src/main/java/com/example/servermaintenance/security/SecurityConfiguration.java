@@ -1,9 +1,11 @@
 package com.example.servermaintenance.security;
 
 import com.example.servermaintenance.account.AccountService;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -14,52 +16,74 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.access.expression.WebExpressionVoter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Configuration
+@AllArgsConstructor
 @EnableWebSecurity
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-    @Autowired
-    private AccountService accountService;
+public class SecurityConfiguration {
+    private final AccountService accountService;
+    private final PasswordEncoderService passwordEncoderService;
 
-    @Autowired
-    private PasswordEncoderService passwordEncoderService;
+    @Configuration
+    @Order(1)
+    public static class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http.antMatcher("/api/**")
+                    .authorizeRequests().anyRequest().hasRole("TEACHER")
+                    .expressionHandler(webExpressionHandler())
+                    .accessDecisionManager(accessDecisionManager())
+                    .and()
+                    .httpBasic().authenticationEntryPoint(authenticationEntryPoint());
+        }
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
-                .expressionHandler(webExpressionHandler())
-                .antMatchers("/register", "/register/**").permitAll()
-                .antMatchers("/webjars/**").permitAll()
-                .antMatchers("/api", "/api/**").hasRole("TEACHER")
-                .antMatchers("/admin-tools", "/admin-tools/**").hasRole("ADMIN").and()
-                .authorizeRequests()
-                .accessDecisionManager(accessDecisionManager())
-                .anyRequest().authenticated().and()
-                .httpBasic().and()
-                .formLogin()
-                .usernameParameter("email")
-                .loginPage("/login")
-                .loginProcessingUrl("/login")
-                .permitAll()
-                .and()
-                .logout()
-                .logoutUrl("/logout")
-                .invalidateHttpSession(true)
-                .permitAll();
+        @Bean
+        public AuthenticationEntryPoint authenticationEntryPoint() {
+            var entryPoint = new BasicAuthenticationEntryPoint();
+            entryPoint.setRealmName("api realm");
+            return entryPoint;
+        }
     }
+
+    @Configuration
+    @Order(2)
+    public static class FormWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http.authorizeRequests()
+                    .expressionHandler(webExpressionHandler())
+                    .antMatchers("/register", "/register/**", "/webjars/**").permitAll()
+                    .antMatchers("/admin-tools", "/admin-tools/**").hasRole("ADMIN").and()
+                    .authorizeRequests()
+                    .accessDecisionManager(accessDecisionManager())
+                    .anyRequest().authenticated().and()
+                    .formLogin()
+                    .usernameParameter("email")
+                    .loginPage("/login")
+                    .loginProcessingUrl("/login")
+                    .permitAll()
+                    .and()
+                    .logout()
+                    .logoutUrl("/logout")
+                    .invalidateHttpSession(true)
+                    .permitAll();
+        }
+    }
+
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(accountService).passwordEncoder(passwordEncoderService.passwordEncoder());
     }
 
-    private SecurityExpressionHandler<FilterInvocation> webExpressionHandler() {
+    private static SecurityExpressionHandler<FilterInvocation> webExpressionHandler() {
         var defaultWebSecurityExpressionHandler = new DefaultWebSecurityExpressionHandler();
         defaultWebSecurityExpressionHandler.setRoleHierarchy(roleHierarchy());
         return defaultWebSecurityExpressionHandler;
@@ -78,21 +102,21 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public AffirmativeBased accessDecisionManager() {
+    public static AffirmativeBased accessDecisionManager() {
         List<AccessDecisionVoter<?>> decisionVoters = new ArrayList<>();
         decisionVoters.add(webExpressionVoter());
         decisionVoters.add(roleVoter());
         return new AffirmativeBased(decisionVoters);
     }
 
-    private WebExpressionVoter webExpressionVoter() {
+    private static WebExpressionVoter webExpressionVoter() {
         WebExpressionVoter webExpressionVoter = new WebExpressionVoter();
         webExpressionVoter.setExpressionHandler(expressionHandler());
         return webExpressionVoter;
     }
 
     @Bean
-    public DefaultWebSecurityExpressionHandler expressionHandler() {
+    public static DefaultWebSecurityExpressionHandler expressionHandler() {
         DefaultWebSecurityExpressionHandler expressionHandler = new DefaultWebSecurityExpressionHandler();
         expressionHandler.setRoleHierarchy(roleHierarchy());
         return expressionHandler;
