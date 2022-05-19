@@ -15,23 +15,30 @@
                 <label for="join-key-input" class="h2 px-0">Course key</label>
                 <input name="key" id="join-key-input" class="form-control form-control-lg col me-3"
                        placeholder="Enter course key">
-                <input type="submit" value="Join" class="btn btn-success px-5 fw-bold col-auto">
+                <button type="submit" class="btn btn-success px-5 fw-bold col-auto">
+                    <i class="fa-solid fa-key"></i>
+                    Join
+                </button>
             </form>
         </div>
     </div>
 
     <div class="row mx-0" th:if="${courses?.size() > 0}">
-        <div class="col col-lg-6 col-md-8 px-0 mb-3">
-            <h2>Courses</h2>
-            <div class="list-group mb-3">
-                <a th:each="course : ${courses}" th:href="@{/courses/{url}(url=${course.getUrl()})}"
-                   class="list-group-item list-group-item-action border border-primary rounded mb-1">[[${course.name}]]</a>
-            </div>
+        <h2>Courses</h2>
+        <div class="col col-lg-6 col-md-8 px-0 mb-3 row row-cols-1 mx-0">
+            <a th:each="course : ${courses}" th:href="@{/courses/{url}(url=${course.getUrl()})}"
+               class="btn btn-outline-primary col text-start mb-3 p-3">
+                [[${course.getName()}]]
+                <i th:if="${account.getId() == course.getOwner().getId()}" class="fa-solid fa-crown" title="Owner"></i>
+            </a>
         </div>
     </div>
 
     <th:block sec:authorize="hasRole('TEACHER')">
-        <a href="/courses/create" class="btn btn-primary">Create course</a>
+        <a href="/courses/create" class="btn btn-primary">
+            <i class="fa-solid fa-plus"></i>
+            Create course
+        </a>
     </th:block>
 </section>
 </body>

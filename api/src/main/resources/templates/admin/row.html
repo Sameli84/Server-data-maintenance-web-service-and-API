@@ -20,6 +20,7 @@
         <button th:hx-get="@{/admin-tools/{id}/edit(id=${account.getId()})}" hx-trigger="click" hx-target="closest tr"
                 hx-swap="outerHTML" class="btn btn-outline-primary" style="pointer-events: all" name="editRights"
                 onclick="disableStuff()">
+            <i class="fa-solid fa-pen-to-square"></i>
             Edit
         </button>
     </td>

@@ -1,48 +1,32 @@
 package com.example.servermaintenance.datarow;
 
-import com.example.servermaintenance.account.AccountRepository;
 import com.example.servermaintenance.account.AccountService;
 import com.example.servermaintenance.account.RoleService;
 import com.example.servermaintenance.course.Course;
 import com.example.servermaintenance.course.CourseDataDTO;
-import com.example.servermaintenance.course.CourseRepository;
 import com.example.servermaintenance.course.CourseService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.servlet.ServletException;
-import java.sql.SQLDataException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
 @Controller
+@AllArgsConstructor
 public class DataRowController {
+    private final DataRowService dataRowService;
+    private final CourseService courseService;
+    private final AccountService accountService;
+    private final RoleService roleService;
 
-    @Autowired
-    private DataRowService dataRowService;
-
-    @Autowired
-    private DataRowRepository dataRowRepository;
-
-    @Autowired
-    private CourseRepository courseRepository;
-    @Autowired
-    private CourseService courseService;
-
-    @Autowired
-    private AccountRepository accountRepository;
-    @Autowired
-    private AccountService accountService;
-    @Autowired
-    private RoleService roleService;
     @Secured("ROLE_TEACHER")
-    @GetMapping("/datarowpage")
-    public String getDatarows(Model model, @RequestParam Optional<Long> selectCourse) {
+    @GetMapping("/datarow")
+    public String getDataRows(Model model, @RequestParam Optional<Long> course) {
         var account = accountService.getContextAccount().get();
         List<Course> courses;
         if (roleService.isAdmin(account)) {
@@ -52,88 +36,64 @@ public class DataRowController {
         }
         model.addAttribute("courses", courses);
         List<DataRow> dataRows;
-        if (selectCourse.isEmpty() || selectCourse.get() == 0) {
+        if (course.isEmpty() || course.get() == 0) {
             if (roleService.isAdmin(account)) {
                 dataRows = dataRowService.getDataRows();
             } else {
                 dataRows = dataRowService.getDataRowsByTeacher(account);
             }
         } else {
-            Course course = courseService.getCourseById(selectCourse.get());
             if (roleService.isAdmin(account)) {
-                dataRows = dataRowService.getCourseData(course);
+                dataRows = dataRowService.getCourseDataRows(courseService.getCourseById(course.get()));
             } else {
-                dataRows = dataRowService.getDataRowsByCourseAndTeacher(account, course);
+                dataRows = dataRowService.getDataRowsByCourseAndTeacher(account, courseService.getCourseById(course.get()));
             }
         }
         dataRows.sort(Comparator.comparing((final DataRow a) -> a.getCourse().getId()).thenComparing(DataRow::getId));
-        model.addAttribute("datarows", dataRows);
-        return "datarowpage";
+        model.addAttribute("dataRows", dataRows);
+        return "datarow/page";
 
     }
 
     @Secured("ROLE_TEACHER")
-    @PostMapping("/datarowpage")
-    public String filterDatarows(@RequestParam Optional<Long> selectCourse) {
-        if (selectCourse.isEmpty() || selectCourse.get() == 0) {
-            return "redirect:/datarowpage";
+    @PostMapping("/datarow")
+    public String filterDataRows(@RequestParam Optional<Long> course) {
+        if (course.isEmpty() || course.get() == 0) {
+            return "redirect:/datarow";
         }
-        return "redirect:/datarowpage?selectCourse=" + selectCourse.get();
+        return "redirect:/datarow?course=" + course.get();
     }
 
     @Secured("ROLE_TEACHER")
-    @PostMapping("/datarowpage/{datarowId}/update")
-    public String createData(@PathVariable Long datarowId, @RequestParam Optional<Long> myParam,
-                             @RequestParam String cscUsername, @RequestParam String selfMadeDnsName,
-                             @RequestParam String project, @RequestParam String vpsUserName,
-                             @RequestParam String poutaDns, @RequestParam String ipAddress,
-                             RedirectAttributes redirectAttributes) {
-
+    @PutMapping("/datarow/{datarowId}/edit")
+    public String createData(@PathVariable Long datarowId, @ModelAttribute CourseDataDTO courseDataDTO, Model model, RedirectAttributes redirectAttributes) {
         var data = dataRowService.getDataRowById(datarowId);
-
-        Long selectCourse = myParam.get();
-
-        if (data.isEmpty()) {
-            return "redirect:/datarowpage" + "?error";
+        if (data == null) {
+            redirectAttributes.addFlashAttribute("error", String.format("Datarow %d not found!", datarowId));
+            return "redirect:/datarow";
+        }
+        var account = accountService.getContextAccount().get();
+        if (account != data.getCourse().getOwner() && !roleService.isAdmin(account)) {
+            model.addAttribute("dataRow", data);
+            return "datarow/row";
         } else {
-            var account = accountService.getContextAccount().get();
-            if ((account != data.get().getCourse().getOwner()) && (!roleService.isAdmin(account))) {
-                return "redirect:/datarowpage" + "?error";
-            }
-            try {
-                dataRowService.updateDataRow(data.get(), new CourseDataDTO(cscUsername, selfMadeDnsName, project, vpsUserName, poutaDns, ipAddress));
-            } catch (Exception exception) {
-                redirectAttributes.addFlashAttribute("warning", "Max length in fields is 255 characters, please try again!");
-                return "redirect:/datarowpage" + "?error";
-            }
+            model.addAttribute("dataRow", dataRowService.updateDataRow(data, courseDataDTO));
+            return "datarow/row";
         }
-
-        if (selectCourse == 0) {
-            return "redirect:/datarowpage";
-        }
-        return "redirect:/datarowpage?selectCourse=" + selectCourse;
     }
 
     @Secured("ROLE_TEACHER")
-    @GetMapping("/datarowpage/{datarowId}/cancel")
-    public String CancelData(@RequestParam Optional<Long> myCancelParam) {
-
-        Long selectCourse = myCancelParam.get();
-
-        if (selectCourse == 0) {
-            return "redirect:/datarowpage";
-        }
-        return "redirect:/datarowpage?selectCourse=" + selectCourse;
+    @GetMapping("/datarow/{datarowId}")
+    public String cancelData(@PathVariable Long datarowId, Model model) {
+        model.addAttribute("dataRow", dataRowService.getDataRowById(datarowId));
+        return "datarow/row";
     }
 
     @Secured("ROLE_TEACHER")
-    @GetMapping("/datarowpage/{datarowId}")
-    public String getDatarow(@PathVariable Long datarowId, Model model, @RequestParam Optional<Long> selectCourse) {
-        System.out.println(selectCourse.get());
-        DataRow dataRow = dataRowService.getDataRowById(datarowId).get();
-        model.addAttribute("dataRow", dataRow);
-        model.addAttribute("selectCourse", selectCourse.get());
-        return "datarow";
+    @GetMapping("/datarow/{datarowId}/edit")
+    public String getDatarow(@PathVariable Long datarowId, Model model) {
+        model.addAttribute("dataRow", dataRowService.getDataRowById(datarowId));
+        return "datarow/edit";
     }
 
 }
