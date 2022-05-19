@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JoinFormula;
+import org.hibernate.annotations.Where;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 
 import javax.persistence.*;
@@ -38,7 +40,7 @@ public class Course extends AbstractPersistable<Long> {
     private Account owner;
 
     @OneToMany(mappedBy = "course")
-    private List<CourseKey> courseKeys;
+    private Set<CourseKey> courseKeys = new HashSet<>();
 
     @ManyToMany
     @JoinTable(

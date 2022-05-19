@@ -28,16 +28,16 @@ public class DataRow implements Serializable {
     @Column(name = "csc_username")
     private String cscUsername;
 
-    @Column(name = "user_id")
+    @Column(name = "userid")
     private int uid;
 
-    @Column(name = "self_made_dns_name")
+    @Column(name = "self_made_dns")
     private String selfMadeDnsName;
 
     @Column(name = "project")
     private String project;
 
-    @Column(name = "vps_user_name")
+    @Column(name = "vps_username")
     private String vpsUserName;
 
     @Column(name = "pouta_dns")

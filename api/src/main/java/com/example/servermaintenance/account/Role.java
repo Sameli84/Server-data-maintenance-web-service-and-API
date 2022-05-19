@@ -19,6 +19,7 @@ import java.util.Set;
 public class Role extends AbstractPersistable<Long> implements GrantedAuthority {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(columnDefinition = "int8")
     private Long id;
 
     private String name;
