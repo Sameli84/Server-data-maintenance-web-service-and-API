@@ -32,13 +32,13 @@ public class DataRow implements Serializable {
     private int uid;
 
     @Column(name = "self_made_dns")
-    private String selfMadeDnsName;
+    private String selfMadeDns;
 
     @Column(name = "project")
     private String project;
 
     @Column(name = "vps_username")
-    private String vpsUserName;
+    private String vpsUsername;
 
     @Column(name = "pouta_dns")
     private String poutaDns;
@@ -61,8 +61,8 @@ public class DataRow implements Serializable {
         this.uid = uid;
         this.project = courseDataDTO.getProject();
         this.cscUsername = courseDataDTO.getCscUsername();
-        this.selfMadeDnsName = courseDataDTO.getSelfMadeDnsName();
-        this.vpsUserName = courseDataDTO.getVpsUsername();
+        this.selfMadeDns = courseDataDTO.getSelfMadeDns();
+        this.vpsUsername = courseDataDTO.getVpsUsername();
         this.poutaDns = courseDataDTO.getPoutaDns();
         this.ipAddress = courseDataDTO.getIpAddress();
         this.account = account;

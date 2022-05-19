@@ -1,13 +1,13 @@
 <tr layout:fragment="row(dataRow)" hx-target="this" hx-swap="outerHTML">
-    <td>[[${dataRow.course.name}]]</td>
-    <td>[[${dataRow.studentAlias}]]</td>
-    <td>[[${dataRow.uid}]]</td>
-    <td>[[${dataRow.project}]]</td>
-    <td>[[${dataRow.cscUsername}]]</td>
-    <td>[[${dataRow.vpsUserName}]]</td>
-    <td>[[${dataRow.ipAddress}]]</td>
-    <td>[[${dataRow.poutaDns}]]</td>
-    <td>[[${dataRow.selfMadeDnsName}]]</td>
+    <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getCourse().getName()})}"></td>
+    <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getStudentAlias()})}"></td>
+    <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getUid()})}"></td>
+    <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getProject()})}"></td>
+    <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getCscUsername()})}"></td>
+    <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getVpsUsername()})}"></td>
+    <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getIpAddress()})}"></td>
+    <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getPoutaDns()})}"></td>
+    <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getSelfMadeDns()})}"></td>
 
     <td>
         <button th:hx-get="@{/datarow/{id}/edit(id=${dataRow.getId()})}"

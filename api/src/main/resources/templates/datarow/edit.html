@@ -36,7 +36,7 @@
                class="form-control" maxlength="255" aria-label="CSC Username input">
     </td>
     <td>
-        <input type="text" name="vpsUsername" th:value="${dataRow?.getVpsUserName()}" placeholder="vpsUserName"
+        <input type="text" name="vpsUsername" th:value="${dataRow?.getVpsUsername()}" placeholder="vpsUserName"
                class="form-control" maxlength="255" aria-label="VPS Username input">
     </td>
     <td>
@@ -49,8 +49,8 @@
                class="form-control" maxlength="255" aria-label="Pouta DNS input">
     </td>
     <td>
-        <input type="text" name="selfMadeDnsName" th:value="${dataRow?.getSelfMadeDnsName()}"
-               placeholder="selfMadeDnsName" class="form-control" maxlength="255" aria-label="Self made DNS name input">
+        <input type="text" name="selfMadeDns" th:value="${dataRow?.getSelfMadeDns()}"
+               placeholder="selfMadeDns" class="form-control" maxlength="255" aria-label="Self made DNS name input">
     </td>
     <td>
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>

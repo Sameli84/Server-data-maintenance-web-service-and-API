@@ -54,8 +54,8 @@ public class DataRowService {
     public DataRow updateDataRow(DataRow dataRow, CourseDataDTO courseDataDTO) {
         dataRow.setProject(courseDataDTO.getProject());
         dataRow.setCscUsername(courseDataDTO.getCscUsername());
-        dataRow.setSelfMadeDnsName(courseDataDTO.getSelfMadeDnsName());
-        dataRow.setVpsUserName(courseDataDTO.getVpsUsername());
+        dataRow.setSelfMadeDns(courseDataDTO.getSelfMadeDns());
+        dataRow.setVpsUsername(courseDataDTO.getVpsUsername());
         dataRow.setPoutaDns(courseDataDTO.getPoutaDns());
         dataRow.setIpAddress(courseDataDTO.getIpAddress());
         return dataRowRepository.save(dataRow);
@@ -64,9 +64,9 @@ public class DataRowService {
     public CourseDataDTO getCourseDataDTO(DataRow data) {
         return new CourseDataDTO(
                 data.getCscUsername(),
-                data.getSelfMadeDnsName(),
+                data.getSelfMadeDns(),
                 data.getProject(),
-                data.getVpsUserName(),
+                data.getVpsUsername(),
                 data.getPoutaDns(),
                 data.getIpAddress()
         );

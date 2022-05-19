@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CourseDataDTO {
     private String cscUsername;
-    private String selfMadeDnsName;
+    private String selfMadeDns;
     private String project;
     private String vpsUsername;
     private String poutaDns;

@@ -17,15 +17,15 @@
             </thead>
             <tbody>
             <tr th:each="dataRow : ${datarows}">
-                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.project})}"></td>
-                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.account.name})}"></td>
-                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.studentAlias})}"></td>
-                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.cscUsername})}"></td>
-                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.uid})}"></td>
-                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.selfMadeDnsName})}"></td>
-                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.vpsUserName})}"></td>
-                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.poutaDns})}"></td>
-                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.ipAddress})}"></td>
+                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getProject()})}"></td>
+                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getAccount().getName()})}"></td>
+                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getStudentAlias()})}"></td>
+                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getCscUsername()})}"></td>
+                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getUid()})}"></td>
+                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getSelfMadeDns()})}"></td>
+                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getVpsUsername()})}"></td>
+                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getPoutaDns()})}"></td>
+                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getIpAddress()})}"></td>
             </tr>
             </tbody>
         </table>

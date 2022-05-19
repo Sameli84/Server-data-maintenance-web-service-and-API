@@ -1,20 +1,23 @@
 <th:block layout:fragment="tab-students()">
     <th:block layout:insert="~{course/tabs :: tabs('students')}"></th:block>
     <div class="tab-content">
-        <ul class="list-group list-group-flush mb-3">
-            <li th:each="student : ${course.getStudents()}" class="list-group-item">
-                <p class="fw-bold" th:text="${student.getName()}"></p>
-                <p th:text="${student.getEmail()}"></p>
+        <div class="row row-cols-1 row-cols-md-3 mx-0">
+            <div th:each="student : ${course.getStudents()}" class="col py-3 row mx-0">
+                <div class="col">
+                    <p class="fw-bold" th:text="${student.getName()}"></p>
+                    <p class="mb-0" th:text="${student.getEmail()}"></p>
+                </div>
                 <form th:hx-delete="@{/courses/{url}/students/{student}/kick(url=${course.url},student=${student.id})}"
-                      th:hx-confirm="'Are you sure you wish to kick ' + ${student.getName()} + '?'">
+                     th:hx-confirm="'Are you sure you wish to kick ' + ${student.getName()} + '?'"
+                     class="col col-auto my-auto">
                     <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
-                    <button type="submit" class="btn btn-danger">
+                    <button type="submit" class="btn btn-danger align my-auto">
                         <i class="fa-solid fa-user-minus"></i>
                         Kick
                     </button>
                 </form>
-            </li>
-        </ul>
-        <p th:if="${course.getStudents().size() == 0}">No students...</p>
+            </div>
+        </div>
+        <p th:if="${course.getStudents().size() == 0}" class="my-3">No students...</p>
     </div>
 </th:block>
