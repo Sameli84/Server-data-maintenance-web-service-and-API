@@ -105,7 +105,6 @@
             <version>8.5.11</version>
         </dependency>
 
-
         <!--        WEBJARS-->
         <dependency>
             <groupId>org.webjars</groupId>
@@ -119,8 +118,8 @@
         </dependency>
         <dependency>
             <groupId>org.webjars.npm</groupId>
-            <artifactId>hyperscript.org</artifactId>
-            <version>0.8.2</version>
+            <artifactId>fortawesome__fontawesome-free</artifactId>
+            <version>6.1.1</version>
         </dependency>
     </dependencies>
 

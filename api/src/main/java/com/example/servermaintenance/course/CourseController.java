@@ -3,7 +3,6 @@ package com.example.servermaintenance.course;
 import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.account.AccountNotFoundException;
 import com.example.servermaintenance.account.RoleService;
-import com.example.servermaintenance.datarow.DataRow;
 import com.example.servermaintenance.datarow.DataRowService;
 import com.example.servermaintenance.account.AccountService;
 import lombok.AllArgsConstructor;
@@ -115,7 +114,7 @@ public class CourseController {
         model.addAttribute("canEdit", canEdit);
 
         if (!isStudent && canEdit) {
-            model.addAttribute("datarows", dataRowService.getCourseData(course));
+            model.addAttribute("datarows", dataRowService.getCourseDataRows(course));
         }
         return "course/page";
     }
@@ -135,7 +134,7 @@ public class CourseController {
 
     @GetMapping("/courses/{course}/data")
     public String getDataTab(@PathVariable Course course, @ModelAttribute Account account, Model model) {
-        model.addAttribute("datarows", dataRowService.getCourseData(course));
+        model.addAttribute("datarows", dataRowService.getCourseDataRows(course));
         model.addAttribute("canEdit", canEdit(account, course));
         model.addAttribute("isStudent", course.getStudents().contains(account));
         return "course/tab-data";

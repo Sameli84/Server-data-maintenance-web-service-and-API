@@ -4,12 +4,10 @@ import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.course.Course;
 import com.example.servermaintenance.course.CourseDataDTO;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -24,7 +22,7 @@ public class DataRowService {
         return dataRowRepository.findDataRowByCourseAndAccount(course, account);
     }
 
-    public List<DataRow> getCourseData(Course course) {
+    public List<DataRow> getCourseDataRows(Course course) {
         return dataRowRepository.findDataRowsByCourse(course);
     }
 
@@ -33,8 +31,8 @@ public class DataRowService {
         dataRowRepository.delete(dr);
     }
 
-    public Optional<DataRow> getDataRowById(Long id) {
-        return Optional.of(dataRowRepository.getById(id));
+    public DataRow getDataRowById(Long id) {
+        return dataRowRepository.getById(id);
     }
 
     public List<DataRow> getDataRowsByTeacher(Account account) {

@@ -94,7 +94,7 @@ public class CourseService {
 
         var beanToCsv = new StatefulBeanToCsvBuilder<DataRow>(w).build();
 
-        var data = dataRowService.getCourseData(course.get());
+        var data = dataRowService.getCourseDataRows(course.get());
         beanToCsv.write(data);
     }
 
