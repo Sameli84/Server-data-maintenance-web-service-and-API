@@ -1,7 +1,7 @@
 package com.example.servermaintenance.course;
 
+import com.example.servermaintenance.account.RoleService;
 import com.example.servermaintenance.datarow.DataRow;
-import com.example.servermaintenance.datarow.DataRowRepository;
 import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.account.AccountRepository;
 import com.example.servermaintenance.datarow.DataRowService;
@@ -21,9 +21,9 @@ import java.util.Optional;
 public class CourseService {
     private final CourseRepository courseRepository;
     private final AccountRepository accountRepository;
-    private final DataRowRepository dataRowRepository;
     private final DataRowService dataRowService;
     private final CourseKeyRepository courseKeyRepository;
+    private final RoleService roleService;
 
     @Transactional
     public Course newCourse(CourseCreationDTO courseCreationDTO, Account account) {
@@ -120,6 +120,15 @@ public class CourseService {
 
         courseKeyRepository.deleteById(keyId);
         return true;
+    }
+
+    @Transactional
+    public boolean deleteCourse(Course course, Account account) {
+        if (Objects.equals(course.getOwner().getId(), account.getId()) || roleService.isAdmin(account)) {
+            courseRepository.delete(course);
+            return true;
+        }
+        return false;
     }
 
     public List<Course> getCoursesByTeacher(Account account) {

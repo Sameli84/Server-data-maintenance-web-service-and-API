@@ -6,14 +6,17 @@ import com.example.servermaintenance.account.RoleService;
 import com.example.servermaintenance.datarow.DataRowService;
 import com.example.servermaintenance.account.AccountService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.*;
 
@@ -142,10 +145,9 @@ public class CourseController {
 
     @Secured("ROLE_TEACHER")
     @GetMapping("/courses/{course}/students")
-    public String getStudentsTab(@PathVariable Course course, @ModelAttribute Account account, Model model, RedirectAttributes redirectAttributes) {
+    public String getStudentsTab(@PathVariable Course course, @ModelAttribute Account account, Model model) {
         if (!canEdit(account, course)) {
-            redirectAttributes.addFlashAttribute("error", "Unauthorized action");
-            return "redirect:/courses";
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
         }
         model.addAttribute("canEdit", true);
         model.addAttribute("isStudent", course.getStudents().contains(account));
@@ -154,10 +156,9 @@ public class CourseController {
 
     @Secured("ROLE_TEACHER")
     @GetMapping("/courses/{course}/keys")
-    public String getKeysTab(@PathVariable Course course, @ModelAttribute Account account, Model model, RedirectAttributes redirectAttributes) {
+    public String getKeysTab(@PathVariable Course course, @ModelAttribute Account account, Model model) {
         if (!canEdit(account, course)) {
-            redirectAttributes.addFlashAttribute("error", "Unauthorized action");
-            return "redirect:/courses";
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
         }
         model.addAttribute("canEdit", true);
         model.addAttribute("isStudent", course.getStudents().contains(account));
@@ -176,21 +177,20 @@ public class CourseController {
 
     @Secured("ROLE_TEACHER")
     @DeleteMapping("/courses/{course}/students/{studentId}/kick")
-    public String kickFromCourse(@PathVariable Course course, @PathVariable int studentId, @ModelAttribute Account account, RedirectAttributes redirectAttributes, Model model) {
+    public String kickFromCourse(@PathVariable Course course, @PathVariable int studentId, @ModelAttribute Account account, Model model) {
         if (!canEdit(account, course)) {
-            redirectAttributes.addFlashAttribute("error", "Unauthorized action");
-            return "redirect:/courses";
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
         }
         model.addAttribute("canEdit", true);
 
         var student = accountService.getAccountById(studentId);
         if (student == null) {
-            redirectAttributes.addFlashAttribute("error", "Student not found");
-        } else {
-            if (!courseService.kickFromCourse(course, student)) {
-                redirectAttributes.addFlashAttribute("error", "Couldn't kick user from the course");
-            }
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found");
         }
+        if (!courseService.kickFromCourse(course, student)) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Couldn't kick user from the course");
+        }
+
         model.addAttribute("isStudent", course.getStudents().contains(account));
         return "course/tab-students";
     }
@@ -224,15 +224,14 @@ public class CourseController {
 
     @Secured("ROLE_TEACHER")
     @PostMapping("/courses/{course}/keys/create")
-    public String createCourseKey(@PathVariable Course course, @RequestParam String key, @ModelAttribute Account account, RedirectAttributes redirectAttributes, Model model) {
+    public String createCourseKey(@PathVariable Course course, @RequestParam String key, @ModelAttribute Account account, Model model) {
         if (!canEdit(account, course)) {
-            redirectAttributes.addFlashAttribute("error", "Unauthorized action");
-            return "redirect:/courses/" + course.getUrl();
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
         }
         if (courseService.addKey(course, key)) {
-            redirectAttributes.addFlashAttribute("success", "New key created");
+            // TODO: add success
         } else {
-            redirectAttributes.addFlashAttribute("error", "Failed to create a new key");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete the course");
         }
         model.addAttribute("canEdit", true);
         model.addAttribute("isStudent", course.getStudents().contains(account));
@@ -241,16 +240,39 @@ public class CourseController {
 
     @Secured("ROLE_TEACHER")
     @DeleteMapping("/courses/{course}/keys/{keyId}/revoke")
-    public String revokeCourseKey(@PathVariable Course course, @PathVariable int keyId, @ModelAttribute Account account, RedirectAttributes redirectAttributes, Model model) {
+    public String revokeCourseKey(@PathVariable Course course, @PathVariable int keyId, @ModelAttribute Account account, Model model) {
         if (!canEdit(account, course)) {
-            redirectAttributes.addFlashAttribute("error", "Unauthorized action");
-            return "redirect:/courses/" + course.getUrl();
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
         }
         if (!courseService.deleteKey(course, keyId)) {
-            redirectAttributes.addFlashAttribute("error", "Failed to delete the key");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete the course");
         }
         model.addAttribute("canEdit", true);
         model.addAttribute("isStudent", course.getStudents().contains(account));
         return "course/tab-keys";
+    }
+
+    @Secured("ROLE_TEACHER")
+    @GetMapping("/courses/{course}/settings")
+    public String getSettingsTab(@PathVariable Course course, @ModelAttribute Account account, Model model) {
+        if (!canEdit(account, course)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized user");
+        }
+        model.addAttribute("canEdit", true);
+        model.addAttribute("isStudent", course.getStudents().contains(account));
+        return "course/tab-settings";
+    }
+
+    @Secured("ROLE_TEACHER")
+    @DeleteMapping("/courses/{course}/delete")
+    public void deleteCourse(@PathVariable Course course, @ModelAttribute Account account, HttpServletResponse response) {
+        if (!canEdit(account, course)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
+        }
+        if (!courseService.deleteCourse(course, account)) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete the course");
+        } else {
+            response.addHeader("HX-Redirect", "/courses/");
+        }
     }
 }
