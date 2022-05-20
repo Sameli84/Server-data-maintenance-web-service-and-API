@@ -34,37 +34,37 @@
 <header>
     <nav class="navbar navbar-expand">
         <div class="container">
-            <th:block sec:authorize="isAnonymous()">
-                <div class="navbar-nav">
-                    <div class="nav-item">
-                        <a href="/login" class="nav-link">Login</a>
+            <div class="row justify-content-between w-100">
+                <th:block sec:authorize="isAnonymous()">
+                    <div class="navbar-nav col">
+                        <div class="nav-item">
+                            <a href="/login" class="nav-link">Login</a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="/register" class="nav-link">Register</a>
+                        </div>
                     </div>
-                    <div class="nav-item">
-                        <a href="/register" class="nav-link">Register</a>
+                </th:block>
+                <th:block sec:authorize="isAuthenticated()">
+                    <div class="navbar-nav col">
+                        <a href="/courses" class="nav-link">COURSES</a>
+                        <a href="/datarow" sec:authorize="hasRole('TEACHER')" class="nav-link">DATAROW</a>
+                        <a href="/admin-tools" sec:authorize="hasRole('ADMIN')" class="nav-link">ADMIN-TOOLS</a>
                     </div>
-                </div>
-            </th:block>
-            <th:block sec:authorize="isAuthenticated()">
-                <div class="navbar-nav">
-                    <a href="/courses" class="nav-link">COURSES</a>
-                    <a href="/datarow" sec:authorize="hasRole('TEACHER')" class="nav-link">DATAROW</a>
-                    <a href="/admin-tools" sec:authorize="hasRole('ADMIN')" class="nav-link">ADMIN-TOOLS</a>
-                </div>
-                <div class="row">
-                    <div class="col">
-                        <p sec:authentication="name" class="navbar-text">Bob</p>
+                    <div class="col-auto row my-auto">
+                        <div class="col my-auto" sec:authentication="name"></div>
+                        <div class="col-auto">
+                            <form action="/logout" method="post">
+                                <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+                                <button type="submit" class="btn btn-danger px-4">
+                                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                                    Logout
+                                </button>
+                            </form>
+                        </div>
                     </div>
-                    <div class="col">
-                        <form action="/logout" method="post">
-                            <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
-                            <button type="submit" class="btn btn-danger" style="width: 120px !important;">
-                                <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                                Logout
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </th:block>
+                </th:block>
+            </div>
         </div>
     </nav>
 </header>
@@ -92,6 +92,7 @@
             wrapper.innerHTML = '<div class="alert alert-' + type + ' alert-dismissible">' + message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>'
             alerts.append(wrapper);
         }
+
         document.body.addEventListener("htmx:responseError", (e) => {
             addAlert(JSON.parse(e.detail.xhr.response).message, "danger");
         })
