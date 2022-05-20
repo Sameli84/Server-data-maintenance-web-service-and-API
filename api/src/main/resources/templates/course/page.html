@@ -21,7 +21,7 @@
                            aria-label="Course key" th:if="${hasKey}">
                 </div>
                 <button type="submit" class="btn btn-success px-5 fw-bold col-auto">
-                    <i class="fa-solid fa-key"></i>
+                    <i class="fa-solid fa-key" th:if="${hasKey}"></i>
                     Join
                 </button>
             </form>

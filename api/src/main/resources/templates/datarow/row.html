@@ -1,4 +1,4 @@
-<tr layout:fragment="row(dataRow)" hx-target="this" hx-swap="outerHTML">
+<tr layout:fragment="row(dataRow)" hx-target="this" hx-swap="outerHTML" class="overflow-hidden">
     <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getCourse().getName()})}"></td>
     <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getStudentAlias()})}"></td>
     <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getUid()})}"></td>

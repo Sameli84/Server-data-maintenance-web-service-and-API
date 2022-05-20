@@ -2,17 +2,17 @@
     <td>[[${account.name}]]</td>
     <td>[[${account.email}]]</td>
     <td>
-        <input type="checkbox" class="form-check-input" th:name="student" id="student" autocomplete="off"
+        <input type="checkbox" class="form-check-input p-2" th:name="student" id="student" autocomplete="off"
                th:checked="${#lists.contains(account.roles, roles[2])}">
         <label class="form-check-label" for="student">Student</label>
     </td>
     <td>
-        <input type="checkbox" class="form-check-input" th:name="teacher" id="teacher" autocomplete="off"
+        <input type="checkbox" class="form-check-input p-2" th:name="teacher" id="teacher" autocomplete="off"
                th:checked="${#lists.contains(account.roles, roles[1])}">
         <label class="form-check-label" for="teacher">Teacher</label>
     </td>
     <td>
-        <input type="checkbox" class="form-check-input" th:name="admin" id="admin" autocomplete="off"
+        <input type="checkbox" class="form-check-input p-2" th:name="admin" id="admin" autocomplete="off"
                th:checked="${#lists.contains(account.roles, roles[0])}">
         <label class="form-check-label" for="admin">Admin</label>
     </td>
