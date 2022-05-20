@@ -74,7 +74,7 @@ public class CourseController {
     public String joinCourseByKey(@ModelAttribute Account account, @RequestParam String key, RedirectAttributes redirectAttributes) {
         var courseKey = courseKeyRepository.findCourseKeyByKey(key);
         if (courseKey.isEmpty()) {
-            redirectAttributes.addFlashAttribute("error", "Given course key not found!");
+            redirectAttributes.addFlashAttribute("error", "Course with the given key not found!");
             return "redirect:/courses";
         }
         var course = courseKey.get().getCourse();

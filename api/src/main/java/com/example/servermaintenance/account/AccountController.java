@@ -52,5 +52,7 @@ public class AccountController {
     }
 
     @GetMapping("/login")
-    public String getLoginPage() { return "login"; }
+    public String getLoginPage() {
+        return "login";
+    }
 }
