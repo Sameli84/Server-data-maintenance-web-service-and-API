@@ -30,8 +30,6 @@ services:
       - "443:443"
     links:
       - api
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:z
 volumes:
   db:
     driver: local
