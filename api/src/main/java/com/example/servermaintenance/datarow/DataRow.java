@@ -2,6 +2,7 @@ package com.example.servermaintenance.datarow;
 
 import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.course.Course;
+import com.example.servermaintenance.course.CourseDataDTO;
 import com.opencsv.bean.CsvIgnore;
 import lombok.*;
 
@@ -27,20 +28,17 @@ public class DataRow implements Serializable {
     @Column(name = "csc_username")
     private String cscUsername;
 
-    @Column(name = "user_id")
+    @Column(name = "userid")
     private int uid;
 
-    @Column(name = "dns_name")
-    private String dnsName;
+    @Column(name = "self_made_dns")
+    private String selfMadeDns;
 
-    @Column(name = "self_made_dns_name")
-    private String selfMadeDnsName;
+    @Column(name = "project")
+    private String project;
 
-    @Column(name = "name")
-    private String name;
-
-    @Column(name = "vps_user_name")
-    private String vpsUserName;
+    @Column(name = "vps_username")
+    private String vpsUsername;
 
     @Column(name = "pouta_dns")
     private String poutaDns;
@@ -58,28 +56,15 @@ public class DataRow implements Serializable {
     @JoinColumn(name = "course_id")
     private Course course;
 
-    public void update(String studentAlias, String cscUsername, int uid, String dnsName, String selfMadeDnsName, String name, String vpsUserName, String poutaDns, String ipAddress) {
-        setStudentAlias(studentAlias);
-        setCscUsername(cscUsername);
-        setUid(uid);
-        setDnsName(dnsName);
-        setSelfMadeDnsName(selfMadeDnsName);
-        setName(name);
-        setVpsUserName(vpsUserName);
-        setPoutaDns(poutaDns);
-        setIpAddress(ipAddress);
-    }
-
-    public DataRow(String studentAlias, String cscUsername, int uid, String dnsName, String selfMadeDnsName, String name, String vpsUserName, String poutaDns, String ipAddress, Account account, Course course) {
+    public DataRow(String studentAlias, int uid, CourseDataDTO courseDataDTO, Account account, Course course) {
         this.studentAlias = studentAlias;
-        this.cscUsername = cscUsername;
         this.uid = uid;
-        this.dnsName = dnsName;
-        this.selfMadeDnsName = selfMadeDnsName;
-        this.name = name;
-        this.vpsUserName = vpsUserName;
-        this.poutaDns = poutaDns;
-        this.ipAddress = ipAddress;
+        this.project = courseDataDTO.getProject();
+        this.cscUsername = courseDataDTO.getCscUsername();
+        this.selfMadeDns = courseDataDTO.getSelfMadeDns();
+        this.vpsUsername = courseDataDTO.getVpsUsername();
+        this.poutaDns = courseDataDTO.getPoutaDns();
+        this.ipAddress = courseDataDTO.getIpAddress();
         this.account = account;
         this.course = course;
     }

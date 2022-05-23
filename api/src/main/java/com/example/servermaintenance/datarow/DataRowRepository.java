@@ -11,9 +11,14 @@ import java.util.Optional;
 @Repository
 public interface DataRowRepository extends JpaRepository<DataRow, Long> {
     List<DataRow> findAll();
+
     List<DataRow> findDataRowsByCourse(Course course);
-    Optional<DataRow> findDataRowByCourseAndAccount(Course course, Account account);
+
+    DataRow findDataRowByCourseAndAccount(Course course, Account account);
+
     List<DataRow> findAllByCourseOwner(Account account);
 
     List<DataRow> findAllByCourseOwnerAndCourse(Account account, Course course);
+
+    Integer countDataRowByCourse(Course course);
 }

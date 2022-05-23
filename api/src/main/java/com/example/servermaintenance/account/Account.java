@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Type;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,6 +23,7 @@ import java.util.*;
 public class Account extends AbstractPersistable<Long> implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(columnDefinition = "int8")
     private Long id;
 
     @Column
@@ -48,10 +50,10 @@ public class Account extends AbstractPersistable<Long> implements UserDetails {
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "account_roles",
-            joinColumns = @JoinColumn(name = "account_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id")
+            joinColumns = @JoinColumn(name = "account_id", referencedColumnName = "id", columnDefinition = "int8"),
+            inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id", columnDefinition = "int8")
     )
-    private Collection<Role> roles;
+    private Set<Role> roles = new HashSet<>();
 
     public Account(String firstName, String lastName, String email, String password) {
         this.firstName = firstName;

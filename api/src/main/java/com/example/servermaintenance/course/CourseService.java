@@ -1,10 +1,11 @@
 package com.example.servermaintenance.course;
 
+import com.example.servermaintenance.account.RoleService;
 import com.example.servermaintenance.datarow.DataRow;
-import com.example.servermaintenance.datarow.DataRowRepository;
 import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.account.AccountRepository;
 import com.example.servermaintenance.datarow.DataRowService;
+import com.github.slugify.Slugify;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,22 +21,18 @@ import java.util.Optional;
 public class CourseService {
     private final CourseRepository courseRepository;
     private final AccountRepository accountRepository;
-    private final DataRowRepository dataRowRepository;
     private final DataRowService dataRowService;
     private final CourseKeyRepository courseKeyRepository;
+    private final RoleService roleService;
 
     @Transactional
-    public Optional<Course> newCourse(String name, String url, Account account, String key) {
-        // TODO: slugify url?
-        if (courseRepository.existsByUrl(url)) {
-            return Optional.empty();
+    public Course newCourse(CourseCreationDTO courseCreationDTO, Account account) {
+        var slug = String.format("%s-%d", new Slugify().slugify(courseCreationDTO.getCourseName()), courseRepository.count() + 1);
+        var course = courseRepository.save(new Course(courseCreationDTO.getCourseName(), slug, account));
+        if (!courseCreationDTO.getKey().isEmpty()) {
+            courseKeyRepository.save(new CourseKey(courseCreationDTO.getKey(), course));
         }
-
-        var course = courseRepository.save(new Course(name, url, account));
-        if (!key.isEmpty()) {
-            courseKeyRepository.save(new CourseKey(key, course));
-        }
-        return Optional.of(course);
+        return course;
     }
 
     @Transactional
@@ -54,6 +51,7 @@ public class CourseService {
         course.addStudent(account);
         courseRepository.save(course);
         accountRepository.save(account);
+        dataRowService.generateData(course, account);
         return true;
     }
 
@@ -76,10 +74,6 @@ public class CourseService {
         return courseRepository.findCourseByUrl(url);
     }
 
-    public void updateStudentsData(DataRow data) {
-        dataRowRepository.save(data);
-    }
-
     public Boolean checkIfStudentOnCourse(Course course, Account account) {
         return course.getStudents().contains(account);
     }
@@ -100,7 +94,7 @@ public class CourseService {
 
         var beanToCsv = new StatefulBeanToCsvBuilder<DataRow>(w).build();
 
-        var data = dataRowService.getCourseData(course.get());
+        var data = dataRowService.getCourseDataRows(course.get());
         beanToCsv.write(data);
     }
 
@@ -128,7 +122,20 @@ public class CourseService {
         return true;
     }
 
+    @Transactional
+    public boolean deleteCourse(Course course, Account account) {
+        if (Objects.equals(course.getOwner().getId(), account.getId()) || roleService.isAdmin(account)) {
+            courseRepository.delete(course);
+            return true;
+        }
+        return false;
+    }
+
     public List<Course> getCoursesByTeacher(Account account) {
         return courseRepository.findAllByOwner(account);
+    }
+
+    public boolean hasCourseKey(Course course) {
+        return courseKeyRepository.existsCourseKeyByCourse(course);
     }
 }

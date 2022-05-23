@@ -1,6 +1,6 @@
 package com.example.servermaintenance.account;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -9,21 +9,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Consumer;
 
 @Service
+@AllArgsConstructor
 public class AccountService implements UserDetailsService {
-    @Autowired
-    private AccountRepository accountRepository;
-
-    @Autowired
-    private RoleRepository roleRepository;
-
-    @Autowired
-    PasswordEncoder passwordEncoder;
+    private final AccountRepository accountRepository;
+    private final RoleService roleService;
+    private final PasswordEncoder passwordEncoder;
 
     public Optional<Account> getContextAccount() {
         var email = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -31,11 +25,11 @@ public class AccountService implements UserDetailsService {
     }
 
     public boolean registerStudent(RegisterDTO registerDTO) {
-        return registerAccount(registerDTO, List.of(roleRepository.findByName("ROLE_STUDENT")));
+        return registerAccount(registerDTO, Set.of(roleService.getRole("STUDENT")));
     }
 
     @Transactional
-    public boolean registerAccount(RegisterDTO registerDTO, List<Role> roles) {
+    public boolean registerAccount(RegisterDTO registerDTO, Set<Role> roles) {
         if (accountRepository.findByEmail(registerDTO.getEmail()).isPresent()) {
             return false;
         }
@@ -68,27 +62,38 @@ public class AccountService implements UserDetailsService {
         return accountRepository.findAll();
     }
 
-    public void grantRights(int accountId, Role role) {
-        var account = this.getAccountById(accountId);
-        Collection<Role> roles = account.getRoles();
+    @Transactional
+    public void addRole(Account account, Role role) {
+        var roles = account.getRoles();
 
         role.getAccounts().add(account);
         roles.add(role);
         account.setRoles(roles);
 
-        this.updateAccount(account);
-        roleRepository.save(role);
+        updateAccount(account);
+        roleService.updateRole(role);
     }
 
-    public void removeRights(int accountId, Role role) {
-        var account = this.getAccountById(accountId);
-        Collection<Role> roles = account.getRoles();
+    @Transactional
+    public void removeRole(Account account, Role role) {
+        var roles = account.getRoles();
 
         role.getAccounts().remove(account);
         roles.remove(role);
         account.setRoles(roles);
 
-        this.updateAccount(account);
-        roleRepository.save(role);
+        updateAccount(account);
+        roleService.updateRole(role);
+    }
+
+    @Transactional
+    public void updateAccountRoles(Account account, boolean student, boolean teacher, boolean admin) {
+        var roleFns = new HashMap<Boolean, Consumer<String>>() {{
+            put(false, (String role) -> removeRole(account, roleService.getRole(role)));
+            put(true, (String role) -> addRole(account, roleService.getRole(role)));
+        }};
+        roleFns.get(student).accept("STUDENT");
+        roleFns.get(teacher).accept("TEACHER");
+        roleFns.get(admin).accept("ADMIN");
     }
 }

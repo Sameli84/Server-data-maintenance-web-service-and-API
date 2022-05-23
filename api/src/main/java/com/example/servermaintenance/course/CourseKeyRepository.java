@@ -9,6 +9,10 @@ import java.util.Optional;
 @Repository
 public interface CourseKeyRepository extends JpaRepository<CourseKey, Long> {
     List<CourseKey> findAll();
+
     Optional<CourseKey> findCourseKeyByKey(String key);
+
     boolean existsCourseKeyByKey(String key);
+
+    boolean existsCourseKeyByCourse(Course course);
 }

@@ -8,7 +8,8 @@ import org.springframework.data.jpa.domain.AbstractPersistable;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
-import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Setter
@@ -18,12 +19,13 @@ import java.util.Collection;
 public class Role extends AbstractPersistable<Long> implements GrantedAuthority {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(columnDefinition = "int8")
     private Long id;
 
     private String name;
 
     @ManyToMany(mappedBy = "roles")
-    private Collection<Account> accounts;
+    private Set<Account> accounts = new HashSet<>();
 
     public Role(String name) {
         this.name = name;
