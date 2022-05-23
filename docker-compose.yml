@@ -24,6 +24,7 @@ services:
   caddy:
     image: caddy:2.5.1-alpine
     restart: unless-stopped
+    command: caddy reverse-proxy --from https://project-vm-serverdata0.tamk.cloud/ --to http://api:8080
     ports:
       - "80:80"
       - "443:443"
