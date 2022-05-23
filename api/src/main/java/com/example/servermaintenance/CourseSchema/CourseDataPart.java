@@ -1,6 +1,4 @@
 package com.example.servermaintenance.CourseSchema;
-
-import com.example.servermaintenance.datarow.DataRow;
 import com.opencsv.bean.CsvIgnore;
 import lombok.*;
 
