@@ -7,7 +7,7 @@ stages:
 build:
   stage: build
   script:
-    - source ./.env
+    - source .env
     - docker login -u gitlab-ci-token -p $CI_BUILD_TOKEN $CI_REGISTRY_IMAGE
     - docker-compose build
     - docker-compose push
