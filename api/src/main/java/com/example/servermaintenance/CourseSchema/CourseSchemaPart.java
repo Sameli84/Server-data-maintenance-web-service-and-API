@@ -6,6 +6,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -55,4 +56,8 @@ public class CourseSchemaPart implements Serializable{
     @ManyToOne
     @JoinColumn(name = "data_type")
     private DataType dataType;
+
+    @OneToMany(mappedBy = "courseSchemaPart")
+    private List<CourseDataPart> courseDataParts;
+
 }

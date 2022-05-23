@@ -1,5 +1,7 @@
 package com.example.servermaintenance.account;
 
+import com.example.servermaintenance.CourseSchema.CourseDataPart;
+import com.example.servermaintenance.CourseSchema.CourseStudentData;
 import com.example.servermaintenance.course.Course;
 import com.example.servermaintenance.datarow.DataRow;
 import lombok.AllArgsConstructor;
@@ -43,6 +45,9 @@ public class Account extends AbstractPersistable<Long> implements UserDetails {
 
     @OneToMany(mappedBy = "owner")
     private List<Course> courses;
+
+    @OneToMany(mappedBy = "account")
+    private List<CourseStudentData> courseStudentData;
 
     @ManyToMany(mappedBy = "students")
     private Set<Course> studentCourses = new HashSet<>();

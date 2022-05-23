@@ -1,5 +1,8 @@
 package com.example.servermaintenance.course;
 
+import com.example.servermaintenance.CourseSchema.CourseDataPart;
+import com.example.servermaintenance.CourseSchema.CourseSchemaPart;
+import com.example.servermaintenance.CourseSchema.CourseStudentData;
 import com.example.servermaintenance.datarow.DataRow;
 import com.example.servermaintenance.account.Account;
 import lombok.AllArgsConstructor;
@@ -41,6 +44,12 @@ public class Course extends AbstractPersistable<Long> {
 
     @OneToMany(mappedBy = "course")
     private Set<CourseKey> courseKeys = new HashSet<>();
+
+    @OneToMany(mappedBy = "course")
+    private List<CourseStudentData> courseStudentData;
+
+    @OneToMany(mappedBy = "course")
+    private List<CourseSchemaPart> courseSchemaParts;
 
     @ManyToMany
     @JoinTable(

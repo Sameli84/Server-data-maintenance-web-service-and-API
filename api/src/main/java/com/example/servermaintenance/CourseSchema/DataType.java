@@ -5,6 +5,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 
 @Entity
 @NoArgsConstructor
@@ -19,4 +20,7 @@ public class DataType implements Serializable{
 
     @Column(name = "name")
     private String name;
+
+    @OneToMany(mappedBy = "dataType")
+    private List<CourseSchemaPart> courseSchemaParts;
 }

@@ -23,9 +23,9 @@ public class CourseDataPart implements Serializable{
 
     @ManyToOne
     @JoinColumn(name = "course_data_id")
-    private DataRow datarow;
+    private CourseStudentData courseStudentData;
 
     @ManyToOne
     @JoinColumn(name = "data_schema_part_id")
-    private CourseSchemaPart CourseSchemaPart;
+    private CourseSchemaPart courseSchemaPart;
 }

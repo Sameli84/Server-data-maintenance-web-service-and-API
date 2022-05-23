@@ -21,10 +21,17 @@ create table course_schema_part
     required                boolean
 );
 
+create table course_student_data
+(
+    id                      bigserial primary key,
+    account_id              bigint references account (id) on delete cascade,
+    course_id               bigint references course (id) on delete cascade
+);
+
 create table course_data_part
 (
     id                      bigserial primary key,
-    course_data_id          bigint references datarow (id) on delete cascade,
-    data_schema_part_id     bigint references course_schema_part (id),
+    course_data_id          bigint references course_student_data (id) on delete cascade,
+    data_schema_part_id     bigint references course_schema_part (id) on delete cascade,
     data                    text
 );
