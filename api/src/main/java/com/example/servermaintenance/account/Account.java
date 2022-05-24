@@ -1,14 +1,12 @@
 package com.example.servermaintenance.account;
 
-import com.example.servermaintenance.CourseSchema.CourseDataPart;
-import com.example.servermaintenance.CourseSchema.CourseStudentData;
+import com.example.servermaintenance.courseschema.CourseStudentData;
 import com.example.servermaintenance.course.Course;
 import com.example.servermaintenance.datarow.DataRow;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

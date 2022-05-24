@@ -1,12 +1,10 @@
-package com.example.servermaintenance.CourseSchema;
+package com.example.servermaintenance.courseschema;
 
-import com.opencsv.bean.CsvIgnore;
 import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity

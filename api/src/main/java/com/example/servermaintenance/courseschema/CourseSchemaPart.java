@@ -1,7 +1,6 @@
-package com.example.servermaintenance.CourseSchema;
+package com.example.servermaintenance.courseschema;
 
 import com.example.servermaintenance.course.Course;
-import com.opencsv.bean.CsvIgnore;
 import lombok.*;
 
 import javax.persistence.*;
