@@ -13,4 +13,5 @@ public class CourseSchemaPart {
     private int controlWidth;
     private int order;
     private boolean required;
+    private boolean open;
 }

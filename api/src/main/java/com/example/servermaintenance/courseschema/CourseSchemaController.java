@@ -17,11 +17,6 @@ public class CourseSchemaController {
         return courseSchema;
     }
 
-    @ModelAttribute("courseSchemaPart")
-    public CourseSchemaPart courseSchemaPart() {
-        return new CourseSchemaPart();
-    }
-
     @GetMapping("/schema")
     public String showCourseSchemaPage() {
         return "schema/create";
