@@ -15,3 +15,4 @@ public class CourseSchemaPart {
     private boolean required;
     private boolean open;
 }
+

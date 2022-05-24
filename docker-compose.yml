@@ -8,15 +8,19 @@ services:
     links:
       - db
     environment:
-      - POSTGRES_DSN=jdbc:postgresql://db:5432/postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DSN=${POSTGRES_DSN}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - ROOT_FIRSTNAME=${ROOT_FIRSTNAME}
+      - ROOT_LASTNAME=${ROOT_LASTNAME}
+      - ROOT_EMAIL=${ROOT_EMAIL}
+      - ROOT_PASSWORD=${ROOT_PASSWORD}
   db:
     image: postgres:14
     restart: always
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -24,13 +28,12 @@ services:
   caddy:
     image: caddy:2.5.1-alpine
     restart: unless-stopped
+    command: caddy reverse-proxy --from :80 --to api:8080
     ports:
       - "80:80"
       - "443:443"
     links:
       - api
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:z
 volumes:
   db:
     driver: local
