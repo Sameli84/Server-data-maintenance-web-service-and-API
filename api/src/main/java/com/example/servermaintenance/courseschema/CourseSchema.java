@@ -1,4 +1,4 @@
-package com.example.servermaintenance.CourseSchema;
+package com.example.servermaintenance.courseschema;
 
 import lombok.Data;
 
