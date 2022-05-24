@@ -8,13 +8,13 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @Secured("ROLE_TEACHER")
 @Controller
-@SessionAttributes("courseSchema")
+@SessionAttributes("courseSchemaDto")
 public class CourseSchemaController {
-    @ModelAttribute(name = "courseSchema")
-    public CourseSchema schema() {
-        var courseSchema = new CourseSchema();
-        courseSchema.addPart(new CourseSchemaPart());
-        return courseSchema;
+    @ModelAttribute(name = "courseSchemaDto")
+    public CourseSchemaDto schema() {
+        var courseSchemaDto = new CourseSchemaDto();
+        courseSchemaDto.addPart(new CourseSchemaPartDto());
+        return courseSchemaDto;
     }
 
     @GetMapping("/schema")
@@ -23,19 +23,19 @@ public class CourseSchemaController {
     }
 
     @GetMapping("/schema/add")
-    public String addPartToSchema(CourseSchemaPart part, @ModelAttribute CourseSchema courseSchema) {
-        courseSchema.addPart(part);
+    public String addPartToSchema(CourseSchemaPartDto part, @ModelAttribute CourseSchemaDto courseSchemaDto) {
+        courseSchemaDto.addPart(part);
         return "schema/create :: #schemaForm";
     }
 
     @DeleteMapping("/schema/part/{id}")
-    public String deletePartFromSchema(@PathVariable int id, @ModelAttribute CourseSchema courseSchema) {
-        courseSchema.getParts().remove(id);
+    public String deletePartFromSchema(@PathVariable int id, @ModelAttribute CourseSchemaDto courseSchemaDto) {
+        courseSchemaDto.getParts().remove(id);
         return "schema/create :: #schemaForm";
     }
 
     @PostMapping("/schema/render")
-    public String renderSchema(@ModelAttribute CourseSchema courseSchema) {
+    public String renderSchema(@ModelAttribute CourseSchemaDto courseSchemaDto) {
         return "schema/create :: #render";
     }
 }
