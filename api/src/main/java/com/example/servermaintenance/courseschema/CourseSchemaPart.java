@@ -14,3 +14,4 @@ public class CourseSchemaPart {
     private int order;
     private boolean required;
 }
+
