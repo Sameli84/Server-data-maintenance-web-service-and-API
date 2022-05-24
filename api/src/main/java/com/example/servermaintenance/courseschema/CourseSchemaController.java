@@ -34,13 +34,13 @@ public class CourseSchemaController {
     }
 
     @DeleteMapping("/schema/part/{id}")
-    public String deletePartFromSchema(@ModelAttribute CourseSchema courseSchema, @PathVariable int id) {
+    public String deletePartFromSchema(@PathVariable int id, @ModelAttribute CourseSchema courseSchema) {
         courseSchema.getParts().remove(id);
         return "schema/create :: #schemaForm";
     }
 
     @PostMapping("/schema/render")
     public String renderSchema(@ModelAttribute CourseSchema courseSchema) {
-        return "schema/render";
+        return "schema/create :: #render";
     }
 }

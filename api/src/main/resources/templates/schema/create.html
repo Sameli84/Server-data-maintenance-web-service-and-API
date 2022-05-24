@@ -25,8 +25,8 @@
                     </button>
                 </h3>
                 <div class="accordion-collapse collapse show">
-                    <div class="accordion-body">
-                        <div class="row mb-3">
+                    <div class="accordion-body pt-0">
+                        <div class="row mb-1">
                             <div class="col">
                                 <label>
                                     Validator Regex
@@ -47,7 +47,7 @@
                             </div>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-1">
                             <label>
                                 Generation statement
                             </label>
@@ -95,7 +95,7 @@
                             </div>
                             <div class="col my-auto d-flex">
                                 <button type="button"
-                                        th:hx-delete="@{/schema/part/{id}(id=${stat.index})}"
+                                        th:hx-delete="${#mvc.url('CSC#deletePartFromSchema').arg(0, stat.index).build()}"
                                         hx-target="#schemaForm"
                                         hx-swap="outerHTML"
                                         hx-include="closest form"
@@ -109,21 +109,62 @@
             </div>
         </div>
         <button type="button"
-                hx-get="/schema/add"
+                th:hx-get="${#mvc.url('CSC#addPartToSchema').build()}"
                 hx-target="#schemaForm"
                 hx-swap="outerHTML"
                 hx-include="closest form"
                 class="btn btn-primary">
             Add
         </button>
-        <a hx-post="/schema/render"
+        <a th:hx-post="${#mvc.url('CSC#renderSchema').build()}"
            class="btn btn-outline-primary"
            hx-include="closest form"
-           hx-target="body"
-           hx-push-url="true">
+           hx-target="#modal-here">
             RENDER
         </a>
     </form>
+    <div id="modal-here"></div>
 </section>
+<div id="render" class="container">
+    <div class="modal"
+         tabindex="-1"
+         style="display: block"
+         x-data
+         x-ref="modal">
+        <div class="modal-dialog modal-xl modal-fullscreen-md-down">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Rendered form</h5>
+                    <button type="button" class="btn-close" @click="$refs.modal.remove()"
+                            aria-label="Close modal">
+                    </button>
+                </div>
+                <div class="modal-body"
+                     @click.away="$refs.modal.remove()">
+                    <form th:object="${courseSchema}" class="row">
+                        <div th:each="part, stat : ${courseSchema.parts}"
+                             th:class="'col col-md-' + ${3*part.controlWidth}">
+                            <label th:text="${part.name?.length() > 0 ? part.name : '_empty partname_'}"
+                                   th:for="*{parts[__${stat.index}__].name}">
+                            </label>
+                            <input type="text"
+                                   class="form-control"
+                                   th:id="*{parts[__${stat.index}__].name}"
+                                   th:name="*{parts[__${stat.index}__].name}"
+                                   th:disabled="${part.locked}"
+                                   th:required="${part.required}"
+                                   th:aria-label="${part.name}">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @click="$refs.modal.remove()">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>
