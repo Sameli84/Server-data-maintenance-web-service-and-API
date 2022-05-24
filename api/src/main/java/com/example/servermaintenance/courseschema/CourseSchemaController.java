@@ -1,4 +1,4 @@
-package com.example.servermaintenance.CourseSchema;
+package com.example.servermaintenance.courseschema;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.annotation.Secured;
