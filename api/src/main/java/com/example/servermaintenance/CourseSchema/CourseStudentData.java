@@ -29,5 +29,5 @@ public class CourseStudentData implements Serializable{
     private Course course;
 
     @OneToMany(mappedBy = "courseStudentData")
-    private List<CourseDataPart> courseDataParts;
+    private Set<CourseDataPart> courseDataParts = new HashSet<>();
 }
