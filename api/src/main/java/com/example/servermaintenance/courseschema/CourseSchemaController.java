@@ -22,15 +22,20 @@ public class CourseSchemaController {
         return "schema/create";
     }
 
-    @GetMapping("/schema/add")
+    @PostMapping("/schema")
+    public String createCourseSchema(@ModelAttribute CourseSchemaDto courseSchemaDto) {
+        return "redirect:/courses";
+    }
+
+    @GetMapping("/schema/parts/add")
     public String addPartToSchema(CourseSchemaPartDto part, @ModelAttribute CourseSchemaDto courseSchemaDto) {
         courseSchemaDto.addPart(part);
         return "schema/create :: #schemaForm";
     }
 
-    @DeleteMapping("/schema/part/{id}")
-    public String deletePartFromSchema(@PathVariable int id, @ModelAttribute CourseSchemaDto courseSchemaDto) {
-        courseSchemaDto.getParts().remove(id);
+    @DeleteMapping("/schema/parts/{index}/delete")
+    public String deletePartFromSchema(@PathVariable int index, @ModelAttribute CourseSchemaDto courseSchemaDto) {
+        courseSchemaDto.getParts().remove(index);
         return "schema/create :: #schemaForm";
     }
 
