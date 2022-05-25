@@ -14,9 +14,7 @@ import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Comparator;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 
 @Slf4j
 @Secured("ROLE_TEACHER")
@@ -24,7 +22,6 @@ import java.util.Objects;
 @SessionAttributes("courseSchemaDto")
 @AllArgsConstructor
 public class CourseSchemaController {
-    private final CourseDataPartRepository courseDataPartRepository;
     private final CourseService courseService;
     private final AccountService accountService;
 
@@ -78,39 +75,21 @@ public class CourseSchemaController {
         return "redirect:/courses/schema";
     }
 
-    @GetMapping("/schema/parts/add")
+    @GetMapping("/courses/schema/parts/add")
     public String addPartToSchema(CourseSchemaPartDto part, @ModelAttribute CourseSchemaDto courseSchemaDto) {
         courseSchemaDto.addPart(part);
         return "schema/create :: #schemaForm";
     }
 
-    @DeleteMapping("/schema/parts/{index}/delete")
+    @DeleteMapping("/courses/schema/parts/{index}/delete")
     public String deletePartFromSchema(@PathVariable int index, @ModelAttribute CourseSchemaDto courseSchemaDto) {
         courseSchemaDto.getParts().remove(index);
         return "schema/create :: #schemaForm";
     }
 
-    @PostMapping("/schema/render")
+    @PostMapping("/courses/schema/render")
     public String renderSchema(@ModelAttribute CourseSchemaDto courseSchemaDto) {
         return "schema/create :: #render";
     }
 
-    @GetMapping("/schema/courses/{course}")
-    public String getCoursePage(@PathVariable Course course, Model model) {
-        var rows = course.getCourseStudentData()
-                .stream()
-                .sorted(Comparator.comparingLong(CourseStudentData::getId))
-                .map(courseDataPartRepository::findCourseDataPartsByCourseStudentDataOrderByCourseSchemaPart_Order)
-                .toList();
-
-        var headers = course.getCourseSchemaParts()
-                .stream()
-                .sorted(Comparator.comparingInt(CourseSchemaPart::getOrder))
-                .map(CourseSchemaPart::getName)
-                .toList();
-
-        model.addAttribute("headers", headers);
-        model.addAttribute("rows", rows);
-        return "schema/course";
-    }
 }

@@ -10,14 +10,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
 import java.util.*;
 
 @Controller
@@ -28,6 +26,7 @@ public class CourseController {
     private final DataRowService dataRowService;
     private final RoleService roleService;
     private final CourseKeyRepository courseKeyRepository;
+    private final CourseDataPartRepository courseDataPartRepository;
 
     @ExceptionHandler(AccountNotFoundException.class)
     public String processAccountException(HttpServletRequest request) {
@@ -87,24 +86,6 @@ public class CourseController {
         }
     }
 
-    @Secured("ROLE_TEACHER")
-//    @GetMapping("/courses/create")
-    public String getCourseCreationPage(@ModelAttribute CourseCreationDTO courseCreationDTO) {
-        return "create-course";
-    }
-
-    @Secured("ROLE_TEACHER")
-//    @PostMapping("/courses/create")
-    public String createCourse(@ModelAttribute Account account, @Valid @ModelAttribute CourseCreationDTO courseCreationDTO, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return "create-course";
-        }
-//        var course = courseService.newCourse(courseCreationDTO, account);
-        return "";
-//        return "redirect:/courses/" + course.getUrl();
-    }
-
-    @GetMapping("/courses/{course}")
     public String getCoursePage(@PathVariable Course course, @ModelAttribute Account account, Model model) {
         var studentData = dataRowService.getStudentData(course, account);
         if (studentData != null) {
@@ -275,5 +256,24 @@ public class CourseController {
         } else {
             response.addHeader("HX-Redirect", "/courses/");
         }
+    }
+
+    @GetMapping("/courses/{course}")
+    public String getCoursePage(@PathVariable Course course, Model model) {
+        var rows = course.getCourseStudentData()
+                .stream()
+                .sorted(Comparator.comparingLong(CourseStudentData::getId))
+                .map(courseDataPartRepository::findCourseDataPartsByCourseStudentDataOrderByCourseSchemaPart_Order)
+                .toList();
+
+        var headers = course.getCourseSchemaParts()
+                .stream()
+                .sorted(Comparator.comparingInt(CourseSchemaPart::getOrder))
+                .map(CourseSchemaPart::getName)
+                .toList();
+
+        model.addAttribute("headers", headers);
+        model.addAttribute("rows", rows);
+        return "schema/course";
     }
 }

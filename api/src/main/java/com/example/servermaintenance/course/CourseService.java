@@ -26,16 +26,6 @@ public class CourseService {
     private final RoleService roleService;
     private final CourseSchemaPartRepository courseSchemaPartRepository;
 
-//    @Transactional
-//    public Course newCourse(CourseCreationDTO courseCreationDTO, Account account) {
-//        var slug = String.format("%s-%d", new Slugify().slugify(courseCreationDTO.getCourseName()), courseRepository.count() + 1);
-//        var course = courseRepository.save(new Course(courseCreationDTO.getCourseName(), slug, account));
-//        if (!courseCreationDTO.getKey().isEmpty()) {
-//            courseKeyRepository.save(new CourseKey(courseCreationDTO.getKey(), course));
-//        }
-//        return course;
-//    }
-
     @Transactional
     public Course createCourse(CourseSchemaDto courseSchemaDto, Account account) {
         var slug = String.format("%s-%d", new Slugify().slugify(courseSchemaDto.getCourseName()), courseRepository.count() + 1);
