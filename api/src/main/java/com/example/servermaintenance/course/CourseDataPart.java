@@ -1,4 +1,4 @@
-package com.example.servermaintenance.courseschema;
+package com.example.servermaintenance.course;
 import lombok.*;
 
 import javax.persistence.*;

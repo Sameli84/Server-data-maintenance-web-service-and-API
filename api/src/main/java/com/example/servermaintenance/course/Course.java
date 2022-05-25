@@ -1,7 +1,5 @@
 package com.example.servermaintenance.course;
 
-import com.example.servermaintenance.courseschema.CourseSchemaPart;
-import com.example.servermaintenance.courseschema.CourseStudentData;
 import com.example.servermaintenance.datarow.DataRow;
 import com.example.servermaintenance.account.Account;
 import lombok.AllArgsConstructor;

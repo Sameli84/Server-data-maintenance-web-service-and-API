@@ -1,8 +1,7 @@
-package com.example.servermaintenance.courseschema;
+package com.example.servermaintenance.course;
 
 
 import com.example.servermaintenance.account.Account;
-import com.example.servermaintenance.course.Course;
 import lombok.*;
 
 import javax.persistence.*;

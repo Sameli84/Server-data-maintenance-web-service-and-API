@@ -88,19 +88,20 @@ public class CourseController {
     }
 
     @Secured("ROLE_TEACHER")
-    @GetMapping("/courses/create")
+//    @GetMapping("/courses/create")
     public String getCourseCreationPage(@ModelAttribute CourseCreationDTO courseCreationDTO) {
         return "create-course";
     }
 
     @Secured("ROLE_TEACHER")
-    @PostMapping("/courses/create")
+//    @PostMapping("/courses/create")
     public String createCourse(@ModelAttribute Account account, @Valid @ModelAttribute CourseCreationDTO courseCreationDTO, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             return "create-course";
         }
-        var course = courseService.newCourse(courseCreationDTO, account);
-        return "redirect:/courses/" + course.getUrl();
+//        var course = courseService.newCourse(courseCreationDTO, account);
+        return "";
+//        return "redirect:/courses/" + course.getUrl();
     }
 
     @GetMapping("/courses/{course}")
