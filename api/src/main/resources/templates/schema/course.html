@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" layout:decorate="~{layout}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>course</title>
+</head>
+<body>
+<section layout:fragment="content">
+    <table class="table">
+        <thead>
+        <tr>
+            <th th:each="header : ${headers}" th:text="${header}"></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="row : ${rows}">
+            <td th:each="part : ${row}" th:text="${part.getData()}"></td>
+        </tr>
+        </tbody>
+    </table>
+</section>
+</body>
+</html>
