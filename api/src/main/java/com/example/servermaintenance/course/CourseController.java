@@ -91,9 +91,23 @@ public class CourseController {
     public String getCoursePage(@PathVariable Course course, @ModelAttribute Account account, Model model) {
         var studentData = dataRowService.getStudentData(course, account);
         if (studentData != null) {
-            model.addAttribute("studentData", studentData);
             model.addAttribute("courseDataDTO", dataRowService.getCourseDataDTO(studentData));
         }
+        var rows = course.getCourseStudents()
+                .stream()
+                .sorted(Comparator.comparingLong(CourseStudent::getId))
+                .map(courseStudentPartRepository::findCourseStudentPartsByCourseStudentOrderBySchemaPart_Order)
+                .toList();
+
+        var headers = course.getSchemaParts()
+                .stream()
+                .sorted(Comparator.comparingInt(SchemaPart::getOrder))
+                .map(SchemaPart::getName)
+                .toList();
+
+        model.addAttribute("headers", headers);
+        model.addAttribute("rows", rows);
+
         boolean isStudent = courseService.isStudentOnCourse(course, account);
         model.addAttribute("isStudent", isStudent);
         model.addAttribute("hasKey", courseService.hasCourseKey(course));

@@ -1,17 +1,19 @@
 <th:block layout:fragment="tab-data()">
     <th:block layout:insert="~{course/tabs :: tabs('data')}"></th:block>
     <div class="tab-content">
-        <table class="table table-striped text-center">
+        <table class="table table-striped">
             <thead>
             <tr>
-                <th>Student ID</th>
+<!--                <th>Student ID</th>-->
                 <th th:each="header : ${headers}" th:text="${header}"></th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="row : ${rows}">
-                <td th:text="${row.courseLocalIndex}"></td>
-                <td th:each="part : ${row}" th:text="${part.getData()}"></td>
+<!--                <td th:text="${row.courseLocalIndex}"></td>-->
+                <th:block th:each="part : ${row}">
+                    <td layout:replace="~{course/table-cell :: table-cell(${part.getData()})}"></td>
+                </th:block>
             </tr>
             </tbody>
         </table>
