@@ -17,6 +17,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 @AllArgsConstructor
@@ -26,7 +27,7 @@ public class CourseController {
     private final DataRowService dataRowService;
     private final RoleService roleService;
     private final CourseKeyRepository courseKeyRepository;
-    private final CourseDataPartRepository courseDataPartRepository;
+    private final CourseStudentPartRepository courseStudentPartRepository;
 
     @ExceptionHandler(AccountNotFoundException.class)
     public String processAccountException(HttpServletRequest request) {
@@ -57,7 +58,7 @@ public class CourseController {
 
     @GetMapping("/courses")
     public String getCoursesPage(@ModelAttribute Account account, Model model) {
-        var courses = new HashSet<>(account.getStudentCourses());
+        var courses = account.getCourseStudentData().stream().map(CourseStudent::getCourse).collect(Collectors.toCollection(HashSet::new));
 
         var userCourses = account.getCourses();
         if (userCourses != null) {
@@ -86,13 +87,14 @@ public class CourseController {
         }
     }
 
+    @GetMapping("/courses/{course}")
     public String getCoursePage(@PathVariable Course course, @ModelAttribute Account account, Model model) {
         var studentData = dataRowService.getStudentData(course, account);
         if (studentData != null) {
             model.addAttribute("studentData", studentData);
             model.addAttribute("courseDataDTO", dataRowService.getCourseDataDTO(studentData));
         }
-        boolean isStudent = course.getStudents().contains(account);
+        boolean isStudent = courseService.isStudentOnCourse(course, account);
         model.addAttribute("isStudent", isStudent);
         model.addAttribute("hasKey", courseService.hasCourseKey(course));
         boolean canEdit = canEdit(account, course);
@@ -111,7 +113,7 @@ public class CourseController {
             model.addAttribute("studentData", studentData);
             model.addAttribute("courseDataDTO", dataRowService.getCourseDataDTO(studentData));
         }
-        model.addAttribute("isStudent", course.getStudents().contains(account));
+        model.addAttribute("isStudent", courseService.isStudentOnCourse(course, account));
         model.addAttribute("canEdit", canEdit(account, course));
 
         return "course/tab-input";
@@ -121,7 +123,7 @@ public class CourseController {
     public String getDataTab(@PathVariable Course course, @ModelAttribute Account account, Model model) {
         model.addAttribute("datarows", dataRowService.getCourseDataRows(course));
         model.addAttribute("canEdit", canEdit(account, course));
-        model.addAttribute("isStudent", course.getStudents().contains(account));
+        model.addAttribute("isStudent", courseService.isStudentOnCourse(course, account));
         return "course/tab-data";
     }
 
@@ -132,7 +134,7 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
         }
         model.addAttribute("canEdit", true);
-        model.addAttribute("isStudent", course.getStudents().contains(account));
+        model.addAttribute("isStudent", courseService.isStudentOnCourse(course, account));
         return "course/tab-students";
     }
 
@@ -143,7 +145,7 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
         }
         model.addAttribute("canEdit", true);
-        model.addAttribute("isStudent", course.getStudents().contains(account));
+        model.addAttribute("isStudent", courseService.isStudentOnCourse(course, account));
         return "course/tab-keys";
     }
 
@@ -173,7 +175,7 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Couldn't kick user from the course");
         }
 
-        model.addAttribute("isStudent", course.getStudents().contains(account));
+        model.addAttribute("isStudent", courseService.isStudentOnCourse(course, account));
         return "course/tab-students";
     }
 
@@ -189,7 +191,7 @@ public class CourseController {
             return "redirect:/courses/" + course;
         }
 
-        if (!courseService.checkIfStudentOnCourse(course, account)) {
+        if (!courseService.isStudentOnCourse(course, account)) {
             redirectAttributes.addFlashAttribute("error", "You must sign up for course before submitting data!");
             return "redirect:/courses/" + course;
         }
@@ -216,7 +218,7 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete the course");
         }
         model.addAttribute("canEdit", true);
-        model.addAttribute("isStudent", course.getStudents().contains(account));
+        model.addAttribute("isStudent", courseService.isStudentOnCourse(course, account));
         return "course/tab-keys";
     }
 
@@ -230,7 +232,7 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete the course");
         }
         model.addAttribute("canEdit", true);
-        model.addAttribute("isStudent", course.getStudents().contains(account));
+        model.addAttribute("isStudent", courseService.isStudentOnCourse(course, account));
         return "course/tab-keys";
     }
 
@@ -241,7 +243,7 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized user");
         }
         model.addAttribute("canEdit", true);
-        model.addAttribute("isStudent", course.getStudents().contains(account));
+        model.addAttribute("isStudent", courseService.isStudentOnCourse(course, account));
         return "course/tab-settings";
     }
 
@@ -258,18 +260,18 @@ public class CourseController {
         }
     }
 
-    @GetMapping("/courses/{course}")
+//    @GetMapping("/courses/{course}")
     public String getCoursePage(@PathVariable Course course, Model model) {
         var rows = course.getCourseStudentData()
                 .stream()
-                .sorted(Comparator.comparingLong(CourseStudentData::getId))
-                .map(courseDataPartRepository::findCourseDataPartsByCourseStudentDataOrderByCourseSchemaPart_Order)
+                .sorted(Comparator.comparingLong(CourseStudent::getId))
+                .map(courseStudentPartRepository::findCourseStudentPartsByCourseStudentOrderBySchemaPart_Order)
                 .toList();
 
-        var headers = course.getCourseSchemaParts()
+        var headers = course.getSchemaParts()
                 .stream()
-                .sorted(Comparator.comparingInt(CourseSchemaPart::getOrder))
-                .map(CourseSchemaPart::getName)
+                .sorted(Comparator.comparingInt(SchemaPart::getOrder))
+                .map(SchemaPart::getName)
                 .toList();
 
         model.addAttribute("headers", headers);

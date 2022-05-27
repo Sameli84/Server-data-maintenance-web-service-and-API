@@ -41,32 +41,18 @@ public class Course extends AbstractPersistable<Long> {
     private Set<CourseKey> courseKeys = new HashSet<>();
 
     @OneToMany(mappedBy = "course")
-    private Set<CourseStudentData> courseStudentData = new HashSet<>();
+    private Set<CourseStudent> courseStudentData = new HashSet<>();
 
     @OneToMany(mappedBy = "course")
-    private Set<CourseSchemaPart> courseSchemaParts = new HashSet<>();
+    private Set<SchemaPart> schemaParts = new HashSet<>();
 
-    @ManyToMany
-    @JoinTable(
-            name = "student_course",
-            joinColumns = { @JoinColumn(name = "course_id") },
-            inverseJoinColumns = { @JoinColumn(name = "account_id") }
-    )
-    private Set<Account> students = new HashSet<>();
+    @OneToOne(mappedBy = "course")
+    @PrimaryKeyJoinColumn
+    private CourseIndex courseIndex;
 
     public Course(String name, String url, Account account) {
         this.name = name;
         this.url = url;
         this.owner = account;
-    }
-
-    public void addStudent(Account a) {
-        this.students.add(a);
-        a.getStudentCourses().add(this);
-    }
-
-    public void removeStudent(Account a) {
-        this.students.remove(a);
-        a.getStudentCourses().remove(this);
     }
 }

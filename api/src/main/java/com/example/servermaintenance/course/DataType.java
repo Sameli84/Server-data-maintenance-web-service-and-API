@@ -22,5 +22,5 @@ public class DataType implements Serializable{
     private String name;
 
     @OneToMany(mappedBy = "dataType")
-    private Set<CourseSchemaPart> courseSchemaParts = new HashSet<>();
+    private Set<SchemaPart> schemaParts = new HashSet<>();
 }
