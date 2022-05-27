@@ -1,6 +1,6 @@
 package com.example.servermaintenance.account;
 
-import com.example.servermaintenance.course.CourseStudentData;
+import com.example.servermaintenance.course.CourseStudent;
 import com.example.servermaintenance.course.Course;
 import com.example.servermaintenance.datarow.DataRow;
 import lombok.AllArgsConstructor;
@@ -45,10 +45,7 @@ public class Account extends AbstractPersistable<Long> implements UserDetails {
     private List<Course> courses;
 
     @OneToMany(mappedBy = "account")
-    private List<CourseStudentData> courseStudentData;
-
-    @ManyToMany(mappedBy = "students")
-    private Set<Course> studentCourses = new HashSet<>();
+    private List<CourseStudent> courseStudentData;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
