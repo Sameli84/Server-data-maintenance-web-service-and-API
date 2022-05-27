@@ -28,17 +28,4 @@ public class WebConfig implements WebMvcConfigurer {
     public void addFormatters(FormatterRegistry registry) {
         registry.addConverter(new CourseUrlToCourseConverter(courseService));
     }
-
-    @Bean
-    public ModelMapper modelMapper() {
-        Converter<String, String> nullToString = new AbstractConverter<>() {
-            protected String convert(String source) {
-                return source == null ? "" : source;
-            }
-        };
-        ModelMapper modelMapper = new ModelMapper();
-        modelMapper.addConverter(nullToString);
-        return modelMapper;
-    }
-
 }
