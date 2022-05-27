@@ -2,7 +2,7 @@
     <th:block layout:insert="~{course/tabs :: tabs('students')}"></th:block>
     <div class="tab-content">
         <div class="row row-cols-1 row-cols-md-3 mx-0">
-            <div th:each="student : ${course.getStudents()}" class="col py-3 row mx-0">
+            <div th:each="student : ${students}" class="col py-3 row mx-0">
                 <div class="col">
                     <p class="fw-bold" th:text="${student.getName()}"></p>
                     <p class="mb-0" th:text="${student.getEmail()}"></p>
@@ -18,6 +18,6 @@
                 </form>
             </div>
         </div>
-        <p th:if="${course.getStudents().size() == 0}" class="my-3">No students...</p>
+        <p th:if="${students?.size() == 0}" class="my-3">No students...</p>
     </div>
 </th:block>

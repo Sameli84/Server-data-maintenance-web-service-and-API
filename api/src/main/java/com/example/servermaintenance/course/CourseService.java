@@ -75,13 +75,7 @@ public class CourseService {
             return false;
         }
 
-        course.getCourseStudents().removeIf(courseStudentData -> courseStudentData.getAccount().equals(account));
-        account.getCourses().remove(course);
-        courseRepository.save(course);
-        accountRepository.save(account);
-
-        dataRowService.removeDataRow(course, account);
-
+        courseStudentService.deleteCourseStudent(course, account);
         return true;
     }
 
@@ -155,7 +149,7 @@ public class CourseService {
         var schema = schemaPartRepository.findSchemaPartsByCourseOrderByOrder(course);
         var data = courseStudentService.getCourseStudentParts(course, account);
         var result = new ArrayList<CourseSchemaPartDto>(schema.size());
-        for (int i = 0; i <  schema.size(); i++) {
+        for (int i = 0; i < schema.size(); i++) {
             var courseSchemaPartDto = modelMapper.map(schema.get(i), CourseSchemaPartDto.class);
             courseSchemaPartDto.setData(data.get(i).getData());
             result.add(courseSchemaPartDto);

@@ -43,4 +43,11 @@ public class CourseStudentService {
                 .sorted(Comparator.comparingInt(a -> a.getSchemaPart().getOrder()))
                 .toList();
     }
+
+    public void deleteCourseStudent(Course course, Account account) {
+        var courseStudent = this.courseStudentRepository.findFirstByCourseAndAccount(course, account);
+        if (courseStudent != null) {
+            this.courseStudentRepository.delete(courseStudent);
+        }
+    }
 }

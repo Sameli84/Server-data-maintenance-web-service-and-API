@@ -160,6 +160,7 @@ public class CourseController {
         }
         model.addAttribute("canEdit", true);
         model.addAttribute("isStudent", courseService.isStudentOnCourse(course, account));
+        model.addAttribute("students", course.getCourseStudents().stream().map(CourseStudent::getAccount).toList());
         return "course/tab-students";
     }
 
