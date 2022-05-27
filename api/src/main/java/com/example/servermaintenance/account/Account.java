@@ -41,7 +41,7 @@ public class Account extends AbstractPersistable<Long> implements UserDetails {
     @OneToMany(mappedBy = "account")
     private List<DataRow> data;
 
-    @OneToMany(mappedBy = "owner")
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Course> courses;
 
     @OneToMany(mappedBy = "account")
