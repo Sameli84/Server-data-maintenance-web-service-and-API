@@ -89,10 +89,6 @@ public class CourseController {
 
     @GetMapping("/courses/{course}")
     public String getCoursePage(@PathVariable Course course, @ModelAttribute Account account, Model model) {
-        var studentData = dataRowService.getStudentData(course, account);
-        if (studentData != null) {
-            model.addAttribute("courseDataDTO", dataRowService.getCourseDataDTO(studentData));
-        }
         var rows = course.getCourseStudents()
                 .stream()
                 .sorted(Comparator.comparingLong(CourseStudent::getId))
@@ -114,20 +110,20 @@ public class CourseController {
         boolean canEdit = canEdit(account, course);
         model.addAttribute("canEdit", canEdit);
 
-        if (!isStudent && canEdit) {
-            model.addAttribute("datarows", dataRowService.getCourseDataRows(course));
+        if (isStudent) {
+            model.addAttribute("courseSchemaInputDto", courseService.getStudentForm(course, account));
         }
+
         return "course/page";
     }
 
     @GetMapping("/courses/{course}/input")
     public String getInputTab(@PathVariable Course course, @ModelAttribute Account account, Model model) {
-        var studentData = dataRowService.getStudentData(course, account);
-        if (studentData != null) {
-            model.addAttribute("studentData", studentData);
-            model.addAttribute("courseDataDTO", dataRowService.getCourseDataDTO(studentData));
+        var isStudent = courseService.isStudentOnCourse(course, account);
+        if (isStudent) {
+            model.addAttribute("courseSchemaInputDto", courseService.getStudentForm(course, account));
         }
-        model.addAttribute("isStudent", courseService.isStudentOnCourse(course, account));
+        model.addAttribute("isStudent", isStudent);
         model.addAttribute("canEdit", canEdit(account, course));
 
         return "course/tab-input";

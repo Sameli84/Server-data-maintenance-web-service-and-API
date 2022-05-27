@@ -15,5 +15,6 @@ public class CourseSchemaPartDto {
     private int order;
     private boolean required;
     private boolean open = true;
+    private String data;
 }
 

@@ -1,6 +1,5 @@
 package com.example.servermaintenance.course;
 
-import com.example.servermaintenance.WebConfig;
 import com.example.servermaintenance.account.RoleService;
 import com.example.servermaintenance.datarow.DataRow;
 import com.example.servermaintenance.account.Account;
@@ -14,9 +13,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.io.Writer;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
@@ -30,6 +27,7 @@ public class CourseService {
 
     private ModelMapper modelMapper;
     private final CourseStudentService courseStudentService;
+    private final SchemaPartRepository schemaPartRepository;
 
     @Transactional
     public Course createCourse(CourseSchemaDto courseSchemaDto, Account account) {
@@ -150,5 +148,18 @@ public class CourseService {
 
     public boolean hasCourseKey(Course course) {
         return courseKeyRepository.existsCourseKeyByCourse(course);
+    }
+
+    @Transactional
+    public CourseSchemaInputDto getStudentForm(Course course, Account account) {
+        var schema = schemaPartRepository.findSchemaPartsByCourseOrderByOrder(course);
+        var data = courseStudentService.getCourseStudentParts(course, account);
+        var result = new ArrayList<CourseSchemaPartDto>(schema.size());
+        for (int i = 0; i <  schema.size(); i++) {
+            var courseSchemaPartDto = modelMapper.map(schema.get(i), CourseSchemaPartDto.class);
+            courseSchemaPartDto.setData(data.get(i).getData());
+            result.add(courseSchemaPartDto);
+        }
+        return new CourseSchemaInputDto(result);
     }
 }

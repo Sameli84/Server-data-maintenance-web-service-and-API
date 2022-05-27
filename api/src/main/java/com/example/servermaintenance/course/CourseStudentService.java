@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.Comparator;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -16,7 +17,7 @@ public class CourseStudentService {
 
     @Transactional
     public CourseStudent generate(Course course, Account account, long id) {
-        // todo: get from repo with order
+        // TODO: get from repo with order
         var schema = course.getSchemaParts().stream().sorted(Comparator.comparingInt(SchemaPart::getOrder)).toList();
         var courseStudent = new CourseStudent(account, course, id);
         for (SchemaPart part : schema) {
@@ -29,5 +30,17 @@ public class CourseStudentService {
             courseStudent.addCourseStudentPart(courseStudentPartRepository.save(courseStudentPart));
         }
         return courseStudentRepository.save(courseStudent);
+    }
+
+    public CourseStudent getCourseStudent(Course course, Account account) {
+        return courseStudentRepository.findFirstByCourseAndAccount(course, account);
+    }
+
+    public List<CourseStudentPart> getCourseStudentParts(Course course, Account account) {
+        return courseStudentRepository.findFirstByCourseAndAccount(course, account)
+                .getCourseStudentParts()
+                .stream()
+                .sorted(Comparator.comparingInt(a -> a.getSchemaPart().getOrder()))
+                .toList();
     }
 }
