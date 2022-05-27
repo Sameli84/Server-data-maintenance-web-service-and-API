@@ -27,9 +27,9 @@ public class CourseService {
     private final CourseKeyRepository courseKeyRepository;
     private final RoleService roleService;
     private final CourseSchemaPartRepository courseSchemaPartRepository;
+
     private ModelMapper modelMapper;
     private final CourseStudentService courseStudentService;
-
 
     @Transactional
     public Course createCourse(CourseSchemaDto courseSchemaDto, Account account) {
