@@ -4,31 +4,17 @@
         <table class="table table-striped text-center">
             <thead>
             <tr>
-                <th>Project</th>
-                <th>Student name</th>
-                <th>Student alias</th>
-                <th>CSC username</th>
-                <th>Uid</th>
-                <th>Self made DNS</th>
-                <th>VPS username</th>
-                <th>Pouta DNS</th>
-                <th>IP address</th>
+                <th>Student ID</th>
+                <th th:each="header : ${headers}" th:text="${header}"></th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="dataRow : ${datarows}">
-                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getProject()})}"></td>
-                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getAccount().getName()})}"></td>
-                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getStudentAlias()})}"></td>
-                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getCscUsername()})}"></td>
-                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getUid()})}"></td>
-                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getSelfMadeDns()})}"></td>
-                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getVpsUsername()})}"></td>
-                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getPoutaDns()})}"></td>
-                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getIpAddress()})}"></td>
+            <tr th:each="row : ${rows}">
+                <td th:text="${row.courseLocalIndex}"></td>
+                <td th:each="part : ${row}" th:text="${part.getData()}"></td>
             </tr>
             </tbody>
         </table>
-        <p th:if="${datarows.size() == 0}">No entries...</p>
+        <p th:if="${rows?.size() == 0}">No entries...</p>
     </div>
 </th:block>

@@ -44,7 +44,7 @@ public class CourseService {
     }
 
     public boolean isStudentOnCourse(Course course, Account account) {
-        return course.getCourseStudentData().stream().map(CourseStudent::getAccount).toList().contains(account);
+        return course.getCourseStudents().stream().map(CourseStudent::getAccount).toList().contains(account);
     }
 
     @Transactional
@@ -69,7 +69,7 @@ public class CourseService {
             return false;
         }
 
-        course.getCourseStudentData().removeIf(courseStudentData -> courseStudentData.getAccount().equals(account));
+        course.getCourseStudents().removeIf(courseStudentData -> courseStudentData.getAccount().equals(account));
         account.getCourses().remove(course);
         courseRepository.save(course);
         accountRepository.save(account);

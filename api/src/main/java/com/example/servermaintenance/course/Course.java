@@ -41,7 +41,7 @@ public class Course extends AbstractPersistable<Long> {
     private Set<CourseKey> courseKeys = new HashSet<>();
 
     @OneToMany(mappedBy = "course")
-    private Set<CourseStudent> courseStudentData = new HashSet<>();
+    private Set<CourseStudent> courseStudents = new HashSet<>();
 
     @OneToMany(mappedBy = "course")
     private Set<SchemaPart> schemaParts = new HashSet<>();

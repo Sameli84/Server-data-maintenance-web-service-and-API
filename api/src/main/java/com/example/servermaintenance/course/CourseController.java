@@ -121,9 +121,24 @@ public class CourseController {
 
     @GetMapping("/courses/{course}/data")
     public String getDataTab(@PathVariable Course course, @ModelAttribute Account account, Model model) {
-        model.addAttribute("datarows", dataRowService.getCourseDataRows(course));
         model.addAttribute("canEdit", canEdit(account, course));
         model.addAttribute("isStudent", courseService.isStudentOnCourse(course, account));
+
+        var rows = course.getCourseStudents()
+                .stream()
+                .sorted(Comparator.comparingLong(CourseStudent::getId))
+                .map(courseStudentPartRepository::findCourseStudentPartsByCourseStudentOrderBySchemaPart_Order)
+                .toList();
+
+        var headers = course.getSchemaParts()
+                .stream()
+                .sorted(Comparator.comparingInt(SchemaPart::getOrder))
+                .map(SchemaPart::getName)
+                .toList();
+
+        model.addAttribute("headers", headers);
+        model.addAttribute("rows", rows);
+
         return "course/tab-data";
     }
 
@@ -258,24 +273,5 @@ public class CourseController {
         } else {
             response.addHeader("HX-Redirect", "/courses/");
         }
-    }
-
-//    @GetMapping("/courses/{course}")
-    public String getCoursePage(@PathVariable Course course, Model model) {
-        var rows = course.getCourseStudentData()
-                .stream()
-                .sorted(Comparator.comparingLong(CourseStudent::getId))
-                .map(courseStudentPartRepository::findCourseStudentPartsByCourseStudentOrderBySchemaPart_Order)
-                .toList();
-
-        var headers = course.getSchemaParts()
-                .stream()
-                .sorted(Comparator.comparingInt(SchemaPart::getOrder))
-                .map(SchemaPart::getName)
-                .toList();
-
-        model.addAttribute("headers", headers);
-        model.addAttribute("rows", rows);
-        return "schema/course";
     }
 }
