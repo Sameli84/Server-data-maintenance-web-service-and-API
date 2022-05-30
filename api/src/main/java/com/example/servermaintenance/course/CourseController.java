@@ -215,37 +215,39 @@ public class CourseController {
                              @PathVariable Long studentId,
                              @ModelAttribute Account account,
                              @Valid @ModelAttribute CourseSchemaInputDto courseSchemaInputDto,
-                             RedirectAttributes redirectAttributes,
                              Model model) {
         if (!Objects.equals(account.getId(), studentId) && !canEdit(account, course)) {
-            redirectAttributes.addFlashAttribute("error", "Unauthorized action");
-            return "redirect:/courses/" + course;
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized action");
         }
 
         if (!courseService.isStudentOnCourse(course, account)) {
-            redirectAttributes.addFlashAttribute("error", "You must sign up for course before submitting data!");
-            return "redirect:/courses/" + course;
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You must sign up for course before submitting data");
         }
 
         var studentParts = courseStudentService.getCourseStudentParts(course, account);
-        var schemaParts = schemaPartRepository.findSchemaPartsByCourseOrderByOrder(course);
         var dataParts = courseSchemaInputDto.getData();
-        courseSchemaInputDto.setParts(schemaParts.stream().map(schemaPart -> modelMapper.map(schemaPart, CourseSchemaPartDto.class)).toList());
-        courseSchemaInputDto.setErrors(new HashMap<>());
 
-        if (schemaParts.size() != dataParts.size() || schemaParts.size() != studentParts.size()) {
-            redirectAttributes.addFlashAttribute("error", "Wrong amount of data parts");
-            return "redirect:/courses/" + course;
+        courseSchemaInputDto.setErrors(new HashMap<>());
+        courseSchemaInputDto.setParts(new ArrayList<>());
+
+        if (dataParts.size() != studentParts.size()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong amount of data parts");
         }
 
         // validoot
         boolean hasErrors = false;
-        for (int i = 0; i < schemaParts.size(); i++) {
-            var schemaPart = schemaParts.get(i);
-            if (!schemaPart.isValidator() || schemaPart.isLocked()) {
+        for (int i = 0; i < studentParts.size(); i++) {
+            var schemaPart = studentParts.get(i).getSchemaPart();
+            courseSchemaInputDto.getParts().add(modelMapper.map(schemaPart, CourseSchemaPartDto.class));
+            var dataPart = dataParts.get(i);
+            if (schemaPart.isLocked()) {
+                // locked data gets lost for some reason?
+                dataPart.setData(studentParts.get(i).getData());
                 continue;
             }
-            var dataPart = dataParts.get(i);
+            if (!schemaPart.isValidator()) {
+                continue;
+            }
             if (!dataPart.getData().matches(schemaPart.getValidatorRegex())) {
                 courseSchemaInputDto.getErrors().put(i, schemaPart.getValidatorMessage());
                 hasErrors = true;
@@ -263,8 +265,6 @@ public class CourseController {
             var studentPart = studentParts.get(i);
             if (!studentPart.getSchemaPart().isLocked()) {
                 studentPart.setData(dataParts.get(i).getData());
-            } else {
-                dataParts.get(i).setData(studentPart.getData());
             }
         }
         courseStudentService.saveStudentParts(studentParts);
