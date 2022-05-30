@@ -8,6 +8,7 @@ services:
     links:
       - db
     environment:
+      - SERVER_PORT=${SERVER_PORT}
       - POSTGRES_DSN=${POSTGRES_DSN}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
