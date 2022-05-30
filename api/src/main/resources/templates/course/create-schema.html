@@ -85,7 +85,7 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-2">
+                            <div class="col-3 col-md-2 pe-1 pe-md-3">
                                 <div class="form-check">
                                     <input type="checkbox" th:id="${stat.index}+'locked'"
                                            class="form-check-input"
@@ -105,7 +105,7 @@
                                     </label>
                                 </div>
                             </div>
-                            <div class="col-4" th:x-data="'{ width: ' + ${part.controlWidth} + ' }'">
+                            <div class="col-5 col-md-4 px-0 px-md-3" th:x-data="'{ width: ' + ${part.controlWidth} + ' }'">
                                 <label>Form control width: <span x-text="width"></span> / 4</label>
                                 <input type="range"
                                        th:field="*{parts[__${stat.index}__].controlWidth}"
