@@ -88,7 +88,7 @@
             addAlert(JSON.parse(e.detail.xhr.response).message, "danger");
         })
         document.body.addEventListener("success", (e) => {
-            addAlert(e.detail.message, "success")
+            addAlert(e.detail.value, "success")
         })
     </script>
 </main>

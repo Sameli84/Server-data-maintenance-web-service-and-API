@@ -1,5 +1,6 @@
 package com.example.servermaintenance.course;
 
+import com.example.servermaintenance.AlertService;
 import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.account.AccountNotFoundException;
 import com.example.servermaintenance.account.RoleService;
@@ -30,9 +31,9 @@ public class CourseController {
     private final RoleService roleService;
     private final CourseKeyRepository courseKeyRepository;
     private final CourseStudentPartRepository courseStudentPartRepository;
-    private final SchemaPartRepository schemaPartRepository;
     private final CourseStudentService courseStudentService;
     private final ModelMapper modelMapper;
+    private final AlertService alertService;
 
     @ExceptionHandler(AccountNotFoundException.class)
     public String processAccountException(HttpServletRequest request) {
@@ -116,7 +117,9 @@ public class CourseController {
         model.addAttribute("canEdit", canEdit);
 
         if (isStudent) {
-            model.addAttribute("courseSchemaInputDto", courseService.getStudentForm(course, account));
+            var studentForm = courseService.getStudentForm(course, account);
+            model.addAttribute("courseSchemaInputDto", studentForm);
+            model.addAttribute("updateLocked", studentForm.getParts().stream().allMatch(CourseSchemaPartDto::isLocked));
         }
 
         return "course/page";
@@ -126,7 +129,9 @@ public class CourseController {
     public String getInputTab(@PathVariable Course course, @ModelAttribute Account account, Model model) {
         var isStudent = courseService.isStudentOnCourse(course, account);
         if (isStudent) {
-            model.addAttribute("courseSchemaInputDto", courseService.getStudentForm(course, account));
+            var studentForm = courseService.getStudentForm(course, account);
+            model.addAttribute("courseSchemaInputDto", studentForm);
+            model.addAttribute("updateLocked", studentForm.getParts().stream().allMatch(CourseSchemaPartDto::isLocked));
         }
         model.addAttribute("isStudent", isStudent);
         model.addAttribute("canEdit", canEdit(account, course));
@@ -215,7 +220,8 @@ public class CourseController {
                              @PathVariable Long studentId,
                              @ModelAttribute Account account,
                              @Valid @ModelAttribute CourseSchemaInputDto courseSchemaInputDto,
-                             Model model) {
+                             Model model,
+                             HttpServletResponse response) {
         if (!Objects.equals(account.getId(), studentId) && !canEdit(account, course)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized action");
         }
@@ -225,12 +231,28 @@ public class CourseController {
         }
 
         var studentParts = courseStudentService.getCourseStudentParts(course, account);
-        var dataParts = courseSchemaInputDto.getData();
+
+        // remove locked parts at the end from the count
+        int studentPartCount = studentParts.size();
+        for (int i = studentParts.size() - 1; i >= 0; i--) {
+            var part = studentParts.get(i);
+            if (part.getSchemaPart().isLocked()) {
+                studentPartCount--;
+            } else {
+                break;
+            }
+        }
+
+        if (studentPartCount == 0) {
+            // TODO: better error message
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No open fields");
+        }
 
         courseSchemaInputDto.setErrors(new HashMap<>());
         courseSchemaInputDto.setParts(new ArrayList<>());
 
-        if (dataParts.size() != studentParts.size()) {
+        var dataParts = courseSchemaInputDto.getData();
+        if (dataParts.size() != studentPartCount) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong amount of data parts");
         }
 
@@ -239,7 +261,13 @@ public class CourseController {
         for (int i = 0; i < studentParts.size(); i++) {
             var schemaPart = studentParts.get(i).getSchemaPart();
             courseSchemaInputDto.getParts().add(modelMapper.map(schemaPart, CourseSchemaPartDto.class));
-            var dataPart = dataParts.get(i);
+
+            if (dataParts.size() == i) {
+                dataParts.add(new CourseStudentPartDto(studentParts.get(i).getData()));
+            }
+
+            CourseStudentPartDto dataPart = dataParts.get(i);
+
             if (schemaPart.isLocked()) {
                 // locked data gets lost for some reason?
                 dataPart.setData(studentParts.get(i).getData());
@@ -257,6 +285,8 @@ public class CourseController {
         model.addAttribute("isStudent", courseService.isStudentOnCourse(course, account));
         model.addAttribute("canEdit", canEdit(account, course));
 
+        model.addAttribute("updateLocked", studentParts.stream().allMatch(s -> s.getSchemaPart().isLocked()));
+
         if (hasErrors) {
             return "course/tab-input";
         }
@@ -269,18 +299,19 @@ public class CourseController {
         }
         courseStudentService.saveStudentParts(studentParts);
 
+        alertService.addAlertToResponse(response, "success", "Updated data");
         return "course/tab-input";
     }
 
 
     @Secured("ROLE_TEACHER")
     @PostMapping("/courses/{course}/keys/create")
-    public String createCourseKey(@PathVariable Course course, @RequestParam String key, @ModelAttribute Account account, Model model) {
+    public String createCourseKey(@PathVariable Course course, @RequestParam String key, @ModelAttribute Account account, Model model, HttpServletResponse response) {
         if (!canEdit(account, course)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
         }
         if (courseService.addKey(course, key)) {
-            // TODO: add success
+            alertService.addAlertToResponse(response, "success", "Added new key");
         } else {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Key has to be unique");
         }
@@ -291,7 +322,7 @@ public class CourseController {
 
     @Secured("ROLE_TEACHER")
     @DeleteMapping("/courses/{course}/keys/{keyId}/revoke")
-    public String revokeCourseKey(@PathVariable Course course, @PathVariable int keyId, @ModelAttribute Account account, Model model) {
+    public String revokeCourseKey(@PathVariable Course course, @PathVariable int keyId, @ModelAttribute Account account, Model model, HttpServletResponse response) {
         if (!canEdit(account, course)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
         }
@@ -300,6 +331,7 @@ public class CourseController {
         }
         model.addAttribute("canEdit", true);
         model.addAttribute("isStudent", courseService.isStudentOnCourse(course, account));
+        alertService.addAlertToResponse(response, "success", "Revoked key");
         return "course/tab-keys";
     }
 

@@ -24,7 +24,9 @@
                     </div>
                 </form>
                 <button th:hx-post="@{/courses/{course}/students/{id}/update-data(course=${course.getUrl()}, id=${account.getId()})}"
-                        hx-include="#student-data-form" class="btn btn-primary btn-lg">
+                        hx-include="#student-data-form"
+                        class="btn btn-primary btn-lg"
+                        th:disabled="${updateLocked}">
                     Update information
                 </button>
             </div>
