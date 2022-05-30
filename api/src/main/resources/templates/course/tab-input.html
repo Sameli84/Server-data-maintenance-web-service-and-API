@@ -12,10 +12,10 @@
                         </label>
                         <input type="text"
                                class="form-control"
-                               th:field="*{data[__${stat.index}__]}"
+                               th:field="*{data[__${stat.index}__].data}"
                                th:disabled="${part.locked}"
                                th:required="${part.required}"
-                               th:value="${courseSchemaInputDto.data[__${stat.index}__]}"
+                               th:value="${courseSchemaInputDto.data[__${stat.index}__].data}"
                                th:aria-label="${part.name}">
                     </div>
                 </form>
