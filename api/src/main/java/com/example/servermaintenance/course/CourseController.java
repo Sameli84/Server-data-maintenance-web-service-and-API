@@ -1,5 +1,6 @@
 package com.example.servermaintenance.course;
 
+import com.example.servermaintenance.AlertService;
 import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.account.AccountNotFoundException;
 import com.example.servermaintenance.account.RoleService;
@@ -30,9 +31,9 @@ public class CourseController {
     private final RoleService roleService;
     private final CourseKeyRepository courseKeyRepository;
     private final CourseStudentPartRepository courseStudentPartRepository;
-    private final SchemaPartRepository schemaPartRepository;
     private final CourseStudentService courseStudentService;
     private final ModelMapper modelMapper;
+    private final AlertService alertService;
 
     @ExceptionHandler(AccountNotFoundException.class)
     public String processAccountException(HttpServletRequest request) {
@@ -219,7 +220,8 @@ public class CourseController {
                              @PathVariable Long studentId,
                              @ModelAttribute Account account,
                              @Valid @ModelAttribute CourseSchemaInputDto courseSchemaInputDto,
-                             Model model) {
+                             Model model,
+                             HttpServletResponse response) {
         if (!Objects.equals(account.getId(), studentId) && !canEdit(account, course)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized action");
         }
@@ -297,18 +299,19 @@ public class CourseController {
         }
         courseStudentService.saveStudentParts(studentParts);
 
+        alertService.addAlertToResponse(response, "success", "Updated data");
         return "course/tab-input";
     }
 
 
     @Secured("ROLE_TEACHER")
     @PostMapping("/courses/{course}/keys/create")
-    public String createCourseKey(@PathVariable Course course, @RequestParam String key, @ModelAttribute Account account, Model model) {
+    public String createCourseKey(@PathVariable Course course, @RequestParam String key, @ModelAttribute Account account, Model model, HttpServletResponse response) {
         if (!canEdit(account, course)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
         }
         if (courseService.addKey(course, key)) {
-            // TODO: add success
+            alertService.addAlertToResponse(response, "success", "Added new key");
         } else {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete the course");
         }
@@ -319,7 +322,7 @@ public class CourseController {
 
     @Secured("ROLE_TEACHER")
     @DeleteMapping("/courses/{course}/keys/{keyId}/revoke")
-    public String revokeCourseKey(@PathVariable Course course, @PathVariable int keyId, @ModelAttribute Account account, Model model) {
+    public String revokeCourseKey(@PathVariable Course course, @PathVariable int keyId, @ModelAttribute Account account, Model model, HttpServletResponse response) {
         if (!canEdit(account, course)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
         }
@@ -328,6 +331,7 @@ public class CourseController {
         }
         model.addAttribute("canEdit", true);
         model.addAttribute("isStudent", courseService.isStudentOnCourse(course, account));
+        alertService.addAlertToResponse(response, "success", "Revoked key");
         return "course/tab-keys";
     }
 
