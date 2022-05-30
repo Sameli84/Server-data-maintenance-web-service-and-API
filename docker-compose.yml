@@ -4,10 +4,11 @@ services:
     build: ./api
     restart: always
     ports:
-      - "8080:8080"
+      - ${API_PORT}
     links:
       - db
     environment:
+      - SERVER_PORT=${SERVER_PORT}
       - POSTGRES_DSN=${POSTGRES_DSN}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -25,15 +26,6 @@ services:
       - "5432:5432"
     volumes:
       - db:/var/lib/postgresql/data
-  caddy:
-    image: caddy:2.5.1-alpine
-    restart: unless-stopped
-    command: caddy reverse-proxy --from :80 --to api:8080
-    ports:
-      - "80:80"
-      - "443:443"
-    links:
-      - api
 volumes:
   db:
     driver: local
