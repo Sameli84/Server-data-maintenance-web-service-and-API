@@ -282,7 +282,7 @@ public class CourseController {
         if (courseService.addKey(course, key)) {
             // TODO: add success
         } else {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete the course");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Key has to be unique");
         }
         model.addAttribute("canEdit", true);
         model.addAttribute("isStudent", courseService.isStudentOnCourse(course, account));
