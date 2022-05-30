@@ -2,7 +2,7 @@ package com.example.servermaintenance.account;
 
 import com.example.servermaintenance.course.CourseStudent;
 import com.example.servermaintenance.course.Course;
-import com.example.servermaintenance.datarow.DataRow;
+//import com.example.servermaintenance.datarow.DataRow;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -37,9 +37,6 @@ public class Account extends AbstractPersistable<Long> implements UserDetails {
 
     @Column
     private String password;
-
-    @OneToMany(mappedBy = "account")
-    private List<DataRow> data;
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Course> courses;

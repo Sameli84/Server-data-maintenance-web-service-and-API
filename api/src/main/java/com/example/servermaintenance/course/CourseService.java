@@ -1,12 +1,9 @@
 package com.example.servermaintenance.course;
 
 import com.example.servermaintenance.account.RoleService;
-import com.example.servermaintenance.datarow.DataRow;
 import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.account.AccountRepository;
-import com.example.servermaintenance.datarow.DataRowService;
 import com.github.slugify.Slugify;
-import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -20,7 +17,6 @@ import java.util.*;
 public class CourseService {
     private final CourseRepository courseRepository;
     private final AccountRepository accountRepository;
-    private final DataRowService dataRowService;
     private final CourseKeyRepository courseKeyRepository;
     private final RoleService roleService;
     private final CourseSchemaPartRepository courseSchemaPartRepository;
@@ -97,10 +93,10 @@ public class CourseService {
             throw new Exception("course not found");
         }
 
-        var beanToCsv = new StatefulBeanToCsvBuilder<DataRow>(w).build();
-
-        var data = dataRowService.getCourseDataRows(course.get());
-        beanToCsv.write(data);
+//        var beanToCsv = new StatefulBeanToCsvBuilder<DataRow>(w).build();
+//
+//        var data = dataRowService.getCourseDataRows(course.get());
+//        beanToCsv.write(data);
     }
 
     @Transactional
@@ -147,13 +143,14 @@ public class CourseService {
     @Transactional
     public CourseSchemaInputDto getStudentForm(Course course, Account account) {
         var schema = schemaPartRepository.findSchemaPartsByCourseOrderByOrder(course);
-        var data = courseStudentService.getCourseStudentParts(course, account);
+        var dataParts = courseStudentService.getCourseStudentParts(course, account);
         var result = new ArrayList<CourseSchemaPartDto>(schema.size());
+        var data = new ArrayList<String>(schema.size());
         for (int i = 0; i < schema.size(); i++) {
             var courseSchemaPartDto = modelMapper.map(schema.get(i), CourseSchemaPartDto.class);
-            courseSchemaPartDto.setData(data.get(i).getData());
             result.add(courseSchemaPartDto);
+            data.add(dataParts.get(i).getData());
         }
-        return new CourseSchemaInputDto(result);
+        return new CourseSchemaInputDto(result, data);
     }
 }

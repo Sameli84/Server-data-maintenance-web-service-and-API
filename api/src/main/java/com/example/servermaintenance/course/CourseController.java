@@ -3,9 +3,9 @@ package com.example.servermaintenance.course;
 import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.account.AccountNotFoundException;
 import com.example.servermaintenance.account.RoleService;
-import com.example.servermaintenance.datarow.DataRowService;
 import com.example.servermaintenance.account.AccountService;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
@@ -19,12 +19,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Controller
 @AllArgsConstructor
 public class CourseController {
     private final AccountService accountService;
     private final CourseService courseService;
-    private final DataRowService dataRowService;
     private final RoleService roleService;
     private final CourseKeyRepository courseKeyRepository;
     private final CourseStudentPartRepository courseStudentPartRepository;
@@ -209,9 +209,10 @@ public class CourseController {
     public String createData(@PathVariable Course course,
                              @PathVariable Long studentId,
                              @ModelAttribute Account account,
-                             @ModelAttribute CourseDataDTO courseDataDTO,
+                             @ModelAttribute CourseSchemaInputDto courseSchemaInputDto,
                              RedirectAttributes redirectAttributes) {
 
+        log.info("parts: {}", courseSchemaInputDto.getData().toString());
         if (!Objects.equals(account.getId(), studentId) && !canEdit(account, course)) {
             redirectAttributes.addFlashAttribute("error", "Unauthorized action");
             return "redirect:/courses/" + course;
@@ -222,12 +223,6 @@ public class CourseController {
             return "redirect:/courses/" + course;
         }
 
-        var data = dataRowService.getStudentData(course, account);
-        if (data == null) {
-            data = dataRowService.generateData(course, account);
-        }
-
-        dataRowService.updateDataRow(data, courseDataDTO);
         return "redirect:/courses/" + course.getUrl();
     }
 

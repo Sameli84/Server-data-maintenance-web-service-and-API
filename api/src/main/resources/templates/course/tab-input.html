@@ -4,7 +4,7 @@
         <br>
         <div class="row mx-0" th:if="${isStudent}">
             <div class="col-lg-8 col px-0">
-                <form th:object="${courseSchemaInputDto}" class="row" id="student-data-form">
+                <form th:object="${courseSchemaInputDto}" method="post" th:action="@{/courses/{course}/students/{id}/update-data(course=${course.getUrl()}, id=${account.getId()})}" class="row" id="student-data-form">
                     <div th:each="part, stat : ${courseSchemaInputDto.parts}"
                          th:class="'mb-3 col col-md-' + ${3*part.controlWidth}">
                         <label th:text="${part.name}"
@@ -12,11 +12,10 @@
                         </label>
                         <input type="text"
                                class="form-control"
-                               th:id="*{parts[__${stat.index}__].name}"
-                               th:name="*{parts[__${stat.index}__].name}"
+                               th:field="*{data[__${stat.index}__]}"
                                th:disabled="${part.locked}"
                                th:required="${part.required}"
-                               th:value="${part.data}"
+                               th:value="${courseSchemaInputDto.data[__${stat.index}__]}"
                                th:aria-label="${part.name}">
                     </div>
                 </form>

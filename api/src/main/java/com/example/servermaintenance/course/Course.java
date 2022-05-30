@@ -1,6 +1,5 @@
 package com.example.servermaintenance.course;
 
-import com.example.servermaintenance.datarow.DataRow;
 import com.example.servermaintenance.account.Account;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,9 +28,6 @@ public class Course extends AbstractPersistable<Long> {
 
     @Column(name = "url", unique = true)
     private String url;
-
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<DataRow> data;
 
     @ManyToOne
     @JoinColumn(name = "owner_id")
