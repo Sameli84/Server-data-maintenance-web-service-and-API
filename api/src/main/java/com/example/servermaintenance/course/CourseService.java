@@ -145,12 +145,12 @@ public class CourseService {
         var schema = schemaPartRepository.findSchemaPartsByCourseOrderByOrder(course);
         var dataParts = courseStudentService.getCourseStudentParts(course, account);
         var result = new ArrayList<CourseSchemaPartDto>(schema.size());
-        var data = new ArrayList<String>(schema.size());
+        var data = new ArrayList<CourseStudentPartDto>(schema.size());
         for (int i = 0; i < schema.size(); i++) {
             var courseSchemaPartDto = modelMapper.map(schema.get(i), CourseSchemaPartDto.class);
             result.add(courseSchemaPartDto);
-            data.add(dataParts.get(i).getData());
+            data.add(new CourseStudentPartDto(dataParts.get(i).getData()));
         }
-        return new CourseSchemaInputDto(result, data);
+        return new CourseSchemaInputDto(result, data, null);
     }
 }

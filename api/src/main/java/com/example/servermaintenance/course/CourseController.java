@@ -6,6 +6,7 @@ import com.example.servermaintenance.account.RoleService;
 import com.example.servermaintenance.account.AccountService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
@@ -16,6 +17,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,6 +30,9 @@ public class CourseController {
     private final RoleService roleService;
     private final CourseKeyRepository courseKeyRepository;
     private final CourseStudentPartRepository courseStudentPartRepository;
+    private final SchemaPartRepository schemaPartRepository;
+    private final CourseStudentService courseStudentService;
+    private final ModelMapper modelMapper;
 
     @ExceptionHandler(AccountNotFoundException.class)
     public String processAccountException(HttpServletRequest request) {
@@ -209,10 +214,9 @@ public class CourseController {
     public String createData(@PathVariable Course course,
                              @PathVariable Long studentId,
                              @ModelAttribute Account account,
-                             @ModelAttribute CourseSchemaInputDto courseSchemaInputDto,
-                             RedirectAttributes redirectAttributes) {
-
-        log.info("parts: {}", courseSchemaInputDto.getData().toString());
+                             @Valid @ModelAttribute CourseSchemaInputDto courseSchemaInputDto,
+                             RedirectAttributes redirectAttributes,
+                             Model model) {
         if (!Objects.equals(account.getId(), studentId) && !canEdit(account, course)) {
             redirectAttributes.addFlashAttribute("error", "Unauthorized action");
             return "redirect:/courses/" + course;
@@ -223,7 +227,49 @@ public class CourseController {
             return "redirect:/courses/" + course;
         }
 
-        return "redirect:/courses/" + course.getUrl();
+        var studentParts = courseStudentService.getCourseStudentParts(course, account);
+        var schemaParts = schemaPartRepository.findSchemaPartsByCourseOrderByOrder(course);
+        var dataParts = courseSchemaInputDto.getData();
+        courseSchemaInputDto.setParts(schemaParts.stream().map(schemaPart -> modelMapper.map(schemaPart, CourseSchemaPartDto.class)).toList());
+        courseSchemaInputDto.setErrors(new HashMap<>());
+
+        if (schemaParts.size() != dataParts.size() || schemaParts.size() != studentParts.size()) {
+            redirectAttributes.addFlashAttribute("error", "Wrong amount of data parts");
+            return "redirect:/courses/" + course;
+        }
+
+        // validoot
+        boolean hasErrors = false;
+        for (int i = 0; i < schemaParts.size(); i++) {
+            var schemaPart = schemaParts.get(i);
+            if (!schemaPart.isValidator() || schemaPart.isLocked()) {
+                continue;
+            }
+            var dataPart = dataParts.get(i);
+            if (!dataPart.getData().matches(schemaPart.getValidatorRegex())) {
+                courseSchemaInputDto.getErrors().put(i, schemaPart.getValidatorMessage());
+                hasErrors = true;
+            }
+        }
+
+        model.addAttribute("isStudent", courseService.isStudentOnCourse(course, account));
+        model.addAttribute("canEdit", canEdit(account, course));
+
+        if (hasErrors) {
+            return "course/tab-input";
+        }
+
+        for (int i = 0; i < studentParts.size(); i++) {
+            var studentPart = studentParts.get(i);
+            if (!studentPart.getSchemaPart().isLocked()) {
+                studentPart.setData(dataParts.get(i).getData());
+            } else {
+                dataParts.get(i).setData(studentPart.getData());
+            }
+        }
+        courseStudentService.saveStudentParts(studentParts);
+
+        return "course/tab-input";
     }
 
 

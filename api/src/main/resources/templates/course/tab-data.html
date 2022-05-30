@@ -4,13 +4,14 @@
         <table class="table table-striped">
             <thead>
             <tr>
-<!--                <th>Student ID</th>-->
+                <!--                <th>Student ID</th>-->
                 <th th:each="header : ${headers}" th:text="${header}"></th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="row : ${rows}">
-<!--                <td th:text="${row.courseLocalIndex}"></td>-->
+            <tr th:each="row : ${rows}"
+                th:classappend="${row[0].courseStudent.account.id == account.id ? 'table-info' : ''}">
+                <!--                <td th:text="${row.courseLocalIndex}"></td>-->
                 <th:block th:each="part : ${row}">
                     <td layout:replace="~{course/table-cell :: table-cell(${part.getData()})}"></td>
                 </th:block>

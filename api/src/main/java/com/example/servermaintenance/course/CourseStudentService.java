@@ -14,11 +14,11 @@ import java.util.List;
 public class CourseStudentService {
     private final CourseStudentRepository courseStudentRepository;
     private final CourseStudentPartRepository courseStudentPartRepository;
+    private final SchemaPartRepository schemaPartRepository;
 
     @Transactional
     public CourseStudent generate(Course course, Account account, long id) {
-        // TODO: get from repo with order
-        var schema = course.getSchemaParts().stream().sorted(Comparator.comparingInt(SchemaPart::getOrder)).toList();
+        var schema = schemaPartRepository.findSchemaPartsByCourseOrderByOrder(course);
         var courseStudent = new CourseStudent(account, course, id);
         for (SchemaPart part : schema) {
             var courseStudentPart = new CourseStudentPart(courseStudent, part);
@@ -42,6 +42,10 @@ public class CourseStudentService {
                 .stream()
                 .sorted(Comparator.comparingInt(a -> a.getSchemaPart().getOrder()))
                 .toList();
+    }
+
+    public void saveStudentParts(List<CourseStudentPart> parts) {
+        courseStudentPartRepository.saveAll(parts);
     }
 
     public void deleteCourseStudent(Course course, Account account) {
