@@ -21,16 +21,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Controller
 @AllArgsConstructor
+@RequestMapping("/courses/{course}")
 public class CourseController {
     private final AccountService accountService;
     private final CourseService courseService;
     private final RoleService roleService;
-    private final CourseKeyRepository courseKeyRepository;
     private final CourseStudentPartRepository courseStudentPartRepository;
     private final CourseStudentService courseStudentService;
     private final ModelMapper modelMapper;
@@ -54,47 +53,31 @@ public class CourseController {
         return accountService.getContextAccount().orElseThrow(AccountNotFoundException::new);
     }
 
-    private boolean canEdit(Account account, Course course) {
+    @ModelAttribute("course")
+    public Course addCourseToModel(@PathVariable Course course) {
+        return course;
+    }
+
+    @ModelAttribute("isStudent")
+    public boolean addIsStudentToModel(@ModelAttribute Course course, @ModelAttribute Account account) {
+        return courseService.isStudentOnCourse(course, account);
+    }
+
+    @ModelAttribute("canEdit")
+    public boolean addCanEditToModel(@ModelAttribute Course course, @ModelAttribute Account account) {
         return Objects.equals(account.getId(), course.getOwner().getId()) || roleService.isAdmin(account);
     }
 
-    @GetMapping("/")
-    public String getIndexPage() {
-        return "redirect:/courses";
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private boolean canEdit(Model model) {
+        var canEdit = (Boolean) model.getAttribute("canEdit");
+        if (canEdit == null) {
+            return false;
+        }
+        return canEdit;
     }
 
-    @GetMapping("/courses")
-    public String getCoursesPage(@ModelAttribute Account account, Model model) {
-        var courses = account.getCourseStudentData().stream().map(CourseStudent::getCourse).collect(Collectors.toCollection(HashSet::new));
-
-        var userCourses = account.getCourses();
-        if (userCourses != null) {
-            courses.addAll(userCourses);
-        }
-
-        model.addAttribute("courses", courses);
-
-        return "courses";
-    }
-
-    @PostMapping("/courses/join")
-    public String joinCourseByKey(@ModelAttribute Account account, @RequestParam String key, RedirectAttributes redirectAttributes) {
-        var courseKey = courseKeyRepository.findCourseKeyByKey(key);
-        if (courseKey.isEmpty()) {
-            redirectAttributes.addFlashAttribute("error", "Course with the given key not found!");
-            return "redirect:/courses";
-        }
-        var course = courseKey.get().getCourse();
-        if (courseService.joinToCourse(course, account, key)) {
-            redirectAttributes.addFlashAttribute("success", "Joined course");
-            return "redirect:/courses/" + course.getUrl();
-        } else {
-            redirectAttributes.addFlashAttribute("error", "Failed to join course");
-            return "redirect:/courses";
-        }
-    }
-
-    @GetMapping("/courses/{course}")
+    @GetMapping
     public String getCoursePage(@PathVariable Course course, @ModelAttribute Account account, Model model) {
         var rows = course.getCourseStudents()
                 .stream()
@@ -111,13 +94,9 @@ public class CourseController {
         model.addAttribute("headers", headers);
         model.addAttribute("rows", rows);
 
-        boolean isStudent = courseService.isStudentOnCourse(course, account);
-        model.addAttribute("isStudent", isStudent);
         model.addAttribute("hasKey", courseService.hasCourseKey(course));
-        boolean canEdit = canEdit(account, course);
-        model.addAttribute("canEdit", canEdit);
 
-        if (isStudent) {
+        if (courseService.isStudentOnCourse(course, account)) {
             var studentForm = courseService.getStudentForm(course, account);
             model.addAttribute("courseSchemaInputDto", studentForm);
             model.addAttribute("updateLocked", studentForm.getParts().stream().allMatch(CourseSchemaPartDto::isLocked));
@@ -126,67 +105,7 @@ public class CourseController {
         return "course/page";
     }
 
-    @GetMapping("/courses/{course}/input")
-    public String getInputTab(@PathVariable Course course, @ModelAttribute Account account, Model model) {
-        var isStudent = courseService.isStudentOnCourse(course, account);
-        if (isStudent) {
-            var studentForm = courseService.getStudentForm(course, account);
-            model.addAttribute("courseSchemaInputDto", studentForm);
-            model.addAttribute("updateLocked", studentForm.getParts().stream().allMatch(CourseSchemaPartDto::isLocked));
-        }
-        model.addAttribute("isStudent", isStudent);
-        model.addAttribute("canEdit", canEdit(account, course));
-
-        return "course/tab-input";
-    }
-
-    @GetMapping("/courses/{course}/data")
-    public String getDataTab(@PathVariable Course course, @ModelAttribute Account account, Model model) {
-        model.addAttribute("canEdit", canEdit(account, course));
-        model.addAttribute("isStudent", courseService.isStudentOnCourse(course, account));
-
-        var rows = course.getCourseStudents()
-                .stream()
-                .sorted(Comparator.comparingLong(CourseStudent::getId))
-                .map(courseStudentPartRepository::findCourseStudentPartsByCourseStudentOrderBySchemaPart_Order)
-                .toList();
-
-        var headers = course.getSchemaParts()
-                .stream()
-                .sorted(Comparator.comparingInt(SchemaPart::getOrder))
-                .map(SchemaPart::getName)
-                .toList();
-
-        model.addAttribute("headers", headers);
-        model.addAttribute("rows", rows);
-
-        return "course/tab-data";
-    }
-
-    @Secured("ROLE_TEACHER")
-    @GetMapping("/courses/{course}/students")
-    public String getStudentsTab(@PathVariable Course course, @ModelAttribute Account account, Model model) {
-        if (!canEdit(account, course)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
-        }
-        model.addAttribute("canEdit", true);
-        model.addAttribute("isStudent", courseService.isStudentOnCourse(course, account));
-        model.addAttribute("students", course.getCourseStudents().stream().map(CourseStudent::getAccount).toList());
-        return "course/tab-students";
-    }
-
-    @Secured("ROLE_TEACHER")
-    @GetMapping("/courses/{course}/keys")
-    public String getKeysTab(@PathVariable Course course, @ModelAttribute Account account, Model model) {
-        if (!canEdit(account, course)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
-        }
-        model.addAttribute("canEdit", true);
-        model.addAttribute("isStudent", courseService.isStudentOnCourse(course, account));
-        return "course/tab-keys";
-    }
-
-    @PostMapping("/courses/{course}/join")
+    @PostMapping("/join")
     public String joinCourse(@PathVariable Course course, @RequestParam Optional<String> key, @ModelAttribute Account account, RedirectAttributes redirectAttributes) {
         if (courseService.joinToCourse(course, account, key.orElse(""))) {
             redirectAttributes.addFlashAttribute("success", "Joined course");
@@ -197,33 +116,39 @@ public class CourseController {
     }
 
     @Secured("ROLE_TEACHER")
-    @DeleteMapping("/courses/{course}/students/{studentId}/kick")
-    public String kickFromCourse(@PathVariable Course course, @PathVariable int studentId, @ModelAttribute Account account, Model model) {
-        if (!canEdit(account, course)) {
+    @DeleteMapping("/delete")
+    public void deleteCourse(@PathVariable Course course, @ModelAttribute Account account, HttpServletResponse response, Model model) {
+        if (!canEdit(model)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
         }
-        model.addAttribute("canEdit", true);
-
-        var student = accountService.getAccountById(studentId);
-        if (student == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found");
+        if (!courseService.deleteCourse(course, account)) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete the course");
+        } else {
+            response.addHeader("HX-Redirect", "/courses/");
         }
-        if (!courseService.kickFromCourse(course, student)) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Couldn't kick user from the course");
-        }
-
-        model.addAttribute("isStudent", courseService.isStudentOnCourse(course, account));
-        return "course/tab-students";
     }
 
-    @PostMapping("/courses/{course}/students/{studentId}/update-data")
+    @GetMapping("/input")
+    public String getInputTab(@PathVariable Course course, @ModelAttribute Account account, Model model) {
+        if (!courseService.isStudentOnCourse(course, account)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+        }
+
+        var studentForm = courseService.getStudentForm(course, account);
+        model.addAttribute("courseSchemaInputDto", studentForm);
+        model.addAttribute("updateLocked", studentForm.getParts().stream().allMatch(CourseSchemaPartDto::isLocked));
+
+        return "course/tab-input";
+    }
+
+    @PostMapping("/students/{studentId}/update")
     public String createData(@PathVariable Course course,
                              @PathVariable Long studentId,
                              @ModelAttribute Account account,
                              @Valid @ModelAttribute CourseSchemaInputDto courseSchemaInputDto,
                              Model model,
                              HttpServletResponse response) {
-        if (!Objects.equals(account.getId(), studentId) && !canEdit(account, course)) {
+        if (!Objects.equals(account.getId(), studentId) && !canEdit(model)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized action");
         }
 
@@ -270,7 +195,7 @@ public class CourseController {
             CourseStudentPartDto dataPart = dataParts.get(i);
 
             if (schemaPart.isLocked()) {
-                // locked data gets lost for some reason?
+                // locked data isn't sent in post request
                 dataPart.setData(studentParts.get(i).getData());
                 continue;
             }
@@ -282,9 +207,6 @@ public class CourseController {
                 hasErrors = true;
             }
         }
-
-        model.addAttribute("isStudent", courseService.isStudentOnCourse(course, account));
-        model.addAttribute("canEdit", canEdit(account, course));
 
         model.addAttribute("updateLocked", studentParts.stream().allMatch(s -> s.getSchemaPart().isLocked()));
 
@@ -304,11 +226,67 @@ public class CourseController {
         return "course/tab-input";
     }
 
+    @GetMapping("/data")
+    public String getDataTab(@PathVariable Course course, Model model) {
+        var rows = course.getCourseStudents()
+                .stream()
+                .sorted(Comparator.comparingLong(CourseStudent::getId))
+                .map(courseStudentPartRepository::findCourseStudentPartsByCourseStudentOrderBySchemaPart_Order)
+                .toList();
+
+        var headers = course.getSchemaParts()
+                .stream()
+                .sorted(Comparator.comparingInt(SchemaPart::getOrder))
+                .map(SchemaPart::getName)
+                .toList();
+
+        model.addAttribute("headers", headers);
+        model.addAttribute("rows", rows);
+
+        return "course/tab-data";
+    }
 
     @Secured("ROLE_TEACHER")
-    @PostMapping("/courses/{course}/keys/create")
-    public String createCourseKey(@PathVariable Course course, @RequestParam String key, @ModelAttribute Account account, Model model, HttpServletResponse response) {
-        if (!canEdit(account, course)) {
+    @GetMapping("/students")
+    public String getStudentsTab(@PathVariable Course course, Model model) {
+        if (!canEdit(model)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
+        }
+        model.addAttribute("students", course.getCourseStudents().stream().map(CourseStudent::getAccount).toList());
+        return "course/tab-students";
+    }
+
+    @Secured("ROLE_TEACHER")
+    @DeleteMapping("/students/{studentId}/kick")
+    public String kickFromCourse(@PathVariable Course course, @PathVariable int studentId, Model model) {
+        if (!canEdit(model)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
+        }
+
+        var student = accountService.getAccountById(studentId);
+        if (student == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Student not found");
+        }
+        if (!courseService.kickFromCourse(course, student)) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Couldn't kick user from the course");
+        }
+
+        return "course/tab-students";
+    }
+
+    @Secured("ROLE_TEACHER")
+    @GetMapping("/keys")
+    public String getKeysTab(@SuppressWarnings("unused") @PathVariable Course course, Model model) {
+        if (!canEdit(model)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
+        }
+        return "course/tab-keys";
+    }
+
+    @Secured("ROLE_TEACHER")
+    @PostMapping("/keys/create")
+    public String createCourseKey(@PathVariable Course course, @RequestParam String key, Model model, HttpServletResponse response) {
+        if (!canEdit(model)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
         }
         if (courseService.addKey(course, key)) {
@@ -316,47 +294,31 @@ public class CourseController {
         } else {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete the course");
         }
-        model.addAttribute("canEdit", true);
-        model.addAttribute("isStudent", courseService.isStudentOnCourse(course, account));
+
         return "course/tab-keys";
     }
 
     @Secured("ROLE_TEACHER")
-    @DeleteMapping("/courses/{course}/keys/{keyId}/revoke")
-    public String revokeCourseKey(@PathVariable Course course, @PathVariable int keyId, @ModelAttribute Account account, Model model, HttpServletResponse response) {
-        if (!canEdit(account, course)) {
+    @DeleteMapping("/keys/{keyId}/revoke")
+    public String revokeCourseKey(@PathVariable Course course, @PathVariable int keyId, Model model, HttpServletResponse response) {
+        if (!canEdit(model)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
         }
         if (!courseService.deleteKey(course, keyId)) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete the course");
         }
-        model.addAttribute("canEdit", true);
-        model.addAttribute("isStudent", courseService.isStudentOnCourse(course, account));
+
         alertService.addAlertToResponse(response, "success", "Revoked key");
         return "course/tab-keys";
     }
 
     @Secured("ROLE_TEACHER")
-    @GetMapping("/courses/{course}/settings")
-    public String getSettingsTab(@PathVariable Course course, @ModelAttribute Account account, Model model) {
-        if (!canEdit(account, course)) {
+    @GetMapping("/settings")
+    public String getSettingsTab(@SuppressWarnings("unused") @PathVariable Course course, Model model) {
+        if (!canEdit(model)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized user");
         }
-        model.addAttribute("canEdit", true);
-        model.addAttribute("isStudent", courseService.isStudentOnCourse(course, account));
-        return "course/tab-settings";
-    }
 
-    @Secured("ROLE_TEACHER")
-    @DeleteMapping("/courses/{course}/delete")
-    public void deleteCourse(@PathVariable Course course, @ModelAttribute Account account, HttpServletResponse response) {
-        if (!canEdit(account, course)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
-        }
-        if (!courseService.deleteCourse(course, account)) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete the course");
-        } else {
-            response.addHeader("HX-Redirect", "/courses/");
-        }
+        return "course/tab-settings";
     }
 }

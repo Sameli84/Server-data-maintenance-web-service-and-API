@@ -23,7 +23,7 @@
                              th:text="${courseSchemaInputDto.errors?.get(__${stat.index}__)}"></div>
                     </div>
                 </form>
-                <button th:hx-post="@{/courses/{course}/students/{id}/update-data(course=${course.getUrl()}, id=${account.getId()})}"
+                <button th:hx-post="@{/courses/{course}/students/{id}/update(course=${course.getUrl()}, id=${account.getId()})}"
                         hx-include="#student-data-form"
                         class="btn btn-primary btn-lg"
                         th:disabled="${updateLocked}">
