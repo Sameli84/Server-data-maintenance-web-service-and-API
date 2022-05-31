@@ -5,15 +5,18 @@ import com.example.servermaintenance.account.AccountNotFoundException;
 import com.example.servermaintenance.account.AccountService;
 import com.example.servermaintenance.course.domain.CourseSchemaDto;
 import com.example.servermaintenance.course.domain.CourseSchemaPartDto;
+import com.example.servermaintenance.interpreter.Interpreter;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
 @Slf4j
@@ -92,4 +95,16 @@ public class CourseSchemaController {
         return "course/create-schema :: #render";
     }
 
+    @PostMapping("/courses/schema/statements/{id}/run")
+    public String renderGenerationStatement(@PathVariable int id, @ModelAttribute CourseSchemaDto courseSchemaDto, Model model) {
+        int revolutions = 10;
+        var out = new ArrayList<String>(revolutions);
+        var interpreter = new Interpreter(courseSchemaDto.getParts().get(id).getGenerationStatement());
+        for (int i = 0; i < revolutions; i++) {
+            out.add(interpreter.declareInt("id", i).execute());
+        }
+
+        model.addAttribute("out", out);
+        return "course/create-schema :: #repl";
+    }
 }
