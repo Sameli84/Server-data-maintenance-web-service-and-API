@@ -258,7 +258,7 @@ public class CourseController {
 
     @Secured("ROLE_TEACHER")
     @DeleteMapping("/students/{studentId}/kick")
-    public String kickFromCourse(@PathVariable Course course, @PathVariable int studentId, Model model) {
+    public String kickFromCourse(@PathVariable Course course, @ModelAttribute Account account, @PathVariable int studentId, Model model) {
         if (!canEdit(model)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
         }
@@ -269,6 +269,19 @@ public class CourseController {
         }
         if (!courseService.kickFromCourse(course, student)) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Couldn't kick user from the course");
+        }
+
+        var students = course.getCourseStudents()
+                .stream()
+                .map(CourseStudent::getAccount)
+                .filter(a -> !Objects.equals(a.getId(), student.getId()))
+                .toList();
+
+        model.addAttribute("students", students);
+
+        // remove isStudent when kicking self
+        if (Objects.equals(account.getId(), student.getId())) {
+            model.addAttribute("isStudent", false);
         }
 
         return "course/tab-students";
