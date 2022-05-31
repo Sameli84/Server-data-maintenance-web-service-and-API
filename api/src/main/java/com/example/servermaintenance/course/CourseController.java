@@ -292,7 +292,7 @@ public class CourseController {
         if (courseService.addKey(course, key)) {
             alertService.addAlertToResponse(response, "success", "Added new key");
         } else {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete the course");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Key has to be unique");
         }
 
         return "course/tab-keys";
