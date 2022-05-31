@@ -2,7 +2,6 @@ package com.example.servermaintenance.course;
 
 import com.example.servermaintenance.account.RoleService;
 import com.example.servermaintenance.account.Account;
-import com.example.servermaintenance.account.AccountRepository;
 import com.example.servermaintenance.course.domain.*;
 import com.github.slugify.Slugify;
 import lombok.AllArgsConstructor;
@@ -17,7 +16,6 @@ import java.util.*;
 @AllArgsConstructor
 public class CourseService {
     private final CourseRepository courseRepository;
-    private final AccountRepository accountRepository;
     private final CourseKeyRepository courseKeyRepository;
     private final RoleService roleService;
     private final CourseSchemaPartRepository courseSchemaPartRepository;
@@ -25,6 +23,7 @@ public class CourseService {
     private ModelMapper modelMapper;
     private final CourseStudentService courseStudentService;
     private final SchemaPartRepository schemaPartRepository;
+    private final CourseStudentPartRepository courseStudentPartRepository;
 
     @Transactional
     public Course createCourse(CourseSchemaDto courseSchemaDto, Account account) {
@@ -153,5 +152,26 @@ public class CourseService {
             data.add(new CourseStudentPartDto(dataParts.get(i).getData()));
         }
         return new CourseSchemaInputDto(result, data, null);
+    }
+
+    @Transactional
+    public CourseDataDto getCourseData(Course course) {
+        var students = courseStudentService.getCourseStudents(course);
+        var rows = new ArrayList<CourseDataRowDto>();
+
+        for (var student : students) {
+            var row = new CourseDataRowDto();
+            row.setIndex(student.getCourseLocalIndex());
+            row.setParts(courseStudentPartRepository.findCourseStudentPartsByCourseStudentOrderBySchemaPart_Order(student));
+            rows.add(row);
+        }
+
+        var headers = course.getSchemaParts()
+                .stream()
+                .sorted(Comparator.comparingInt(SchemaPart::getOrder))
+                .map(SchemaPart::getName)
+                .toList();
+
+        return new CourseDataDto(headers, rows);
     }
 }

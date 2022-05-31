@@ -1,12 +1,13 @@
 package com.example.servermaintenance.course.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@AllArgsConstructor
 public class CourseDataDto {
-    List<String> headers = new ArrayList<>();
-    List<CourseDataRowDto> rows = new ArrayList<>();
+    List<String> headers;
+    List<CourseDataRowDto> rows;
 }

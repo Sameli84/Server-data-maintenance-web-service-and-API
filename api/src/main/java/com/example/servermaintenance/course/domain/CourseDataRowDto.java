@@ -7,6 +7,6 @@ import java.util.List;
 
 @Data
 public class CourseDataRowDto {
-    long id;
-    List<CourseStudentPartDto> parts = new ArrayList<>();
+    long index;
+    List<CourseStudentPart> parts = new ArrayList<>();
 }

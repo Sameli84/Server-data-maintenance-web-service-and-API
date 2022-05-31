@@ -40,6 +40,10 @@ public class CourseStudentService {
         return courseStudentRepository.findFirstByCourseAndAccount(course, account);
     }
 
+    public List<CourseStudent> getCourseStudents(Course course) {
+        return courseStudentRepository.findCourseStudentsByCourseOrderByCourseLocalIndex(course);
+    }
+
     public List<CourseStudentPart> getCourseStudentParts(Course course, Account account) {
         return courseStudentRepository.findFirstByCourseAndAccount(course, account)
                 .getCourseStudentParts()

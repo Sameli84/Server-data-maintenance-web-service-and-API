@@ -79,20 +79,7 @@ public class CourseController {
 
     @GetMapping
     public String getCoursePage(@PathVariable Course course, @ModelAttribute Account account, Model model) {
-        var rows = course.getCourseStudents()
-                .stream()
-                .sorted(Comparator.comparingLong(CourseStudent::getId))
-                .map(courseStudentPartRepository::findCourseStudentPartsByCourseStudentOrderBySchemaPart_Order)
-                .toList();
-
-        var headers = course.getSchemaParts()
-                .stream()
-                .sorted(Comparator.comparingInt(SchemaPart::getOrder))
-                .map(SchemaPart::getName)
-                .toList();
-
-        model.addAttribute("headers", headers);
-        model.addAttribute("rows", rows);
+        model.addAttribute("courseData", courseService.getCourseData(course));
 
         model.addAttribute("hasKey", courseService.hasCourseKey(course));
 
@@ -228,21 +215,7 @@ public class CourseController {
 
     @GetMapping("/data")
     public String getDataTab(@PathVariable Course course, Model model) {
-        var rows = course.getCourseStudents()
-                .stream()
-                .sorted(Comparator.comparingLong(CourseStudent::getId))
-                .map(courseStudentPartRepository::findCourseStudentPartsByCourseStudentOrderBySchemaPart_Order)
-                .toList();
-
-        var headers = course.getSchemaParts()
-                .stream()
-                .sorted(Comparator.comparingInt(SchemaPart::getOrder))
-                .map(SchemaPart::getName)
-                .toList();
-
-        model.addAttribute("headers", headers);
-        model.addAttribute("rows", rows);
-
+        model.addAttribute("courseData", courseService.getCourseData(course));
         return "course/tab-data";
     }
 
