@@ -1,4 +1,4 @@
-package com.example.servermaintenance.course;
+package com.example.servermaintenance.course.domain;
 
 import com.example.servermaintenance.account.Account;
 import lombok.AllArgsConstructor;

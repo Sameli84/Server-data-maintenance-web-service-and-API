@@ -1,5 +1,7 @@
 package com.example.servermaintenance.course;
 
+import com.example.servermaintenance.course.domain.Course;
+import com.example.servermaintenance.course.domain.CourseKey;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

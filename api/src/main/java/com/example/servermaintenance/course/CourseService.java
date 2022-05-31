@@ -3,6 +3,7 @@ package com.example.servermaintenance.course;
 import com.example.servermaintenance.account.RoleService;
 import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.account.AccountRepository;
+import com.example.servermaintenance.course.domain.*;
 import com.github.slugify.Slugify;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;

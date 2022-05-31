@@ -3,6 +3,8 @@ package com.example.servermaintenance.course;
 import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.account.AccountNotFoundException;
 import com.example.servermaintenance.account.AccountService;
+import com.example.servermaintenance.course.domain.CourseSchemaDto;
+import com.example.servermaintenance.course.domain.CourseSchemaPartDto;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.annotation.Secured;

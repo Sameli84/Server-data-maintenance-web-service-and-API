@@ -1,6 +1,10 @@
 package com.example.servermaintenance.course;
 
 import com.example.servermaintenance.account.Account;
+import com.example.servermaintenance.course.domain.Course;
+import com.example.servermaintenance.course.domain.CourseStudent;
+import com.example.servermaintenance.course.domain.CourseStudentPart;
+import com.example.servermaintenance.course.domain.SchemaPart;
 import com.example.servermaintenance.interpreter.Interpreter;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;

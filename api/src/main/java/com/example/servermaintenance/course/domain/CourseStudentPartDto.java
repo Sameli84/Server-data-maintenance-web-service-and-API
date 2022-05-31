@@ -1,4 +1,4 @@
-package com.example.servermaintenance.course;
+package com.example.servermaintenance.course.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
