@@ -3,6 +3,7 @@ package com.example.servermaintenance.course;
 import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.account.AccountNotFoundException;
 import com.example.servermaintenance.account.AccountService;
+import com.example.servermaintenance.account.RoleService;
 import com.example.servermaintenance.course.domain.Course;
 import com.example.servermaintenance.course.domain.SchemaDto;
 import com.example.servermaintenance.course.domain.SchemaPartDto;
@@ -10,17 +11,20 @@ import com.example.servermaintenance.interpreter.Interpreter;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 @Slf4j
 @Secured("ROLE_TEACHER")
@@ -33,6 +37,7 @@ public class CourseSchemaController {
     private final AccountService accountService;
     private final SchemaPartRepository schemaPartRepository;
     private final ModelMapper modelMapper;
+    private final RoleService roleService;
 
     @ExceptionHandler(AccountNotFoundException.class)
     public String processAccountException(HttpServletRequest request) {
@@ -53,7 +58,10 @@ public class CourseSchemaController {
     }
 
     @ModelAttribute("course")
-    public Course addCourseToModel(@PathVariable Course course) {
+    public Course addCourseToModel(@PathVariable Course course, @ModelAttribute Account account) {
+        if (!Objects.equals(course.getOwner().getId(), account.getId()) && !roleService.isAdmin(account)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized access");
+        }
         return course;
     }
 
