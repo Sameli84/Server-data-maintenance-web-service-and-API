@@ -4,6 +4,7 @@ import com.example.servermaintenance.account.RoleService;
 import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.course.domain.*;
 import com.github.slugify.Slugify;
+import com.opencsv.CSVWriter;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.io.Writer;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -92,11 +94,15 @@ public class CourseService {
         if (course.isEmpty()) {
             throw new Exception("course not found");
         }
+        List<String> headers = this.getCourseData(course.get()).getHeaders().stream().toList();
 
-//        var beanToCsv = new StatefulBeanToCsvBuilder<DataRow>(w).build();
-//
-//        var data = dataRowService.getCourseDataRows(course.get());
-//        beanToCsv.write(data);
+        CSVWriter writer = new CSVWriter(w);
+        writer.writeNext(headers.toArray(new String[0]));
+
+        for (CourseDataRowDto cdrd: this.getCourseData(course.get()).getRows()) {
+            writer.writeNext(cdrd.getParts().stream().map(CourseStudentPart::getData).collect(Collectors.toList()).toArray(new String[0]));
+        }
+        writer.close();
     }
 
     @Transactional
