@@ -8,8 +8,8 @@ import java.util.Map;
 
 @AllArgsConstructor
 @Data
-public class CourseSchemaInputDto {
-    private List<CourseSchemaPartDto> parts;
+public class SchemaInputDto {
+    private List<SchemaPartDto> parts;
     private List<CourseStudentPartDto> data;
     private Map<Integer, String> errors;
 }

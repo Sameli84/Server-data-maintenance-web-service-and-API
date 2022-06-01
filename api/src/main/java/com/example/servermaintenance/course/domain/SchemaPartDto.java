@@ -3,7 +3,7 @@ package com.example.servermaintenance.course.domain;
 import lombok.Data;
 
 @Data
-public class CourseSchemaPartDto {
+public class SchemaPartDto {
     private String name;
     private boolean locked;
     private boolean validator;
@@ -15,5 +15,7 @@ public class CourseSchemaPartDto {
     private int order;
     private boolean required;
     private boolean open = true;
+
+    private SchemaPart _schemaPartEntity;
 }
 

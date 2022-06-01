@@ -28,15 +28,15 @@ public class CourseService {
     private final CourseStudentPartRepository courseStudentPartRepository;
 
     @Transactional
-    public Course createCourse(CourseSchemaDto courseSchemaDto, Account account) {
-        var slug = String.format("%s-%d", new Slugify().slugify(courseSchemaDto.getCourseName()), courseRepository.count() + 1);
-        var course = courseRepository.save(new Course(courseSchemaDto.getCourseName(), slug, account));
-        if (!courseSchemaDto.getKey().isEmpty()) {
-            courseKeyRepository.save(new CourseKey(courseSchemaDto.getKey(), course));
+    public Course createCourse(SchemaDto schemaDto, Account account) {
+        var slug = String.format("%s-%d", new Slugify().slugify(schemaDto.getCourseName()), courseRepository.count() + 1);
+        var course = courseRepository.save(new Course(schemaDto.getCourseName(), slug, account));
+        if (!schemaDto.getKey().isEmpty()) {
+            courseKeyRepository.save(new CourseKey(schemaDto.getKey(), course));
         }
 
-        for (int i = 0; i < courseSchemaDto.getParts().size(); i++) {
-            var p = courseSchemaDto.getParts().get(i);
+        for (int i = 0; i < schemaDto.getParts().size(); i++) {
+            var p = schemaDto.getParts().get(i);
 
             // TODO: Currently saves nulls, prevent!!
             SchemaPart part = modelMapper.map(p, SchemaPart.class);
@@ -147,17 +147,17 @@ public class CourseService {
     }
 
     @Transactional
-    public CourseSchemaInputDto getStudentForm(Course course, Account account) {
+    public SchemaInputDto getStudentForm(Course course, Account account) {
         var schema = schemaPartRepository.findSchemaPartsByCourseOrderByOrder(course);
         var dataParts = courseStudentService.getCourseStudentParts(course, account);
-        var result = new ArrayList<CourseSchemaPartDto>(schema.size());
+        var result = new ArrayList<SchemaPartDto>(schema.size());
         var data = new ArrayList<CourseStudentPartDto>(schema.size());
         for (int i = 0; i < schema.size(); i++) {
-            var courseSchemaPartDto = modelMapper.map(schema.get(i), CourseSchemaPartDto.class);
-            result.add(courseSchemaPartDto);
+            var schemaPartDto = modelMapper.map(schema.get(i), SchemaPartDto.class);
+            result.add(schemaPartDto);
             data.add(new CourseStudentPartDto(dataParts.get(i).getData()));
         }
-        return new CourseSchemaInputDto(result, data, null);
+        return new SchemaInputDto(result, data, null);
     }
 
     @Transactional

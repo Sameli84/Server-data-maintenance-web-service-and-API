@@ -3,8 +3,8 @@ package com.example.servermaintenance.course;
 import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.account.AccountNotFoundException;
 import com.example.servermaintenance.account.AccountService;
-import com.example.servermaintenance.course.domain.CourseSchemaDto;
-import com.example.servermaintenance.course.domain.CourseSchemaPartDto;
+import com.example.servermaintenance.course.domain.SchemaDto;
+import com.example.servermaintenance.course.domain.SchemaPartDto;
 import com.example.servermaintenance.interpreter.Interpreter;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ import java.util.NoSuchElementException;
 @Slf4j
 @Secured("ROLE_TEACHER")
 @Controller
-@SessionAttributes("courseSchemaDto")
+@SessionAttributes("schemaDto")
 @AllArgsConstructor
 public class CourseSchemaController {
     private final CourseService courseService;
@@ -46,24 +46,24 @@ public class CourseSchemaController {
         return accountService.getContextAccount().orElseThrow(AccountNotFoundException::new);
     }
 
-    @ModelAttribute(name = "courseSchemaDto")
-    public CourseSchemaDto schema() {
-        var courseSchemaDto = new CourseSchemaDto();
-        courseSchemaDto.addPart(new CourseSchemaPartDto());
-        return courseSchemaDto;
+    @ModelAttribute(name = "schemaDto")
+    public SchemaDto schema() {
+        var schemaDto = new SchemaDto();
+        schemaDto.addPart(new SchemaPartDto());
+        return schemaDto;
     }
 
     @GetMapping("/courses/schema")
-    public String showCourseSchemaPage(@ModelAttribute CourseSchemaDto courseSchemaDto) {
-        if (courseSchemaDto.getCourseName() == null || courseSchemaDto.getCourseName().isEmpty()) {
+    public String showCourseSchemaPage(@ModelAttribute SchemaDto schemaDto) {
+        if (schemaDto.getCourseName() == null || schemaDto.getCourseName().isEmpty()) {
             return "redirect:/courses/create";
         }
         return "course/create-schema";
     }
 
     @PostMapping("/courses/schema")
-    public String createCourseSchema(@ModelAttribute CourseSchemaDto courseSchemaDto, @ModelAttribute Account account, SessionStatus sessionStatus) {
-        var course = courseService.createCourse(courseSchemaDto, account);
+    public String createCourseSchema(@ModelAttribute SchemaDto schemaDto, @ModelAttribute Account account, SessionStatus sessionStatus) {
+        var course = courseService.createCourse(schemaDto, account);
         sessionStatus.setComplete();
         return "redirect:/courses/" + course.getUrl();
     }
@@ -74,32 +74,32 @@ public class CourseSchemaController {
     }
 
     @PostMapping("/courses/create")
-    public String saveCourseCreationData(@ModelAttribute CourseSchemaDto courseSchemaDto) {
+    public String saveCourseCreationData(@ModelAttribute SchemaDto schemaDto) {
         return "redirect:/courses/schema";
     }
 
     @GetMapping("/courses/schema/parts/add")
-    public String addPartToSchema(CourseSchemaPartDto part, @ModelAttribute CourseSchemaDto courseSchemaDto) {
-        courseSchemaDto.addPart(part);
+    public String addPartToSchema(SchemaPartDto part, @ModelAttribute SchemaDto schemaDto) {
+        schemaDto.addPart(part);
         return "course/create-schema :: #schemaForm";
     }
 
     @DeleteMapping("/courses/schema/parts/{index}/delete")
-    public String deletePartFromSchema(@PathVariable int index, @ModelAttribute CourseSchemaDto courseSchemaDto) {
-        courseSchemaDto.getParts().remove(index);
+    public String deletePartFromSchema(@PathVariable int index, @ModelAttribute SchemaDto schemaDto) {
+        schemaDto.getParts().remove(index);
         return "course/create-schema :: #schemaForm";
     }
 
     @PostMapping("/courses/schema/render")
-    public String renderSchema(@ModelAttribute CourseSchemaDto courseSchemaDto) {
+    public String renderSchema(@ModelAttribute SchemaDto schemaDto) {
         return "course/create-schema :: #render";
     }
 
     @PostMapping("/courses/schema/statements/{id}/run")
-    public String renderGenerationStatement(@PathVariable int id, @ModelAttribute CourseSchemaDto courseSchemaDto, Model model) {
+    public String renderGenerationStatement(@PathVariable int id, @ModelAttribute SchemaDto schemaDto, Model model) {
         int revolutions = 10;
         var out = new ArrayList<String>(revolutions);
-        var interpreter = new Interpreter(courseSchemaDto.getParts().get(id).getGenerationStatement());
+        var interpreter = new Interpreter(schemaDto.getParts().get(id).getGenerationStatement());
         for (int i = 0; i < revolutions; i++) {
             out.add(interpreter.declareInt("id", i).execute());
         }

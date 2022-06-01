@@ -11,7 +11,7 @@
     <div class="row mx-0">
         <div class="col col-lg-6 col-md-8 px-0 mb-3">
             <h3>Create course</h3>
-            <form action="/courses/create" method="post" th:object="${courseSchemaDto}">
+            <form action="/courses/create" method="post" th:object="${schemaDto}">
                 <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
                 <div class="mb-3">
                     <label for="courseName">Course name</label>
@@ -20,7 +20,7 @@
                            required
                            placeholder="Enter course name"
                            th:field="*{courseName}"
-                           th:value="${courseSchemaDto.courseName}"
+                           th:value="${schemaDto.courseName}"
                            th:classappend="${#fields.hasErrors('courseName') ? 'is-invalid' : ''}">
                     <div class="invalid-feedback" th:if="${#fields.hasErrors('courseName')}"
                          th:text="${#fields.errors('courseName')[0]}"></div>
@@ -31,7 +31,7 @@
                            class="form-control"
                            placeholder="Enter course key (optional)"
                            th:field="*{key}"
-                           th:value="${courseSchemaDto.getKey()}"
+                           th:value="${schemaDto.getKey()}"
                            th:classappend="${#fields.hasErrors('key') ? 'is-invalid' : ''}">
                     <div class="invalid-feedback" th:if="${#fields.hasErrors('key')}"
                          th:text="${#fields.errors('key')[0]}"></div>
