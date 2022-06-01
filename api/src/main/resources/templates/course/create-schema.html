@@ -25,7 +25,7 @@
                         <input type="text"
                                th:field="*{parts[__${stat.index}__].name}"
                                class="form-control mx-3"
-                               @click="$event.stopPropagation()"
+                               @click&&@keypress="$event.stopPropagation()"
                                required
                                aria-label="Part name" placeholder="Enter part name">
                     </button>
