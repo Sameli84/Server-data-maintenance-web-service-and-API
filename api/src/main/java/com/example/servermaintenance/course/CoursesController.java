@@ -3,8 +3,11 @@ package com.example.servermaintenance.course;
 import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.account.AccountNotFoundException;
 import com.example.servermaintenance.account.AccountService;
+import com.example.servermaintenance.course.domain.CourseCreationDto;
 import com.example.servermaintenance.course.domain.CourseStudent;
+import com.example.servermaintenance.course.domain.SchemaDto;
 import lombok.AllArgsConstructor;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -66,5 +69,19 @@ public class CoursesController {
             redirectAttributes.addFlashAttribute("error", "Failed to join course");
             return "redirect:/courses";
         }
+    }
+
+    @Secured("ROLE_TEACHER")
+    @GetMapping("/courses/create")
+    public String showCourseCreationPage(Model model) {
+        model.addAttribute("courseCreationDto", new CourseCreationDto());
+        return "course/create-course";
+    }
+
+    @Secured("ROLE_TEACHER")
+    @PostMapping("/courses/create")
+    public String createCourse(@ModelAttribute CourseCreationDto courseCreationDto, @ModelAttribute Account account) {
+        var course = courseService.createCourse(courseCreationDto, account);
+        return String.format("redirect:/courses/%s/schema", course.getUrl());
     }
 }

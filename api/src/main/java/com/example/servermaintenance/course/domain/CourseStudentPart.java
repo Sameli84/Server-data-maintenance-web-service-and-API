@@ -1,4 +1,5 @@
 package com.example.servermaintenance.course.domain;
+
 import lombok.*;
 
 import javax.persistence.*;
@@ -10,7 +11,7 @@ import java.io.Serializable;
 @Getter
 @Setter
 @Table(name = "course_student_part")
-public class CourseStudentPart implements Serializable{
+public class CourseStudentPart implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

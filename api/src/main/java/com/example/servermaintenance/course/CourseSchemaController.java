@@ -3,11 +3,13 @@ package com.example.servermaintenance.course;
 import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.account.AccountNotFoundException;
 import com.example.servermaintenance.account.AccountService;
+import com.example.servermaintenance.course.domain.Course;
 import com.example.servermaintenance.course.domain.SchemaDto;
 import com.example.servermaintenance.course.domain.SchemaPartDto;
 import com.example.servermaintenance.interpreter.Interpreter;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,9 +26,12 @@ import java.util.NoSuchElementException;
 @Controller
 @SessionAttributes("schemaDto")
 @AllArgsConstructor
+@RequestMapping("/courses/{course}/schema")
 public class CourseSchemaController {
     private final CourseService courseService;
     private final AccountService accountService;
+    private final SchemaPartRepository schemaPartRepository;
+    private final ModelMapper modelMapper;
 
     @ExceptionHandler(AccountNotFoundException.class)
     public String processAccountException(HttpServletRequest request) {
@@ -46,57 +51,96 @@ public class CourseSchemaController {
         return accountService.getContextAccount().orElseThrow(AccountNotFoundException::new);
     }
 
-    @ModelAttribute(name = "schemaDto")
-    public SchemaDto schema() {
+    @ModelAttribute("course")
+    public Course addCourseToModel(@PathVariable Course course) {
+        return course;
+    }
+
+    @ModelAttribute("schemaDto")
+    public SchemaDto schema(@ModelAttribute Course course) {
+        var schemaParts = schemaPartRepository.findSchemaPartsByCourseOrderByOrder(course); // TODO: put this call behind service
         var schemaDto = new SchemaDto();
-        schemaDto.addPart(new SchemaPartDto());
+        if (schemaParts.isEmpty()) {
+            schemaDto.addPart(new SchemaPartDto());
+            return schemaDto;
+        }
+
+        for (var sp : schemaParts) {
+            var spd = modelMapper.map(sp, SchemaPartDto.class);
+            spd.set_schemaPartEntity(sp);
+            schemaDto.addPart(spd);
+        }
         return schemaDto;
     }
 
-    @GetMapping("/courses/schema")
-    public String showCourseSchemaPage(@ModelAttribute SchemaDto schemaDto) {
-        if (schemaDto.getCourseName() == null || schemaDto.getCourseName().isEmpty()) {
-            return "redirect:/courses/create";
-        }
+    @GetMapping
+    public String showCourseSchemaPage(@SuppressWarnings("unused") @PathVariable Course course,
+                                       @ModelAttribute SchemaDto schemaDto) {
         return "course/create-schema";
     }
 
-    @PostMapping("/courses/schema")
-    public String createCourseSchema(@ModelAttribute SchemaDto schemaDto, @ModelAttribute Account account, SessionStatus sessionStatus) {
-        var course = courseService.createCourse(schemaDto, account);
+    @PostMapping
+    public String createCourseSchema(@PathVariable Course course,
+                                     @ModelAttribute SchemaDto schemaDto,
+                                     @ModelAttribute Account account,
+                                     SessionStatus sessionStatus) {
+        courseService.saveCourseSchema(course, schemaDto);
         sessionStatus.setComplete();
         return "redirect:/courses/" + course.getUrl();
     }
 
-    @GetMapping("/courses/create")
-    public String showCourseCreationPage() {
-        return "course/create-course";
-    }
 
-    @PostMapping("/courses/create")
-    public String saveCourseCreationData(@ModelAttribute SchemaDto schemaDto) {
-        return "redirect:/courses/schema";
-    }
-
-    @GetMapping("/courses/schema/parts/add")
-    public String addPartToSchema(SchemaPartDto part, @ModelAttribute SchemaDto schemaDto) {
+    @GetMapping("/parts/add")
+    public String addPartToSchema(@SuppressWarnings("unused") @PathVariable Course course,
+                                  SchemaPartDto part,
+                                  @ModelAttribute SchemaDto schemaDto) {
         schemaDto.addPart(part);
         return "course/create-schema :: #schemaForm";
     }
 
-    @DeleteMapping("/courses/schema/parts/{index}/delete")
-    public String deletePartFromSchema(@PathVariable int index, @ModelAttribute SchemaDto schemaDto) {
-        schemaDto.getParts().remove(index);
+    @DeleteMapping("/parts/{index}/delete")
+    public String deletePartFromSchema(@SuppressWarnings("unused") @PathVariable Course course,
+                                       @PathVariable int index,
+                                       @ModelAttribute SchemaDto schemaDto) {
+        var partToRemove = schemaDto.getParts().get(index);
+        var schemaEntity = partToRemove.get_schemaPartEntity();
+        if (schemaEntity != null) {
+            schemaDto.markForRemoval(schemaEntity);
+        }
+        schemaDto.getParts().remove(partToRemove);
         return "course/create-schema :: #schemaForm";
     }
 
-    @PostMapping("/courses/schema/render")
-    public String renderSchema(@ModelAttribute SchemaDto schemaDto) {
+    @PostMapping("/parts/{index}/reset")
+    public String resetPartToOriginalState(@SuppressWarnings("unused") @PathVariable Course course,
+                                           @PathVariable int index,
+                                           @ModelAttribute SchemaDto schemaDto) {
+        var part = schemaDto.getParts().get(index);
+        var schemaEntity = part.get_schemaPartEntity();
+        if (schemaEntity != null) {
+            var resetPart = modelMapper.map(schemaEntity, SchemaPartDto.class);
+            resetPart.set_schemaPartEntity(schemaEntity);
+
+            // Remember order
+            resetPart.setOrder(index);
+
+            schemaDto.getParts().set(index, resetPart);
+        }
+
+        return "course/create-schema :: #schemaForm";
+    }
+
+    @PostMapping("/render")
+    public String renderSchema(@SuppressWarnings("unused") @PathVariable Course course,
+                               @ModelAttribute SchemaDto schemaDto) {
         return "course/create-schema :: #render";
     }
 
-    @PostMapping("/courses/schema/statements/{id}/run")
-    public String renderGenerationStatement(@PathVariable int id, @ModelAttribute SchemaDto schemaDto, Model model) {
+    @PostMapping("/parts/{id}/generate")
+    public String renderGenerationStatement(@SuppressWarnings("unused") @PathVariable Course course,
+                                            @PathVariable int id,
+                                            @ModelAttribute SchemaDto schemaDto,
+                                            Model model) {
         int revolutions = 10;
         var out = new ArrayList<String>(revolutions);
         var interpreter = new Interpreter(schemaDto.getParts().get(id).getGenerationStatement());

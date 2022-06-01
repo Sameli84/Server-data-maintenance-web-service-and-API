@@ -11,12 +11,6 @@ import java.util.Set;
 
 @Data
 public class SchemaDto {
-    @Size(min = 4, max = 64, message = "Course name must be between 4 and 64 characters long")
-    private String courseName;
-
-    @Size(max = 16, message = "Course key has to be less than 16 characters")
-    private String key;
-
     @NotEmpty(message = "Course has to have parts")
     private List<SchemaPartDto> parts = new ArrayList<>();
 
@@ -28,5 +22,9 @@ public class SchemaDto {
 
     public int size() {
         return this.parts.size();
+    }
+
+    public void markForRemoval(SchemaPart entity) {
+        this.removedEntities.add(entity);
     }
 }

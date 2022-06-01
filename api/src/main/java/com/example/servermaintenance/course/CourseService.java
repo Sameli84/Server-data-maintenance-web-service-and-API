@@ -28,22 +28,40 @@ public class CourseService {
     private final CourseStudentPartRepository courseStudentPartRepository;
 
     @Transactional
-    public Course createCourse(SchemaDto schemaDto, Account account) {
-        var slug = String.format("%s-%d", new Slugify().slugify(schemaDto.getCourseName()), courseRepository.count() + 1);
-        var course = courseRepository.save(new Course(schemaDto.getCourseName(), slug, account));
-        if (!schemaDto.getKey().isEmpty()) {
-            courseKeyRepository.save(new CourseKey(schemaDto.getKey(), course));
-        }
-
-        for (int i = 0; i < schemaDto.getParts().size(); i++) {
-            var p = schemaDto.getParts().get(i);
-
-            SchemaPart part = modelMapper.map(p, SchemaPart.class);
-            part.setCourse(course);
-            part.setOrder(i);
-            courseSchemaPartRepository.save(part);
+    public Course createCourse(CourseCreationDto creationDto, Account account) {
+        var slug = String.format("%s-%d", new Slugify().slugify(creationDto.getCourseName()), courseRepository.count() + 1);
+        var course = courseRepository.save(new Course(creationDto.getCourseName(), slug, account));
+        if (!creationDto.getKey().isEmpty()) {
+            courseKeyRepository.save(new CourseKey(creationDto.getKey(), course));
         }
         return course;
+    }
+
+    @Transactional
+    public void saveCourseSchema(Course course, SchemaDto schemaDto) {
+        var parts = schemaDto.getParts();
+        var newEntities = new HashSet<SchemaPart>(parts.size());
+
+        for (int i = 0; i < parts.size(); i++) {
+            var spd = parts.get(i);
+
+            boolean isNewPart = spd.get_schemaPartEntity() == null;
+            SchemaPart part = isNewPart ? new SchemaPart() : spd.get_schemaPartEntity();
+            modelMapper.map(spd, part);
+
+            part.setCourse(course);
+            part.setOrder(i);
+            part = courseSchemaPartRepository.save(part);
+            newEntities.add(part);
+
+            if (isNewPart) {
+                courseStudentService.generateNewPartStudentData(course, part);
+            }
+        }
+        course.setSchemaParts(newEntities);
+
+        courseSchemaPartRepository.deleteAll(schemaDto.getRemovedEntities());
+        courseRepository.save(course);
     }
 
     public boolean isStudentOnCourse(Course course, Account account) {
@@ -98,7 +116,7 @@ public class CourseService {
         CSVWriter writer = new CSVWriter(w);
         writer.writeNext(headers.toArray(new String[0]));
 
-        for (CourseDataRowDto cdrd: this.getCourseData(course.get()).getRows()) {
+        for (CourseDataRowDto cdrd : this.getCourseData(course.get()).getRows()) {
             writer.writeNext(cdrd.getParts().stream().map(CourseStudentPart::getData).collect(Collectors.toList()).toArray(new String[0]));
         }
         writer.close();

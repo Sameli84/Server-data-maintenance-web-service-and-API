@@ -87,7 +87,7 @@
                                 <button type="button"
                                         class="btn btn-success"
                                         :disabled="!selected"
-                                        th:hx-post="${#mvc.url('CSC#renderGenerationStatement').arg(0, stat.index).build()}"
+                                        th:hx-post="${#mvc.url('CSC#renderGenerationStatement').arg(0, course.url).arg(1, stat.index).build()}"
                                         hx-include="closest form"
                                         hx-target="#modal-here">
                                     <i class="fa-solid fa-play"></i>
@@ -126,12 +126,25 @@
                             </div>
                             <div class="col col-md-6 my-auto d-flex">
                                 <button type="button"
-                                        th:hx-delete="${#mvc.url('CSC#deletePartFromSchema').arg(0, stat.index).build()}"
+                                        th:if="${part._schemaPartEntity != null}"
+                                        th:hx-post="${#mvc.url('CSC#resetPartToOriginalState').arg(0, course.url).arg(1, stat.index).build()}"
                                         hx-target="#schemaForm"
                                         hx-swap="outerHTML"
                                         hx-include="closest form"
-                                        class="btn btn-danger ms-md-auto">
-                                    Remove part
+                                        class="btn btn-primary"
+                                        title="Reset part"
+                                        aria-label="Reset part">
+                                    <i class="fa-solid fa-rotate-right"></i>
+                                </button>
+                                <button type="button"
+                                        th:hx-delete="${#mvc.url('CSC#deletePartFromSchema').arg(0, course.url).arg(1, stat.index).build()}"
+                                        hx-target="#schemaForm"
+                                        hx-swap="outerHTML"
+                                        hx-include="closest form"
+                                        class="btn btn-danger"
+                                        title="Remove part"
+                                        aria-label="Remove part">
+                                    <i class="fa-solid fa-trash-can"></i>
                                 </button>
                             </div>
                         </div>
@@ -140,14 +153,14 @@
             </div>
         </div>
         <button type="button"
-                th:hx-get="${#mvc.url('CSC#addPartToSchema').build()}"
+                th:hx-get="${#mvc.url('CSC#addPartToSchema').arg(0, course.url).build()}"
                 hx-target="#schemaForm"
                 hx-swap="outerHTML"
                 hx-include="closest form"
                 class="btn btn-primary">
             Add
         </button>
-        <a th:hx-post="${#mvc.url('CSC#renderSchema').build()}"
+        <a th:hx-post="${#mvc.url('CSC#renderSchema').arg(0, course.url).build()}"
            class="btn btn-outline-primary"
            hx-include="closest form"
            hx-target="#modal-here">
