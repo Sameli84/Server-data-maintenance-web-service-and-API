@@ -18,6 +18,7 @@ import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
@@ -89,6 +90,11 @@ public class CourseSchemaController {
         return "redirect:/courses/" + course.getUrl();
     }
 
+    @PostMapping("/cancel")
+    public void cancelEditing(@PathVariable Course course, SessionStatus sessionStatus, HttpServletResponse response) {
+        sessionStatus.setComplete();
+        response.addHeader("HX-Redirect", "/courses/" + course.getUrl());
+    }
 
     @GetMapping("/parts/add")
     public String addPartToSchema(@SuppressWarnings("unused") @PathVariable Course course,

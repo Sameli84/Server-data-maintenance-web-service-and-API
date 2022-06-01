@@ -5,7 +5,6 @@ import com.example.servermaintenance.account.AccountNotFoundException;
 import com.example.servermaintenance.account.AccountService;
 import com.example.servermaintenance.course.domain.CourseCreationDto;
 import com.example.servermaintenance.course.domain.CourseStudent;
-import com.example.servermaintenance.course.domain.SchemaDto;
 import lombok.AllArgsConstructor;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
