@@ -38,7 +38,6 @@ public class CourseService {
         for (int i = 0; i < schemaDto.getParts().size(); i++) {
             var p = schemaDto.getParts().get(i);
 
-            // TODO: Currently saves nulls, prevent!!
             SchemaPart part = modelMapper.map(p, SchemaPart.class);
             part.setCourse(course);
             part.setOrder(i);
