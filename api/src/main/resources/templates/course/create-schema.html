@@ -44,13 +44,12 @@
         <div class="card mb-3 border-4"
              th:each="part, stat : ${schemaDto.parts}"
              th:x-data="|{partOpen: selectedIndex === ${stat.index}, partName: | + '\'' + ${part.name} + '\'' + |, partWidth: ${part.controlWidth}, partLocked: ${part.locked}}|"
-             th:x-init="|$watch('selectedIndex', (v) => { partOpen = (v === ${stat.index}); console.log(v) })|"
+             th:x-init="|$watch('selectedIndex', (v) => { partOpen = (v === ${stat.index}) })|"
              :class="partOpen ? 'border-start border-primary' : 'closed'">
-
             <div class="card-header p-0">
                 <div class="py-2" style="cursor: move">
                 </div>
-                <div class="px-3 py-2"
+                <div class="px-3 pb-2"
                      x-show="partOpen">
                     <div class="row mx-0">
                         <div class="col-auto ps-0">
@@ -88,7 +87,7 @@
                     </div>
                 </div>
                 <div x-show="!partOpen">
-                    <div class="px-3 py-2 position-relative">
+                    <div class="px-3 pb-2 position-relative">
                         <div class="row">
                             <div class="mb-2" :class="`col-md-${partWidth*3}`">
                                 <label th:for="|exa${stat.index}|"
@@ -105,11 +104,11 @@
                     </div>
                     <div class="w-100 position-absolute d-block"
                          th:@click="|selectedIndex = ${stat.index}|"
-                         style="cursor: pointer; top: 1em; height: calc(100% - 1em)">
+                         style="cursor: pointer; top: 1.5em; height: calc(100% - 1.5em)">
                     </div>
                 </div>
             </div>
-            <div class="accordion-collapse collapse" :class="partOpen ? 'show' : ''">
+            <div x-show="partOpen">
                 <div class="card-body pt-1">
                     <div class="mb-1" th:x-data="|{ selected: ${part.validator} }|">
                         <label>Validator</label>
@@ -143,7 +142,7 @@
                         </div>
                     </div>
 
-                    <div class="mb-1">
+                    <div class="mb-1" th:x-data="|{ selected: ${part.validator} }|">
                         <label>
                             Auto generator
                         </label>
