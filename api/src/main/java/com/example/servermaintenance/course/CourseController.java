@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
@@ -38,7 +39,7 @@ public class CourseController {
     @ExceptionHandler(AccountNotFoundException.class)
     public String processAccountException(HttpServletRequest request) {
         request.getSession().invalidate();
-        return "redirect:/login";
+        return "redirect:/courses";
     }
 
     // TODO: specific exception for courses!
@@ -102,7 +103,7 @@ public class CourseController {
         return "redirect:/courses/" + course.getUrl();
     }
 
-    @Secured("ROLE_TEACHER")
+    @RolesAllowed("TEACHER")
     @DeleteMapping("/delete")
     public void deleteCourse(@PathVariable Course course, @ModelAttribute Account account, HttpServletResponse response, Model model) {
         if (!canEdit(model)) {
@@ -219,7 +220,7 @@ public class CourseController {
         return "course/tab-data";
     }
 
-    @Secured("ROLE_TEACHER")
+    @RolesAllowed("TEACHER")
     @GetMapping("/students")
     public String getStudentsTab(@PathVariable Course course, Model model) {
         if (!canEdit(model)) {
@@ -229,7 +230,7 @@ public class CourseController {
         return "course/tab-students";
     }
 
-    @Secured("ROLE_TEACHER")
+    @RolesAllowed("TEACHER")
     @DeleteMapping("/students/{studentId}/kick")
     public String kickFromCourse(@PathVariable Course course, @ModelAttribute Account account, @PathVariable int studentId, Model model) {
         if (!canEdit(model)) {
@@ -260,7 +261,7 @@ public class CourseController {
         return "course/tab-students";
     }
 
-    @Secured("ROLE_TEACHER")
+    @RolesAllowed("TEACHER")
     @GetMapping("/keys")
     public String getKeysTab(@SuppressWarnings("unused") @PathVariable Course course, Model model) {
         if (!canEdit(model)) {
@@ -269,7 +270,7 @@ public class CourseController {
         return "course/tab-keys";
     }
 
-    @Secured("ROLE_TEACHER")
+    @RolesAllowed("TEACHER")
     @PostMapping("/keys/create")
     public String createCourseKey(@PathVariable Course course, @RequestParam String key, Model model, HttpServletResponse response) {
         if (!canEdit(model)) {
@@ -284,7 +285,7 @@ public class CourseController {
         return "course/tab-keys";
     }
 
-    @Secured("ROLE_TEACHER")
+    @RolesAllowed("TEACHER")
     @DeleteMapping("/keys/{keyId}/revoke")
     public String revokeCourseKey(@PathVariable Course course, @PathVariable int keyId, Model model, HttpServletResponse response) {
         if (!canEdit(model)) {
@@ -298,7 +299,7 @@ public class CourseController {
         return "course/tab-keys";
     }
 
-    @Secured("ROLE_TEACHER")
+    @RolesAllowed("TEACHER")
     @GetMapping("/settings")
     public String getSettingsTab(@SuppressWarnings("unused") @PathVariable Course course, Model model) {
         if (!canEdit(model)) {

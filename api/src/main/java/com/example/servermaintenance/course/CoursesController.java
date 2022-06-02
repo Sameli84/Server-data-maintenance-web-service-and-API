@@ -5,12 +5,18 @@ import com.example.servermaintenance.account.AccountNotFoundException;
 import com.example.servermaintenance.account.AccountService;
 import com.example.servermaintenance.course.domain.CourseStudent;
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
+import org.keycloak.representations.AccessToken;
+import org.modelmapper.internal.util.ToStringBuilder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import java.security.Principal;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
@@ -24,12 +30,7 @@ public class CoursesController {
     @ExceptionHandler(AccountNotFoundException.class)
     public String processAccountException(HttpServletRequest request) {
         request.getSession().invalidate();
-        return "redirect:/login";
-    }
-
-    @ModelAttribute("account")
-    public Account addAccountToModel() throws AccountNotFoundException {
-        return accountService.getContextAccount().orElseThrow(AccountNotFoundException::new);
+        return "redirect:/courses";
     }
 
     @GetMapping("/")
@@ -38,15 +39,25 @@ public class CoursesController {
     }
 
     @GetMapping("/courses")
-    public String getCoursesPage(@ModelAttribute Account account, Model model) {
-        var courses = account.getCourseStudentData().stream().map(CourseStudent::getCourse).collect(Collectors.toCollection(HashSet::new));
+    public String getCoursesPage(@ModelAttribute Account account, Model model, Principal principal) {
+     //   var courses = account.getCourseStudentData().stream().map(CourseStudent::getCourse).collect(Collectors.toCollection(HashSet::new));
 
-        var userCourses = account.getCourses();
-        if (userCourses != null) {
-            courses.addAll(userCourses);
-        }
+     //   var userCourses = account.getCourses();
+    //    if (userCourses != null) {
+     //       courses.addAll(userCourses);
+   //     }
+        var courses = courseService.getCourses();
 
         model.addAttribute("courses", courses);
+
+        KeycloakAuthenticationToken keycloakAuthenticationToken = (KeycloakAuthenticationToken) principal;
+        AccessToken accessToken = keycloakAuthenticationToken.getAccount().getKeycloakSecurityContext().getToken();
+
+        System.out.println(accessToken.getId());
+        System.out.println(accessToken.getEmail());
+        System.out.println(accessToken.getName());
+        System.out.println(accessToken);
+        System.out.println(ReflectionToStringBuilder.toString(accessToken, ToStringStyle.JSON_STYLE));
 
         return "courses";
     }

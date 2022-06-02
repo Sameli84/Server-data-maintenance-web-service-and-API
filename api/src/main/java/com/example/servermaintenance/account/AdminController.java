@@ -6,11 +6,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.RolesAllowed;
 import java.util.Optional;
 
 @Controller
 @AllArgsConstructor
-@Secured("ROLE_ADMIN")
+@RolesAllowed("ADMIN")
 public class AdminController {
     private final AccountService accountService;
     private final RoleRepository roleRepository;

@@ -15,12 +15,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
 @Slf4j
-@Secured("ROLE_TEACHER")
+@RolesAllowed("TEACHER")
 @Controller
 @SessionAttributes("courseSchemaDto")
 @AllArgsConstructor
@@ -31,7 +32,7 @@ public class CourseSchemaController {
     @ExceptionHandler(AccountNotFoundException.class)
     public String processAccountException(HttpServletRequest request) {
         request.getSession().invalidate();
-        return "redirect:/login";
+        return "redirect:/courses";
     }
 
     // TODO: specific exception for courses!

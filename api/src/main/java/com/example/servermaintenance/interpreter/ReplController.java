@@ -11,17 +11,19 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.annotation.security.RolesAllowed;
+
 
 @Controller
 @AllArgsConstructor
 public class ReplController {
-    @Secured("ROLE_ADMIN")
+    @RolesAllowed("ADMIN")
     @GetMapping("/repl")
     public String getReplPage() {
         return "repl";
     }
 
-    @Secured("ROLE_ADMIN")
+    @RolesAllowed("ADMIN")
     @GetMapping("/repl-exec")
     public String execRepl(@RequestParam String statement, Model model) {
         var lexer = new Lexer(statement);

@@ -2,7 +2,6 @@ package com.example.servermaintenance.account;
 
 import com.example.servermaintenance.course.domain.CourseStudent;
 import com.example.servermaintenance.course.domain.Course;
-//import com.example.servermaintenance.datarow.DataRow;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

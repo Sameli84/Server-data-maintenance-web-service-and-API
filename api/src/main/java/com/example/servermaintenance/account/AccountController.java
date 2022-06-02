@@ -25,34 +25,5 @@ public class AccountController {
     @Autowired
     private RoleRepository roleRepository;
 
-    @GetMapping("/register")
-    public String getRegisterPage(@ModelAttribute RegisterDTO registerDTO) {
-        return "register";
-    }
 
-    @PostMapping("/register")
-    public String signUp(@Valid @ModelAttribute RegisterDTO registerDTO, BindingResult bindingResult, HttpServletRequest request, Model model, RedirectAttributes redirectAttributes) {
-        if (bindingResult.hasErrors()) {
-            // TODO: change to PRG
-            return "register";
-        }
-
-        if (accountService.registerStudent(registerDTO)) {
-            try {
-                request.login(registerDTO.getEmail(), registerDTO.getPassword());
-                return "redirect:/";
-            } catch (ServletException e) {
-                redirectAttributes.addFlashAttribute("success", "Please log in");
-                return "redirect:/login";
-            }
-        } else {
-            bindingResult.addError(new FieldError("registerDTO", "email", "Email already in use"));
-            return "register";
-        }
-    }
-
-    @GetMapping("/login")
-    public String getLoginPage() {
-        return "login";
-    }
 }

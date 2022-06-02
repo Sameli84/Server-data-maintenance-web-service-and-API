@@ -2,6 +2,8 @@ package com.example.servermaintenance.security;
 
 import com.example.servermaintenance.account.AccountService;
 import lombok.AllArgsConstructor;
+import org.keycloak.adapters.springsecurity.authentication.KeycloakAuthenticationProvider;
+import org.keycloak.adapters.springsecurity.config.KeycloakWebSecurityConfigurerAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,11 +18,15 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
+import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.access.expression.WebExpressionVoter;
+import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.web.filter.GenericFilterBean;
@@ -61,28 +67,40 @@ public class SecurityConfiguration {
             return entryPoint;
         }
     }
-
-    static class LoginPageFilter extends GenericFilterBean {
-        @Override
-        public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-            if (SecurityContextHolder.getContext().getAuthentication() != null
-                    && SecurityContextHolder.getContext().getAuthentication().isAuthenticated()
-                    && (((HttpServletRequest) request).getRequestURI().equals("/login")
-                    || ((HttpServletRequest) request).getRequestURI().equals("/register"))) {
-                System.out.println("user is authenticated but trying to access login or register page, redirecting to /");
-                ((HttpServletResponse) response).sendRedirect("/");
-            }
-            chain.doFilter(request, response);
-        }
-    }
-
     @Configuration
     @Order(2)
-    public static class FormWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
+    public static class FormWebSecurityConfigurationAdapter extends KeycloakWebSecurityConfigurerAdapter {
+
+        @Autowired
+        public void configureGlobal(
+                AuthenticationManagerBuilder auth) throws Exception {
+
+            KeycloakAuthenticationProvider keycloakAuthenticationProvider
+                    = keycloakAuthenticationProvider();
+            keycloakAuthenticationProvider.setGrantedAuthoritiesMapper(
+                    new SimpleAuthorityMapper());
+            auth.authenticationProvider(keycloakAuthenticationProvider);
+        }
+        @Bean
+        @Override
+        protected SessionAuthenticationStrategy sessionAuthenticationStrategy() {
+            return new RegisterSessionAuthenticationStrategy(
+                    new SessionRegistryImpl());
+        }
+
+
         @Override
         protected void configure(HttpSecurity http) throws Exception {
+            super.configure(http);
+            http.authorizeRequests()
+                    .antMatchers("/*")
+                    .hasRole("STUDENT")
+                    .anyRequest()
+                    .permitAll();
+        }
+  /*      @Override
+        protected void configure(HttpSecurity http) throws Exception {
 
-            http.addFilterBefore(new LoginPageFilter(), DefaultLoginPageGeneratingFilter.class);
             http.authorizeRequests()
                     .expressionHandler(webExpressionHandler())
                     .antMatchers("/register", "/register/**", "/webjars/**").permitAll()
@@ -100,12 +118,7 @@ public class SecurityConfiguration {
                     .logoutUrl("/logout")
                     .invalidateHttpSession(true)
                     .permitAll();
-        }
-    }
-
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(accountService).passwordEncoder(passwordEncoderService.passwordEncoder());
+        }*/
     }
 
     private static SecurityExpressionHandler<FilterInvocation> webExpressionHandler() {
@@ -117,7 +130,7 @@ public class SecurityConfiguration {
     @Bean
     public static RoleHierarchy roleHierarchy() {
         var roleHierarchy = new RoleHierarchyImpl();
-        roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_TEACHER\nROLE_TEACHER > ROLE_STUDENT");
+        roleHierarchy.setHierarchy("ADMIN > TEACHER\nTEACHER > STUDENT");
         return roleHierarchy;
     }
 
