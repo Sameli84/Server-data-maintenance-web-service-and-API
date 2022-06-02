@@ -4,6 +4,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import org.keycloak.KeycloakSecurityContext;
+import org.keycloak.adapters.KeycloakDeployment;
+import org.keycloak.adapters.RefreshableKeycloakSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
@@ -24,6 +27,21 @@ public class AccountController {
 
     @Autowired
     private RoleRepository roleRepository;
-
-
+    @GetMapping(path = "/logout")
+    public String logout(HttpServletRequest request) throws ServletException {
+        keycloakSessionLogout(request);
+        tomcatSessionLogout(request);
+        return "redirect:/";
+    }
+    private void keycloakSessionLogout(HttpServletRequest request){
+        RefreshableKeycloakSecurityContext c = getKeycloakSecurityContext(request);
+        KeycloakDeployment d = c.getDeployment();
+        c.logout(d);
+    }
+    private void tomcatSessionLogout(HttpServletRequest request) throws ServletException {
+        request.logout();
+    }
+    private RefreshableKeycloakSecurityContext getKeycloakSecurityContext(HttpServletRequest request){
+        return (RefreshableKeycloakSecurityContext) request.getAttribute(KeycloakSecurityContext.class.getName());
+    }
 }

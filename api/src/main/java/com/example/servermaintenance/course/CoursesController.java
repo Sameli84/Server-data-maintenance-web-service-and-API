@@ -38,6 +38,10 @@ public class CoursesController {
         return "redirect:/courses";
     }
 
+    @GetMapping("/accountcheck")
+    public String getUser() {
+        return "layout";
+    }
     @GetMapping("/courses")
     public String getCoursesPage(@ModelAttribute Account account, Model model, Principal principal) {
      //   var courses = account.getCourseStudentData().stream().map(CourseStudent::getCourse).collect(Collectors.toCollection(HashSet::new));
