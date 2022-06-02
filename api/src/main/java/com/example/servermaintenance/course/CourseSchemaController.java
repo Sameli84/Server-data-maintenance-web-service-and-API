@@ -23,6 +23,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
@@ -149,6 +150,18 @@ public class CourseSchemaController {
             schemaDto.getParts().set(index, resetPart);
         }
 
+        return "course/create-schema :: #schemaForm";
+    }
+
+    @PostMapping("/sort")
+    public String sort(@SuppressWarnings("unused") @PathVariable Course course,
+                       @RequestParam int drag,
+                       @RequestParam int drop,
+                       @ModelAttribute SchemaDto schemaDto) {
+        // TODO: clamp drag and drop values
+        // TODO: save drag, shift items from drop to drag and set drag to drop
+        Collections.swap(schemaDto.getParts(), drag, drop);
+        schemaDto.setSelectedIndex(drop);
         return "course/create-schema :: #schemaForm";
     }
 

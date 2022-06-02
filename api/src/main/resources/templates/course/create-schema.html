@@ -7,19 +7,10 @@
 </head>
 <body>
 <section layout:fragment="content">
-    <style>
-        .mover {
-            display: none;
-        }
-
-        .jere:hover + .mover {
-            display: block !important;
-            z-index: 10;
-        }
-    </style>
     <form th:object="${schemaDto}"
           id="schemaForm"
           method="post"
+          x-ref="schemaForm"
           th:x-data="|{selectedIndex: ${schemaDto.selectedIndex}}|">
         <div class="row mb-2">
             <h3 class="col">Editing <b>[[${course.name}]]</b> schema</h3>
@@ -41,79 +32,106 @@
         </div>
         <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
         <input type="hidden" th:field="*{selectedIndex}" x-model="selectedIndex">
-        <div class="card mb-3 border-4"
-             th:each="part, stat : ${schemaDto.parts}"
-             th:x-data="|{partOpen: selectedIndex === ${stat.index}, partName: | + '\'' + ${part.name} + '\'' + |, partWidth: ${part.controlWidth}, partLocked: ${part.locked}}|"
-             th:x-init="|$watch('selectedIndex', (v) => { partOpen = (v === ${stat.index}) })|"
-             :class="partOpen ? 'border-start border-primary' : 'closed'">
-            <div class="card-header p-0">
-                <div class="py-2" style="cursor: move">
+        <div x-data="{dragging: null, dropping: null}"
+             th:@drop.prevent="|if (dragging !== null && dropping !== null && dragging !== dropping) {
+                 console.log('douh');
+                 fetch('/courses/${course.url}/schema/sort?drag=' + dragging + '&drop=' + dropping + '&' + `${_csrf?.parameterName}` + '=' + `${_csrf?.token}`, { method: 'POST' })
+                     .then(r => r.text())
+                     .then(d => { $refs.schemaForm.outerHTML = d; htmx.process($refs.schemaForm); });
+             }
+             console.log(dragging, dropping);
+             dropping = null;|"
+             @dragover.prevent="$event.dataTransfer.dropEffect = &quot;move&quot;">
+            <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+            <div class="card mb-3 border-4"
+                 th:each="part, stat : ${schemaDto.parts}"
+                 th:x-data="|{partOpen: selectedIndex === ${stat.index}, partName: | + '\'' + ${part.name} + '\'' + |, partWidth: ${part.controlWidth}, partLocked: ${part.locked}}|"
+                 th:x-init="|$watch('selectedIndex', (v) => { partOpen = (v === ${stat.index}) })|"
+                 th::class="|{'border-start border-primary': partOpen, 'border-info': dragging === ${stat.index}}|"
+                 draggable="true"
+                 th:@dragstart="|dragging = ${stat.index}|"
+                 @dragend="dragging = null"
+            >
+                <div class="position-absolute h-100 w-100"
+                     th:@dragenter.prevent="|if (dragging !== ${stat.index}) dropping = ${stat.index};|"
+                     th:@dragleave="|if (dropping === ${stat.index}) dropping = null;|"
+                >
+
                 </div>
-                <div class="px-3 pb-2"
-                     x-show="partOpen">
-                    <div class="row mx-0">
-                        <div class="col-auto ps-0">
-                            <input type="checkbox" th:id="${stat.index}+'locked'"
-                                   class="btn-check"
-                                   th:field="*{parts[__${stat.index}__].locked}"
-                                   x-model="partLocked"
-                                   aria-label="Locked">
-                            <label class="btn text-primary rounded-pill" th:for="${stat.index}+'locked'"
-                                   :title="partLocked ? 'Unlock' : 'Lock'">
-                                <i class="fa-solid" :class="partLocked ? 'fa-lock' : 'fa-lock-open'"
-                                   style="width: 0.9em"></i>
-                            </label>
-                        </div>
-                        <input type="text"
-                               th:field="*{parts[__${stat.index}__].name}"
-                               class="col form-control"
-                               @click="$event.stopPropagation()"
-                               required
-                               aria-label="Part name"
-                               x-model="partName"
-                               placeholder="Enter part name">
-                        <div class="col-auto my-auto pe-0">
-                            <div class="form-check form-switch form-check-reverse">
-                                <input type="checkbox" th:id="${stat.index}+'required'"
-                                       class="form-check-input"
-                                       th:field="*{parts[__${stat.index}__].required}"
-                                       aria-label="Required">
-                                <label class="form-check-label"
-                                       th:for="${stat.index}+'required'">
-                                    Required
+                <div class="card-header p-0">
+                    <div class="text-center"
+                         style="cursor: move">
+                        <i class="fa-solid fa-grip-horizontal text-muted"></i>
+                    </div>
+                    <div class="px-3 pb-2"
+                         x-show="partOpen">
+                        <div class="row mx-0">
+                            <div class="col-auto ps-0">
+                                <input type="checkbox" th:id="${stat.index}+'locked'"
+                                       class="btn-check"
+                                       th:field="*{parts[__${stat.index}__].locked}"
+                                       x-model="partLocked"
+                                       aria-label="Locked">
+                                <label class="btn text-primary rounded-pill"
+                                       th:for="${stat.index}+'locked'"
+                                       :title="partLocked ? 'Unlock' : 'Lock'">
+                                    <i class="fa-solid"
+                                       :class="partLocked ? 'fa-lock' : 'fa-lock-open'"
+                                       style="width: 0.9em"></i>
                                 </label>
+                            </div>
+
+                            <input type="text"
+                                   th:field="*{parts[__${stat.index}__].name}"
+                                   class="col form-control"
+                                   @click.stop
+                                   required
+                                   aria-label="Part name"
+                                   x-model="partName"
+                                   placeholder="Enter part name">
+
+                            <div class="col-auto my-auto pe-0">
+                                <div class="form-check form-switch form-check-reverse">
+                                    <input type="checkbox" th:id="${stat.index}+'required'"
+                                           class="form-check-input"
+                                           th:field="*{parts[__${stat.index}__].required}"
+                                           aria-label="Required">
+                                    <label class="form-check-label"
+                                           th:for="${stat.index}+'required'">
+                                        Required
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div x-show="!partOpen">
-                    <div class="px-3 pb-2 position-relative">
-                        <div class="row">
-                            <div class="mb-2" :class="`col-md-${partWidth*3}`">
-                                <label th:for="|exa${stat.index}|"
-                                       x-text="partName"
-                                       style="cursor: inherit">
-                                </label>
-                                <input type="text"
-                                       class="form-control"
-                                       th:id="|exa${stat.index}|"
-                                       :disabled="partLocked"
-                                       style="cursor:inherit">
+                    <div x-show="!partOpen">
+                        <div class="px-3 pb-2 position-relative">
+                            <div class="row">
+                                <div class="mb-2" :class="`col-md-${partWidth*3}`">
+                                    <label th:for="|exa${stat.index}|"
+                                           x-text="partName"
+                                           style="cursor: inherit">
+                                    </label>
+                                    <input type="text"
+                                           class="form-control"
+                                           th:id="|exa${stat.index}|"
+                                           :disabled="partLocked"
+                                           style="cursor:inherit">
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="w-100 position-absolute d-block"
-                         th:@click="|selectedIndex = ${stat.index}|"
-                         style="cursor: pointer; top: 1.5em; height: calc(100% - 1.5em)">
+                        <div class="w-100 position-absolute d-block"
+                             th:@click="|selectedIndex = ${stat.index}|"
+                             style="cursor: pointer; top: 1.5em; height: calc(100% - 1.5em)">
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div x-show="partOpen">
-                <div class="card-body pt-1">
+                <div class="card-body pt-1" x-show="partOpen">
                     <div class="mb-1" th:x-data="|{ selected: ${part.validator} }|">
                         <label>Validator</label>
                         <div class="input-group">
-                            <label class="input-group-text" title="Enable validator"
+                            <label class="input-group-text"
+                                   title="Enable validator"
                                    th:for="${stat.index}+'validator'">
                                 <input type="checkbox" th:id="${stat.index}+'validator'"
                                        th:field="*{parts[__${stat.index}__].validator}"
@@ -170,7 +188,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="card-footer row mx-0 justify-content-between">
+                <div class="card-footer row mx-0 justify-content-between"
+                     x-show="partOpen">
                     <div class="col col-xl-4 col-lg-5 col-md-6" th:x-data="|{ width: ${part.controlWidth} }|">
                         <label>Field width: <span x-text="width"></span> / 4</label>
                         <input type="range"
