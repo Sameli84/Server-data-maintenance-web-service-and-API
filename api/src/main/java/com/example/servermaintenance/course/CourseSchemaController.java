@@ -108,6 +108,8 @@ public class CourseSchemaController {
     public String addPartToSchema(@SuppressWarnings("unused") @PathVariable Course course,
                                   SchemaPartDto part,
                                   @ModelAttribute SchemaDto schemaDto) {
+        schemaDto.setSelectedIndex(schemaDto.getParts().size());
+        part.setName("");
         schemaDto.addPart(part);
         return "course/create-schema :: #schemaForm";
     }
@@ -116,12 +118,18 @@ public class CourseSchemaController {
     public String deletePartFromSchema(@SuppressWarnings("unused") @PathVariable Course course,
                                        @PathVariable int index,
                                        @ModelAttribute SchemaDto schemaDto) {
-        var partToRemove = schemaDto.getParts().get(index);
+        var parts = schemaDto.getParts();
+        if (parts.size() <= index + 1) {
+            // is last, select new last index
+            schemaDto.setSelectedIndex(parts.size() - 2);
+        } // else don't change, next one under will be selected
+
+        var partToRemove = parts.get(index);
         var schemaEntity = partToRemove.get_schemaPartEntity();
         if (schemaEntity != null) {
             schemaDto.markForRemoval(schemaEntity);
         }
-        schemaDto.getParts().remove(partToRemove);
+        parts.remove(partToRemove);
         return "course/create-schema :: #schemaForm";
     }
 

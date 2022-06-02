@@ -14,7 +14,7 @@ public class SchemaPartDto {
     private int controlWidth = 4;
     private int order;
     private boolean required;
-    private boolean open = true;
+    private boolean open;
 
     private SchemaPart _schemaPartEntity;
 }

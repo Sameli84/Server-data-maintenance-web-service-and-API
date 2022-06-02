@@ -16,6 +16,8 @@ public class SchemaDto {
 
     private Set<SchemaPart> removedEntities = new HashSet<>();
 
+    private int selectedIndex = 0;
+
     public void addPart(SchemaPartDto part) {
         this.parts.add(part);
     }
