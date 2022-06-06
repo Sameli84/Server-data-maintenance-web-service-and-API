@@ -50,21 +50,21 @@
                  th::class="|{'border-start border-primary': partOpen, 'border-info': dragging === ${stat.index}}|"
                  draggable="true"
                  th:@dragstart="|dragging = ${stat.index}|"
-                 @dragend="dragging = null"
-            >
+                 @dragend="dragging = null">
                 <div class="position-absolute h-100 w-100"
+                     x-show="dragging !== null"
                      th:@dragenter.prevent="|if (dragging !== ${stat.index}) dropping = ${stat.index};|"
                      th:@dragleave="|if (dropping === ${stat.index}) dropping = null;|"
-                >
+                     style="z-index: 10">
 
                 </div>
-                <div class="card-header p-0">
+                <div class="card-header p-0"
+                     x-show="partOpen">
                     <div class="text-center"
                          style="cursor: move">
                         <i class="fa-solid fa-grip-horizontal text-muted"></i>
                     </div>
-                    <div class="px-3 pb-2"
-                         x-show="partOpen">
+                    <div class="px-3 pb-2">
                         <div class="row mx-0">
                             <div class="col-auto ps-0">
                                 <input type="checkbox" th:id="${stat.index}+'locked'"
@@ -104,7 +104,15 @@
                             </div>
                         </div>
                     </div>
-                    <div x-show="!partOpen">
+                </div>
+
+                <div class="card-header p-0"
+                     x-show="!partOpen">
+                    <div class="text-center"
+                         style="cursor: move">
+                        <i class="fa-solid fa-grip-horizontal text-muted"></i>
+                    </div>
+                    <div :class="{ 'collapse': partOpen }">
                         <div class="px-3 pb-2 position-relative">
                             <div class="row">
                                 <div class="mb-2" :class="`col-md-${partWidth*3}`">
@@ -126,101 +134,103 @@
                         </div>
                     </div>
                 </div>
-                <div class="card-body pt-1" x-show="partOpen">
-                    <div class="mb-1" th:x-data="|{ selected: ${part.validator} }|">
-                        <label>Validator</label>
-                        <div class="input-group">
-                            <label class="input-group-text"
-                                   title="Enable validator"
-                                   th:for="${stat.index}+'validator'">
-                                <input type="checkbox" th:id="${stat.index}+'validator'"
-                                       th:field="*{parts[__${stat.index}__].validator}"
-                                       class="form-check-input"
-                                       @click="selected = !selected"
-                                       aria-label="Checkbox to enable validator">
+
+                <div :class="{ 'collapse': !partOpen }">
+                    <div class="card-body pt-1">
+                        <div class="mb-1" th:x-data="|{ selected: ${part.validator} }|">
+                            <label>Validator</label>
+                            <div class="input-group">
+                                <label class="input-group-text"
+                                       title="Enable validator"
+                                       th:for="${stat.index}+'validator'">
+                                    <input type="checkbox" th:id="${stat.index}+'validator'"
+                                           th:field="*{parts[__${stat.index}__].validator}"
+                                           class="form-check-input"
+                                           @click="selected = !selected"
+                                           aria-label="Checkbox to enable validator">
+                                </label>
+                                <div class="input-group-text"
+                                     title="Regex used for validating user input">
+                                    Regex
+                                </div>
+                                <input type="text"
+                                       th:field="*{parts[__${stat.index}__].validatorRegex}"
+                                       class="form-control"
+                                       :disabled="!selected"
+                                       aria-label="Validator regex">
+                                <div class="input-group-text"
+                                     title="Message to display on validation error">
+                                    Error message
+                                </div>
+                                <input type="text"
+                                       th:field="*{parts[__${stat.index}__].validatorMessage}"
+                                       class="form-control"
+                                       :disabled="!selected"
+                                       aria-label="Validator error message">
+                            </div>
+                        </div>
+
+                        <div class="mb-1" th:x-data="|{ selected: ${part.validator} }|">
+                            <label>
+                                Auto generator
                             </label>
-                            <div class="input-group-text"
-                                 title="Regex used for validating user input">
-                                Regex
+                            <div class="input-group">
+                                <label class="input-group-text" title="Enable auto generator"
+                                       th:for="|${stat.index}generator|">
+                                    <input type="checkbox" th:id="|${stat.index}generator|"
+                                           th:field="*{parts[__${stat.index}__].autogenerated}"
+                                           class="form-check-input"
+                                           @click="selected = !selected"
+                                           aria-label="Checkbox to enable auto generator">
+                                </label>
+                                <input type="text"
+                                       th:field="*{parts[__${stat.index}__].generationStatement}"
+                                       class="form-control" :disabled="!selected"
+                                       aria-label="Generation statement">
+                                <button type="button"
+                                        class="btn btn-success"
+                                        th:hx-post="${#mvc.url('CSC#renderGenerationStatement').arg(0, course.url).arg(1, stat.index).build()}"
+                                        :disabled="!selected"
+                                        hx-include="closest form"
+                                        hx-target="#modal-here">
+                                    <i class="fa-solid fa-play"></i>
+                                </button>
                             </div>
-                            <input type="text"
-                                   th:field="*{parts[__${stat.index}__].validatorRegex}"
-                                   class="form-control"
-                                   :disabled="!selected"
-                                   aria-label="Validator regex">
-                            <div class="input-group-text"
-                                 title="Message to display on validation error">
-                                Error message
-                            </div>
-                            <input type="text"
-                                   th:field="*{parts[__${stat.index}__].validatorMessage}"
-                                   class="form-control"
-                                   :disabled="!selected"
-                                   aria-label="Validator error message">
                         </div>
                     </div>
-
-                    <div class="mb-1" th:x-data="|{ selected: ${part.validator} }|">
-                        <label>
-                            Auto generator
-                        </label>
-                        <div class="input-group">
-                            <label class="input-group-text" title="Enable auto generator"
-                                   th:for="|${stat.index}generator|">
-                                <input type="checkbox" th:id="|${stat.index}generator|"
-                                       th:field="*{parts[__${stat.index}__].autogenerated}"
-                                       class="form-check-input"
-                                       @click="selected = !selected"
-                                       aria-label="Checkbox to enable auto generator">
-                            </label>
-                            <input type="text"
-                                   th:field="*{parts[__${stat.index}__].generationStatement}"
-                                   class="form-control" :disabled="!selected"
-                                   aria-label="Generation statement">
+                    <div class="card-footer row mx-0 justify-content-between">
+                        <div class="col col-xl-4 col-lg-5 col-md-6" th:x-data="|{ width: ${part.controlWidth} }|">
+                            <label>Field width: <span x-text="width"></span> / 4</label>
+                            <input type="range"
+                                   th:field="*{parts[__${stat.index}__].controlWidth}"
+                                   min="1"
+                                   max="4"
+                                   x-model="partWidth"
+                                   class="form-range" aria-label="Form control width">
+                        </div>
+                        <div class="col-auto my-auto px-0">
                             <button type="button"
-                                    class="btn btn-success"
-                                    th:hx-post="${#mvc.url('CSC#renderGenerationStatement').arg(0, course.url).arg(1, stat.index).build()}"
-                                    :disabled="!selected"
+                                    th:if="${part._schemaPartEntity != null}"
+                                    th:hx-post="${#mvc.url('CSC#resetPartToOriginalState').arg(0, course.url).arg(1, stat.index).build()}"
+                                    hx-target="#schemaForm"
+                                    hx-swap="outerHTML"
                                     hx-include="closest form"
-                                    hx-target="#modal-here">
-                                <i class="fa-solid fa-play"></i>
+                                    class="btn btn-outline-primary"
+                                    title="Reset part"
+                                    aria-label="Reset part">
+                                <i class="fa-solid fa-rotate-right"></i>
+                            </button>
+                            <button type="button"
+                                    th:hx-delete="${#mvc.url('CSC#deletePartFromSchema').arg(0, course.url).arg(1, stat.index).build()}"
+                                    hx-target="#schemaForm"
+                                    hx-swap="outerHTML"
+                                    hx-include="closest form"
+                                    class="btn btn-outline-danger"
+                                    title="Remove part"
+                                    aria-label="Remove part">
+                                <i class="fa-solid fa-trash-can"></i>
                             </button>
                         </div>
-                    </div>
-                </div>
-                <div class="card-footer row mx-0 justify-content-between"
-                     x-show="partOpen">
-                    <div class="col col-xl-4 col-lg-5 col-md-6" th:x-data="|{ width: ${part.controlWidth} }|">
-                        <label>Field width: <span x-text="width"></span> / 4</label>
-                        <input type="range"
-                               th:field="*{parts[__${stat.index}__].controlWidth}"
-                               min="1"
-                               max="4"
-                               x-model="partWidth"
-                               class="form-range" aria-label="Form control width">
-                    </div>
-                    <div class="col-auto my-auto px-0">
-                        <button type="button"
-                                th:if="${part._schemaPartEntity != null}"
-                                th:hx-post="${#mvc.url('CSC#resetPartToOriginalState').arg(0, course.url).arg(1, stat.index).build()}"
-                                hx-target="#schemaForm"
-                                hx-swap="outerHTML"
-                                hx-include="closest form"
-                                class="btn btn-outline-primary"
-                                title="Reset part"
-                                aria-label="Reset part">
-                            <i class="fa-solid fa-rotate-right"></i>
-                        </button>
-                        <button type="button"
-                                th:hx-delete="${#mvc.url('CSC#deletePartFromSchema').arg(0, course.url).arg(1, stat.index).build()}"
-                                hx-target="#schemaForm"
-                                hx-swap="outerHTML"
-                                hx-include="closest form"
-                                class="btn btn-outline-danger"
-                                title="Remove part"
-                                aria-label="Remove part">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
                     </div>
                 </div>
             </div>
