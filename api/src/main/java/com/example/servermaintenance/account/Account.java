@@ -19,7 +19,7 @@ import java.util.*;
 @Getter
 @Setter
 @Table(name = "account")
-public class Account extends AbstractPersistable<Long> implements UserDetails {
+public class Account extends AbstractPersistable<Long> {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(columnDefinition = "int8")
@@ -35,7 +35,7 @@ public class Account extends AbstractPersistable<Long> implements UserDetails {
     private String email;
 
     @Column
-    private String password;
+    private String keyCloakId;
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Course> courses;
@@ -51,43 +51,36 @@ public class Account extends AbstractPersistable<Long> implements UserDetails {
     )
     private Set<Role> roles = new HashSet<>();
 
-    public Account(String firstName, String lastName, String email, String password) {
+    public Account(String firstName, String lastName, String email) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-        this.password = password;
     }
 
     public String getName() {
         return firstName + " " + lastName;
     }
 
-    @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles;
     }
 
-    @Override
     public String getUsername() {
         return getEmail();
     }
 
-    @Override
     public boolean isAccountNonExpired() {
         return true;
     }
 
-    @Override
     public boolean isAccountNonLocked() {
         return true;
     }
 
-    @Override
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
-    @Override
     public boolean isEnabled() {
         return true;
     }

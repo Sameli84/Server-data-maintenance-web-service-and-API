@@ -1,9 +1,11 @@
 package com.example.servermaintenance.security;
 
+import com.example.servermaintenance.KeyCloakAuthSuccessHandler;
 import com.example.servermaintenance.account.AccountService;
 import lombok.AllArgsConstructor;
 import org.keycloak.adapters.springsecurity.authentication.KeycloakAuthenticationProvider;
 import org.keycloak.adapters.springsecurity.config.KeycloakWebSecurityConfigurerAdapter;
+import org.keycloak.adapters.springsecurity.filter.KeycloakAuthenticationProcessingFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,6 +27,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.access.expression.WebExpressionVoter;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
@@ -37,6 +40,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -88,6 +92,21 @@ public class SecurityConfiguration {
                     new SessionRegistryImpl());
         }
 
+        @Bean
+        @Override
+        protected KeycloakAuthenticationProcessingFilter keycloakAuthenticationProcessingFilter() throws Exception {
+            KeycloakAuthenticationProcessingFilter filter = new KeycloakAuthenticationProcessingFilter(authenticationManagerBean());
+            filter.setSessionAuthenticationStrategy(sessionAuthenticationStrategy());
+            filter.setAuthenticationSuccessHandler(successHandler());
+            return filter;
+        }
+
+
+        @NotNull
+        @Bean
+        public KeyCloakAuthSuccessHandler successHandler() {
+            return new KeyCloakAuthSuccessHandler(new SavedRequestAwareAuthenticationSuccessHandler());
+        }
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {

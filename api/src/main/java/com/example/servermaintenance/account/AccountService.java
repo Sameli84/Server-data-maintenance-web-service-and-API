@@ -20,7 +20,9 @@ public class AccountService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
 
     public Optional<Account> getContextAccount() {
+        var Authentication = SecurityContextHolder.getContext().getAuthentication();
         var email = SecurityContextHolder.getContext().getAuthentication().getName();
+
         return accountRepository.findByEmail(email);
     }
 
