@@ -159,8 +159,14 @@ public class CourseSchemaController {
                        @RequestParam int drop,
                        @ModelAttribute SchemaDto schemaDto) {
         // TODO: clamp drag and drop values
-        // TODO: save drag, shift items from drop to drag and set drag to drop
-        Collections.swap(schemaDto.getParts(), drag, drop);
+
+        var sub = schemaDto.getParts().subList(Math.min(drag, drop), Math.max(drag, drop) + 1);
+        if (drag < drop) {
+            Collections.rotate(sub, -1);
+        } else {
+            Collections.rotate(sub, 1);
+        }
+
         schemaDto.setSelectedIndex(drop);
         return "course/create-schema :: #schemaForm";
     }
