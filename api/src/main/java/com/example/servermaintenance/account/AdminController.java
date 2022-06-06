@@ -54,8 +54,6 @@ public class AdminController {
         model.addAttribute("account", account);
         model.addAttribute("roles", roleRepository.findAll());
 
-        accountService.updateAccountRoles(account, student.isPresent(), teacher.isPresent(), admin.isPresent());
-
         return "admin/row";
     }
 }

@@ -1,11 +1,8 @@
 package com.example.servermaintenance.account;
 
 import lombok.AllArgsConstructor;
+import org.keycloak.representations.AccessToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -14,10 +11,8 @@ import java.util.function.Consumer;
 
 @Service
 @AllArgsConstructor
-public class AccountService implements UserDetailsService {
+public class AccountService {
     private final AccountRepository accountRepository;
-    private final RoleService roleService;
-    private final PasswordEncoder passwordEncoder;
 
     public Optional<Account> getContextAccount() {
         var Authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -26,25 +21,16 @@ public class AccountService implements UserDetailsService {
         return accountRepository.findByEmail(email);
     }
 
-    public boolean registerStudent(RegisterDTO registerDTO) {
-        return registerAccount(registerDTO, Set.of(roleService.getRole("STUDENT")));
-    }
-
     @Transactional
-    public boolean registerAccount(RegisterDTO registerDTO, Set<Role> roles) {
-        if (accountRepository.findByEmail(registerDTO.getEmail()).isPresent()) {
+    public boolean registerAccount(AccessToken accessToken) {
+        if (accountRepository.findByEmail(accessToken.getEmail()).isPresent()) {
+            System.out.println("Was already in db");
             return false;
         }
-
-        Account a = new Account(registerDTO.getFirstName(), registerDTO.getLastName(), registerDTO.getEmail(), passwordEncoder.encode(registerDTO.getPassword()));
-        a.setRoles(roles);
+        Account a = new Account(accessToken.getGivenName(), accessToken.getFamilyName(), accessToken.getEmail(), accessToken.getId());
         accountRepository.save(a);
+        System.out.println("Saved to db");
         return true;
-    }
-
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return accountRepository.findByEmail(username).orElseThrow();
     }
 
     public List<Account> searchAccounts(String search) {
@@ -64,38 +50,4 @@ public class AccountService implements UserDetailsService {
         return accountRepository.findAll();
     }
 
-    @Transactional
-    public void addRole(Account account, Role role) {
-        var roles = account.getRoles();
-
-        role.getAccounts().add(account);
-        roles.add(role);
-        account.setRoles(roles);
-
-        updateAccount(account);
-        roleService.updateRole(role);
-    }
-
-    @Transactional
-    public void removeRole(Account account, Role role) {
-        var roles = account.getRoles();
-
-        role.getAccounts().remove(account);
-        roles.remove(role);
-        account.setRoles(roles);
-
-        updateAccount(account);
-        roleService.updateRole(role);
-    }
-
-    @Transactional
-    public void updateAccountRoles(Account account, boolean student, boolean teacher, boolean admin) {
-        var roleFns = new HashMap<Boolean, Consumer<String>>() {{
-            put(false, (String role) -> removeRole(account, roleService.getRole(role)));
-            put(true, (String role) -> addRole(account, roleService.getRole(role)));
-        }};
-        roleFns.get(student).accept("STUDENT");
-        roleFns.get(teacher).accept("TEACHER");
-        roleFns.get(admin).accept("ADMIN");
-    }
 }

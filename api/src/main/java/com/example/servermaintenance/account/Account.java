@@ -51,10 +51,11 @@ public class Account extends AbstractPersistable<Long> {
     )
     private Set<Role> roles = new HashSet<>();
 
-    public Account(String firstName, String lastName, String email) {
+    public Account(String firstName, String lastName, String email, String keyCloakId) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
+        this.keyCloakId = keyCloakId;
     }
 
     public String getName() {
