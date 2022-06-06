@@ -22,10 +22,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.NoSuchElementException;
-import java.util.Objects;
+import java.util.*;
 
 @Slf4j
 @Secured("ROLE_TEACHER")
@@ -39,6 +36,14 @@ public class CourseSchemaController {
     private final SchemaPartRepository schemaPartRepository;
     private final ModelMapper modelMapper;
     private final RoleService roleService;
+
+    void clampToList(List<?> list, int index) {
+        if (index < 0) {
+            index = 0;
+        } else if (index >= list.size()) {
+            index = list.size() - 1;
+        }
+    }
 
     @ExceptionHandler(AccountNotFoundException.class)
     public String processAccountException(HttpServletRequest request) {
@@ -120,6 +125,7 @@ public class CourseSchemaController {
                                        @PathVariable int index,
                                        @ModelAttribute SchemaDto schemaDto) {
         var parts = schemaDto.getParts();
+        clampToList(parts, index);
         if (parts.size() <= index + 1) {
             // is last, select new last index
             schemaDto.setSelectedIndex(parts.size() - 2);
@@ -138,7 +144,9 @@ public class CourseSchemaController {
     public String resetPartToOriginalState(@SuppressWarnings("unused") @PathVariable Course course,
                                            @PathVariable int index,
                                            @ModelAttribute SchemaDto schemaDto) {
-        var part = schemaDto.getParts().get(index);
+        var parts = schemaDto.getParts();
+        clampToList(parts, index);
+        var part = parts.get(index);
         var schemaEntity = part.get_schemaPartEntity();
         if (schemaEntity != null) {
             var resetPart = modelMapper.map(schemaEntity, SchemaPartDto.class);
@@ -158,9 +166,10 @@ public class CourseSchemaController {
                        @RequestParam int drag,
                        @RequestParam int drop,
                        @ModelAttribute SchemaDto schemaDto) {
-        // TODO: clamp drag and drop values
-
-        var sub = schemaDto.getParts().subList(Math.min(drag, drop), Math.max(drag, drop) + 1);
+        var parts = schemaDto.getParts();
+        clampToList(parts, drag);
+        clampToList(parts, drop);
+        var sub = parts.subList(Math.min(drag, drop), Math.max(drag, drop) + 1);
         if (drag < drop) {
             Collections.rotate(sub, -1);
         } else {
