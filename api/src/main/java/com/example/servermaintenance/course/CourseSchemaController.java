@@ -17,6 +17,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
@@ -43,8 +44,8 @@ public class CourseSchemaController {
     }
 
     @ModelAttribute("account")
-    public Account addAccountToModel() throws AccountNotFoundException {
-        return accountService.getContextAccount().orElseThrow(AccountNotFoundException::new);
+    public Account addAccountToModel(Principal principal) throws AccountNotFoundException {
+        return accountService.getContextAccount(principal).orElseThrow(AccountNotFoundException::new);
     }
 
     @ModelAttribute(name = "courseSchemaDto")

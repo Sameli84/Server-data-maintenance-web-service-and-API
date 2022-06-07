@@ -1,5 +1,0 @@
-alter table account
-    ADD keyCloakId text;
-
-alter table account
-    DROP COLUMN password;

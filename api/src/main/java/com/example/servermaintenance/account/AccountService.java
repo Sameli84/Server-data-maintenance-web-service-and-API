@@ -1,11 +1,12 @@
 package com.example.servermaintenance.account;
 
 import lombok.AllArgsConstructor;
+import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.keycloak.representations.AccessToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.security.Principal;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -14,10 +15,10 @@ import java.util.function.Consumer;
 public class AccountService {
     private final AccountRepository accountRepository;
 
-    public Optional<Account> getContextAccount() {
-        var Authentication = SecurityContextHolder.getContext().getAuthentication();
-        var email = SecurityContextHolder.getContext().getAuthentication().getName();
-
+    public Optional<Account> getContextAccount(Principal principal) {
+        KeycloakAuthenticationToken keycloakAuthenticationToken = (KeycloakAuthenticationToken) principal;
+        AccessToken accessToken = keycloakAuthenticationToken.getAccount().getKeycloakSecurityContext().getToken();
+        var email = accessToken.getEmail();
         return accountRepository.findByEmail(email);
     }
 

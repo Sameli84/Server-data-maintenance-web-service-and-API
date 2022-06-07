@@ -21,6 +21,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.*;
 
 @Slf4j
@@ -50,8 +51,8 @@ public class CourseController {
     }
 
     @ModelAttribute("account")
-    public Account addAccountToModel() throws AccountNotFoundException {
-        return accountService.getContextAccount().orElseThrow(AccountNotFoundException::new);
+    public Account addAccountToModel(Principal principal) throws AccountNotFoundException {
+        return accountService.getContextAccount(principal).orElseThrow(AccountNotFoundException::new);
     }
 
     @ModelAttribute("course")
