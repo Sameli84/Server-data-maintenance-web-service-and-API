@@ -42,7 +42,10 @@ public class CoursesController {
     }
 
     @GetMapping("/courses")
-    public String getCoursesPage(@ModelAttribute Account account, Model model, Principal principal) {
+    public String getCoursesPage(Model model, Principal principal) {
+        KeycloakAuthenticationToken keycloakAuthenticationToken = (KeycloakAuthenticationToken) principal;
+        AccessToken accessToken = keycloakAuthenticationToken.getAccount().getKeycloakSecurityContext().getToken();
+        var account = accountService.getAccountByEmail(accessToken.getEmail()).get();
         var courses = account.getCourseStudentData().stream().map(CourseStudent::getCourse).collect(Collectors.toCollection(HashSet::new));
 
         var userCourses = account.getCourses();
@@ -51,7 +54,7 @@ public class CoursesController {
         }
 
         model.addAttribute("courses", courses);
-
+        model.addAttribute("account", account);
         return "courses";
     }
 
@@ -81,8 +84,12 @@ public class CoursesController {
 
     @RolesAllowed("TEACHER")
     @PostMapping("/courses/create")
-    public String createCourse(@ModelAttribute CourseCreationDto courseCreationDto, @ModelAttribute Account account) {
+    public String createCourse(@ModelAttribute CourseCreationDto courseCreationDto, Principal principal, Model model) {
+        KeycloakAuthenticationToken keycloakAuthenticationToken = (KeycloakAuthenticationToken) principal;
+        AccessToken accessToken = keycloakAuthenticationToken.getAccount().getKeycloakSecurityContext().getToken();
+        var account = accountService.getAccountByEmail(accessToken.getEmail()).get();
         var course = courseService.createCourse(courseCreationDto, account);
+        model.addAttribute("account", account);
         return String.format("redirect:/courses/%s/schema", course.getUrl());
     }
 }

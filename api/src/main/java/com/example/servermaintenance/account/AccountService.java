@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.security.Principal;
 import java.util.*;
-import java.util.function.Consumer;
 
 @Service
 @AllArgsConstructor
@@ -51,4 +50,5 @@ public class AccountService {
         return accountRepository.findAll();
     }
 
+    public Optional<Account> getAccountByEmail(String email) { return accountRepository.findByEmail(email); }
 }
