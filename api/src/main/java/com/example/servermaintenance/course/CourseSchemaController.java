@@ -3,16 +3,21 @@ package com.example.servermaintenance.course;
 import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.account.AccountNotFoundException;
 import com.example.servermaintenance.account.AccountService;
-import com.example.servermaintenance.course.domain.CourseSchemaDto;
-import com.example.servermaintenance.course.domain.CourseSchemaPartDto;
+import com.example.servermaintenance.account.RoleService;
+import com.example.servermaintenance.course.domain.Course;
+import com.example.servermaintenance.course.domain.SchemaDto;
+import com.example.servermaintenance.course.domain.SchemaPartDto;
 import com.example.servermaintenance.interpreter.Interpreter;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.annotation.security.RolesAllowed;
@@ -20,15 +25,29 @@ import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
+import javax.servlet.http.HttpServletResponse;
+import java.util.*;
 
 @Slf4j
 @RolesAllowed("TEACHER")
 @Controller
-@SessionAttributes("courseSchemaDto")
+@SessionAttributes("schemaDto")
 @AllArgsConstructor
+@RequestMapping("/courses/{course}/schema")
 public class CourseSchemaController {
     private final CourseService courseService;
     private final AccountService accountService;
+    private final SchemaPartRepository schemaPartRepository;
+    private final ModelMapper modelMapper;
+    private final RoleService roleService;
+
+    void clampToList(List<?> list, int index) {
+        if (index < 0) {
+            index = 0;
+        } else if (index >= list.size()) {
+            index = list.size() - 1;
+        }
+    }
 
     @ExceptionHandler(AccountNotFoundException.class)
     public String processAccountException(HttpServletRequest request) {
@@ -48,60 +67,137 @@ public class CourseSchemaController {
         return accountService.getContextAccount(principal).orElseThrow(AccountNotFoundException::new);
     }
 
-    @ModelAttribute(name = "courseSchemaDto")
-    public CourseSchemaDto schema() {
-        var courseSchemaDto = new CourseSchemaDto();
-        courseSchemaDto.addPart(new CourseSchemaPartDto());
-        return courseSchemaDto;
+    @ModelAttribute("course")
+    public Course addCourseToModel(@PathVariable Course course, @ModelAttribute Account account) {
+        if (!Objects.equals(course.getOwner().getId(), account.getId()) && !roleService.isAdmin(account)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized access");
+        }
+        return course;
     }
 
-    @GetMapping("/courses/schema")
-    public String showCourseSchemaPage(@ModelAttribute CourseSchemaDto courseSchemaDto) {
-        if (courseSchemaDto.getCourseName() == null || courseSchemaDto.getCourseName().isEmpty()) {
-            return "redirect:/courses/create";
+    @ModelAttribute("schemaDto")
+    public SchemaDto schema(@ModelAttribute Course course) {
+        var schemaParts = schemaPartRepository.findSchemaPartsByCourseOrderByOrder(course); // TODO: put this call behind service
+        var schemaDto = new SchemaDto();
+        if (schemaParts.isEmpty()) {
+            schemaDto.addPart(new SchemaPartDto());
+            return schemaDto;
         }
+
+        for (var sp : schemaParts) {
+            var spd = modelMapper.map(sp, SchemaPartDto.class);
+            spd.set_schemaPartEntity(sp);
+            schemaDto.addPart(spd);
+        }
+        return schemaDto;
+    }
+
+    @GetMapping
+    public String showCourseSchemaPage(@SuppressWarnings("unused") @PathVariable Course course,
+                                       @ModelAttribute SchemaDto schemaDto) {
         return "course/create-schema";
     }
 
-    @PostMapping("/courses/schema")
-    public String createCourseSchema(@ModelAttribute CourseSchemaDto courseSchemaDto, @ModelAttribute Account account, SessionStatus sessionStatus) {
-        var course = courseService.createCourse(courseSchemaDto, account);
+    @PostMapping
+    public String createCourseSchema(@PathVariable Course course,
+                                     @ModelAttribute SchemaDto schemaDto,
+                                     @ModelAttribute Account account,
+                                     SessionStatus sessionStatus) {
+        courseService.saveCourseSchema(course, schemaDto);
         sessionStatus.setComplete();
         return "redirect:/courses/" + course.getUrl();
     }
 
-    @GetMapping("/courses/create")
-    public String showCourseCreationPage() {
-        return "course/create-course";
+    @PostMapping("/cancel")
+    public void cancelEditing(@PathVariable Course course, SessionStatus sessionStatus, HttpServletResponse response) {
+        sessionStatus.setComplete();
+        response.addHeader("HX-Redirect", "/courses/" + course.getUrl());
     }
 
-    @PostMapping("/courses/create")
-    public String saveCourseCreationData(@ModelAttribute CourseSchemaDto courseSchemaDto) {
-        return "redirect:/courses/schema";
-    }
-
-    @GetMapping("/courses/schema/parts/add")
-    public String addPartToSchema(CourseSchemaPartDto part, @ModelAttribute CourseSchemaDto courseSchemaDto) {
-        courseSchemaDto.addPart(part);
+    @GetMapping("/parts/add")
+    public String addPartToSchema(@SuppressWarnings("unused") @PathVariable Course course,
+                                  SchemaPartDto part,
+                                  @ModelAttribute SchemaDto schemaDto) {
+        schemaDto.setSelectedIndex(schemaDto.getParts().size());
+        part.setName("");
+        schemaDto.addPart(part);
         return "course/create-schema :: #schemaForm";
     }
 
-    @DeleteMapping("/courses/schema/parts/{index}/delete")
-    public String deletePartFromSchema(@PathVariable int index, @ModelAttribute CourseSchemaDto courseSchemaDto) {
-        courseSchemaDto.getParts().remove(index);
+    @DeleteMapping("/parts/{index}/delete")
+    public String deletePartFromSchema(@SuppressWarnings("unused") @PathVariable Course course,
+                                       @PathVariable int index,
+                                       @ModelAttribute SchemaDto schemaDto) {
+        var parts = schemaDto.getParts();
+        clampToList(parts, index);
+        if (parts.size() <= index + 1) {
+            // is last, select new last index
+            schemaDto.setSelectedIndex(parts.size() - 2);
+        } // else don't change, next one under will be selected
+
+        var partToRemove = parts.get(index);
+        var schemaEntity = partToRemove.get_schemaPartEntity();
+        if (schemaEntity != null) {
+            schemaDto.markForRemoval(schemaEntity);
+        }
+        parts.remove(partToRemove);
         return "course/create-schema :: #schemaForm";
     }
 
-    @PostMapping("/courses/schema/render")
-    public String renderSchema(@ModelAttribute CourseSchemaDto courseSchemaDto) {
+    @PostMapping("/parts/{index}/reset")
+    public String resetPartToOriginalState(@SuppressWarnings("unused") @PathVariable Course course,
+                                           @PathVariable int index,
+                                           @ModelAttribute SchemaDto schemaDto) {
+        var parts = schemaDto.getParts();
+        clampToList(parts, index);
+        var part = parts.get(index);
+        var schemaEntity = part.get_schemaPartEntity();
+        if (schemaEntity != null) {
+            var resetPart = modelMapper.map(schemaEntity, SchemaPartDto.class);
+            resetPart.set_schemaPartEntity(schemaEntity);
+
+            // Remember order
+            resetPart.setOrder(index);
+
+            schemaDto.getParts().set(index, resetPart);
+        }
+
+        return "course/create-schema :: #schemaForm";
+    }
+
+    @PostMapping("/sort")
+    public String sort(@SuppressWarnings("unused") @PathVariable Course course,
+                       @RequestParam int drag,
+                       @RequestParam int drop,
+                       @ModelAttribute SchemaDto schemaDto) {
+        var parts = schemaDto.getParts();
+        clampToList(parts, drag);
+        clampToList(parts, drop);
+        var sub = parts.subList(Math.min(drag, drop), Math.max(drag, drop) + 1);
+        if (drag < drop) {
+            Collections.rotate(sub, -1);
+        } else {
+            Collections.rotate(sub, 1);
+        }
+
+        schemaDto.setSelectedIndex(drop);
+        return "course/create-schema :: #schemaForm";
+    }
+
+    @PostMapping("/render")
+    public String renderSchema(@SuppressWarnings("unused") @PathVariable Course course,
+                               @ModelAttribute SchemaDto schemaDto) {
         return "course/create-schema :: #render";
     }
 
-    @PostMapping("/courses/schema/statements/{id}/run")
-    public String renderGenerationStatement(@PathVariable int id, @ModelAttribute CourseSchemaDto courseSchemaDto, Model model) {
+    @PostMapping("/parts/{id}/generate")
+    public String renderGenerationStatement(@SuppressWarnings("unused") @PathVariable Course course,
+                                            @PathVariable int id,
+                                            @ModelAttribute SchemaDto schemaDto,
+                                            Model model) {
         int revolutions = 10;
         var out = new ArrayList<String>(revolutions);
-        var interpreter = new Interpreter(courseSchemaDto.getParts().get(id).getGenerationStatement());
+        var interpreter = new Interpreter(schemaDto.getParts().get(id).getGenerationStatement());
         for (int i = 0; i < revolutions; i++) {
             out.add(interpreter.declareInt("id", i).execute());
         }

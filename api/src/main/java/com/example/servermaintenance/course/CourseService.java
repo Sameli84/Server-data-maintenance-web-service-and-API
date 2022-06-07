@@ -28,23 +28,40 @@ public class CourseService {
     private final CourseStudentPartRepository courseStudentPartRepository;
 
     @Transactional
-    public Course createCourse(CourseSchemaDto courseSchemaDto, Account account) {
-        var slug = String.format("%s-%d", new Slugify().slugify(courseSchemaDto.getCourseName()), courseRepository.count() + 1);
-        var course = courseRepository.save(new Course(courseSchemaDto.getCourseName(), slug, account));
-        if (!courseSchemaDto.getKey().isEmpty()) {
-            courseKeyRepository.save(new CourseKey(courseSchemaDto.getKey(), course));
-        }
-
-        for (int i = 0; i < courseSchemaDto.getParts().size(); i++) {
-            var p = courseSchemaDto.getParts().get(i);
-
-            // TODO: Currently saves nulls, prevent!!
-            SchemaPart part = modelMapper.map(p, SchemaPart.class);
-            part.setCourse(course);
-            part.setOrder(i);
-            courseSchemaPartRepository.save(part);
+    public Course createCourse(CourseCreationDto creationDto, Account account) {
+        var slug = String.format("%s-%d", new Slugify().slugify(creationDto.getCourseName()), courseRepository.count() + 1);
+        var course = courseRepository.save(new Course(creationDto.getCourseName(), slug, account));
+        if (!creationDto.getKey().isEmpty()) {
+            courseKeyRepository.save(new CourseKey(creationDto.getKey(), course));
         }
         return course;
+    }
+
+    @Transactional
+    public void saveCourseSchema(Course course, SchemaDto schemaDto) {
+        var parts = schemaDto.getParts();
+        var newEntities = new HashSet<SchemaPart>(parts.size());
+
+        for (int i = 0; i < parts.size(); i++) {
+            var spd = parts.get(i);
+
+            boolean isNewPart = spd.get_schemaPartEntity() == null;
+            SchemaPart part = isNewPart ? new SchemaPart() : spd.get_schemaPartEntity();
+            modelMapper.map(spd, part);
+
+            part.setCourse(course);
+            part.setOrder(i);
+            part = courseSchemaPartRepository.save(part);
+            newEntities.add(part);
+
+            if (isNewPart) {
+                courseStudentService.generateNewPartStudentData(course, part);
+            }
+        }
+        course.setSchemaParts(newEntities);
+
+        courseSchemaPartRepository.deleteAll(schemaDto.getRemovedEntities());
+        courseRepository.save(course);
     }
 
     public boolean isStudentOnCourse(Course course, Account account) {
@@ -99,7 +116,7 @@ public class CourseService {
         CSVWriter writer = new CSVWriter(w);
         writer.writeNext(headers.toArray(new String[0]));
 
-        for (CourseDataRowDto cdrd: this.getCourseData(course.get()).getRows()) {
+        for (CourseDataRowDto cdrd : this.getCourseData(course.get()).getRows()) {
             writer.writeNext(cdrd.getParts().stream().map(CourseStudentPart::getData).collect(Collectors.toList()).toArray(new String[0]));
         }
         writer.close();
@@ -147,17 +164,17 @@ public class CourseService {
     }
 
     @Transactional
-    public CourseSchemaInputDto getStudentForm(Course course, Account account) {
+    public SchemaInputDto getStudentForm(Course course, Account account) {
         var schema = schemaPartRepository.findSchemaPartsByCourseOrderByOrder(course);
         var dataParts = courseStudentService.getCourseStudentParts(course, account);
-        var result = new ArrayList<CourseSchemaPartDto>(schema.size());
+        var result = new ArrayList<SchemaPartDto>(schema.size());
         var data = new ArrayList<CourseStudentPartDto>(schema.size());
         for (int i = 0; i < schema.size(); i++) {
-            var courseSchemaPartDto = modelMapper.map(schema.get(i), CourseSchemaPartDto.class);
-            result.add(courseSchemaPartDto);
+            var schemaPartDto = modelMapper.map(schema.get(i), SchemaPartDto.class);
+            result.add(schemaPartDto);
             data.add(new CourseStudentPartDto(dataParts.get(i).getData()));
         }
-        return new CourseSchemaInputDto(result, data, null);
+        return new SchemaInputDto(result, data, null);
     }
 
     @Transactional

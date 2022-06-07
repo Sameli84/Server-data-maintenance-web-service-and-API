@@ -3,6 +3,7 @@ package com.example.servermaintenance.course;
 import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.account.AccountNotFoundException;
 import com.example.servermaintenance.account.AccountService;
+import com.example.servermaintenance.course.domain.CourseCreationDto;
 import com.example.servermaintenance.course.domain.CourseStudent;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
@@ -10,11 +11,13 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
 import org.keycloak.representations.AccessToken;
 import org.modelmapper.internal.util.ToStringBuilder;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 import java.util.HashSet;
@@ -38,30 +41,16 @@ public class CoursesController {
         return "redirect:/courses";
     }
 
-    @GetMapping("/accountcheck")
-    public String getUser() {
-        return "layout";
-    }
     @GetMapping("/courses")
     public String getCoursesPage(@ModelAttribute Account account, Model model, Principal principal) {
-     //   var courses = account.getCourseStudentData().stream().map(CourseStudent::getCourse).collect(Collectors.toCollection(HashSet::new));
+        var courses = account.getCourseStudentData().stream().map(CourseStudent::getCourse).collect(Collectors.toCollection(HashSet::new));
 
-     //   var userCourses = account.getCourses();
-    //    if (userCourses != null) {
-     //       courses.addAll(userCourses);
-   //     }
-        var courses = courseService.getCourses();
+        var userCourses = account.getCourses();
+        if (userCourses != null) {
+            courses.addAll(userCourses);
+        }
 
         model.addAttribute("courses", courses);
-
-        KeycloakAuthenticationToken keycloakAuthenticationToken = (KeycloakAuthenticationToken) principal;
-        AccessToken accessToken = keycloakAuthenticationToken.getAccount().getKeycloakSecurityContext().getToken();
-
-        System.out.println(accessToken.getId());
-        System.out.println(accessToken.getEmail());
-        System.out.println(accessToken.getName());
-        System.out.println(accessToken);
-        System.out.println(ReflectionToStringBuilder.toString(accessToken, ToStringStyle.JSON_STYLE));
 
         return "courses";
     }
@@ -81,5 +70,19 @@ public class CoursesController {
             redirectAttributes.addFlashAttribute("error", "Failed to join course");
             return "redirect:/courses";
         }
+    }
+
+    @RolesAllowed("TEACHER")
+    @GetMapping("/courses/create")
+    public String showCourseCreationPage(Model model) {
+        model.addAttribute("courseCreationDto", new CourseCreationDto());
+        return "course/create-course";
+    }
+
+    @RolesAllowed("TEACHER")
+    @PostMapping("/courses/create")
+    public String createCourse(@ModelAttribute CourseCreationDto courseCreationDto, @ModelAttribute Account account) {
+        var course = courseService.createCourse(courseCreationDto, account);
+        return String.format("redirect:/courses/%s/schema", course.getUrl());
     }
 }

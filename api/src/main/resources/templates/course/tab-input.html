@@ -4,9 +4,9 @@
         <br>
         <div class="row mx-0" th:if="${isStudent}">
             <div class="col-lg-8 col px-0">
-                <form th:object="${courseSchemaInputDto}" class="row" id="student-data-form">
+                <form th:object="${schemaInputDto}" class="row" id="student-data-form">
                     <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
-                    <div th:each="part, stat : ${courseSchemaInputDto.parts}"
+                    <div th:each="part, stat : ${schemaInputDto.parts}"
                          th:class="'mb-3 col col-md-' + ${3*part.controlWidth}">
                         <label th:text="${part.name}"
                                th:for="*{parts[__${stat.index}__].name}">
@@ -16,11 +16,11 @@
                                th:field="*{data[__${stat.index}__].data}"
                                th:disabled="${part.locked}"
                                th:required="${part.required}"
-                               th:value="${courseSchemaInputDto.data[__${stat.index}__].data}"
+                               th:value="${schemaInputDto.data[__${stat.index}__].data}"
                                th:aria-label="${part.name}"
-                               th:classappend="${courseSchemaInputDto.errors?.get(__${stat.index}__)} ? 'is-invalid' : ''">
-                        <div class="invalid-feedback" th:if="${courseSchemaInputDto.errors?.get(__${stat.index}__)}"
-                             th:text="${courseSchemaInputDto.errors?.get(__${stat.index}__)}"></div>
+                               th:classappend="${schemaInputDto.errors?.get(__${stat.index}__)} ? 'is-invalid' : ''">
+                        <div class="invalid-feedback" th:if="${schemaInputDto.errors?.get(__${stat.index}__)}"
+                             th:text="${schemaInputDto.errors?.get(__${stat.index}__)}"></div>
                     </div>
                 </form>
                 <button th:hx-post="@{/courses/{course}/students/{id}/update(course=${course.getUrl()}, id=${account.getId()})}"

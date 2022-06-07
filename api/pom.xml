@@ -123,9 +123,9 @@
         </dependency>
         <!--        WEBJARS-->
         <dependency>
-            <groupId>org.webjars</groupId>
+            <groupId>org.webjars.npm</groupId>
             <artifactId>bootstrap</artifactId>
-            <version>5.1.3</version>
+            <version>5.2.0-beta1</version>
         </dependency>
         <dependency>
             <groupId>org.webjars.npm</groupId>

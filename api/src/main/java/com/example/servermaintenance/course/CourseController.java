@@ -87,8 +87,8 @@ public class CourseController {
 
         if (courseService.isStudentOnCourse(course, account)) {
             var studentForm = courseService.getStudentForm(course, account);
-            model.addAttribute("courseSchemaInputDto", studentForm);
-            model.addAttribute("updateLocked", studentForm.getParts().stream().allMatch(CourseSchemaPartDto::isLocked));
+            model.addAttribute("schemaInputDto", studentForm);
+            model.addAttribute("updateLocked", studentForm.getParts().stream().allMatch(SchemaPartDto::isLocked));
         }
 
         return "course/page";
@@ -124,8 +124,8 @@ public class CourseController {
         }
 
         var studentForm = courseService.getStudentForm(course, account);
-        model.addAttribute("courseSchemaInputDto", studentForm);
-        model.addAttribute("updateLocked", studentForm.getParts().stream().allMatch(CourseSchemaPartDto::isLocked));
+        model.addAttribute("schemaInputDto", studentForm);
+        model.addAttribute("updateLocked", studentForm.getParts().stream().allMatch(SchemaPartDto::isLocked));
 
         return "course/tab-input";
     }
@@ -134,7 +134,7 @@ public class CourseController {
     public String createData(@PathVariable Course course,
                              @PathVariable Long studentId,
                              @ModelAttribute Account account,
-                             @Valid @ModelAttribute CourseSchemaInputDto courseSchemaInputDto,
+                             @Valid @ModelAttribute SchemaInputDto schemaInputDto,
                              Model model,
                              HttpServletResponse response) {
         if (!Objects.equals(account.getId(), studentId) && !canEdit(model)) {
@@ -163,10 +163,10 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No open fields");
         }
 
-        courseSchemaInputDto.setErrors(new HashMap<>());
-        courseSchemaInputDto.setParts(new ArrayList<>());
+        schemaInputDto.setErrors(new HashMap<>());
+        schemaInputDto.setParts(new ArrayList<>());
 
-        var dataParts = courseSchemaInputDto.getData();
+        var dataParts = schemaInputDto.getData();
         if (dataParts.size() != studentPartCount) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong amount of data parts");
         }
@@ -175,7 +175,7 @@ public class CourseController {
         boolean hasErrors = false;
         for (int i = 0; i < studentParts.size(); i++) {
             var schemaPart = studentParts.get(i).getSchemaPart();
-            courseSchemaInputDto.getParts().add(modelMapper.map(schemaPart, CourseSchemaPartDto.class));
+            schemaInputDto.getParts().add(modelMapper.map(schemaPart, SchemaPartDto.class));
 
             if (dataParts.size() == i) {
                 dataParts.add(new CourseStudentPartDto(studentParts.get(i).getData()));
@@ -192,7 +192,7 @@ public class CourseController {
                 continue;
             }
             if (!dataPart.getData().matches(schemaPart.getValidatorRegex())) {
-                courseSchemaInputDto.getErrors().put(i, schemaPart.getValidatorMessage());
+                schemaInputDto.getErrors().put(i, schemaPart.getValidatorMessage());
                 hasErrors = true;
             }
         }

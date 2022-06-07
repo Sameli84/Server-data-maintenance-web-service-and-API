@@ -36,6 +36,11 @@ public class Interpreter {
             return parser.getErrors().get(0);
         }
 
-        return Evaluator.eval(program, environment).toString();
+        var result = Evaluator.eval(program, environment);
+        if (result == null) {
+            return "";
+        } else {
+            return result.toString();
+        }
     }
 }
