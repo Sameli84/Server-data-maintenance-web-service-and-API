@@ -15,7 +15,15 @@ public class CourseSessionMap<T> {
         return val;
     }
 
-    T get(Course course, Supplier<T> factory) {
+    boolean contains(Course course) {
+        return this.map.containsKey(course.getId());
+    }
+
+    T get(Course course) {
+        return this.map.get(course.getId());
+    }
+
+    T getOrDefault(Course course, Supplier<T> factory) {
         if (!this.map.containsKey(course.getId())) {
             this.map.put(course.getId(), factory.get());
         }

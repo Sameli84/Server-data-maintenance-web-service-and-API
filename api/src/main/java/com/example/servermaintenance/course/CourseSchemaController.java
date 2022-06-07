@@ -16,7 +16,6 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -27,7 +26,7 @@ import java.util.*;
 @Slf4j
 @Secured("ROLE_TEACHER")
 @Controller
-@SessionAttributes("schemaDto")
+@SessionAttributes("courseSchemaSessionMap")
 @AllArgsConstructor
 @RequestMapping("/courses/{course}/schema")
 public class CourseSchemaController {
@@ -71,10 +70,19 @@ public class CourseSchemaController {
         return course;
     }
 
+    @ModelAttribute("courseSchemaSessionMap")
+    public CourseSessionMap<SchemaDto> addCourseSessionMapToModel() {
+        return new CourseSessionMap<>();
+    }
+
     @ModelAttribute("schemaDto")
-    public SchemaDto schema(@ModelAttribute Course course) {
+    public SchemaDto schema(@ModelAttribute Course course,
+                            @ModelAttribute("courseSchemaSessionMap") CourseSessionMap<SchemaDto> courseSessionMap) {
+        if (courseSessionMap.contains(course)) {
+            return courseSessionMap.get(course);
+        }
         var schemaParts = schemaPartRepository.findSchemaPartsByCourseOrderByOrder(course); // TODO: put this call behind service
-        var schemaDto = new SchemaDto();
+        var schemaDto = courseSessionMap.getOrDefault(course, SchemaDto::new);
         if (schemaParts.isEmpty()) {
             schemaDto.addPart(new SchemaPartDto());
             return schemaDto;
@@ -98,15 +106,17 @@ public class CourseSchemaController {
     public String createCourseSchema(@PathVariable Course course,
                                      @ModelAttribute SchemaDto schemaDto,
                                      @ModelAttribute Account account,
-                                     SessionStatus sessionStatus) {
+                                     @ModelAttribute("courseSchemaSessionMap") CourseSessionMap<SchemaDto> courseSessionMap) {
         courseService.saveCourseSchema(course, schemaDto);
-        sessionStatus.setComplete();
+        courseSessionMap.remove(course);
         return "redirect:/courses/" + course.getUrl();
     }
 
     @PostMapping("/cancel")
-    public void cancelEditing(@PathVariable Course course, SessionStatus sessionStatus, HttpServletResponse response) {
-        sessionStatus.setComplete();
+    public void cancelEditing(@PathVariable Course course,
+                              @ModelAttribute("courseSchemaSessionMap") CourseSessionMap<SchemaDto> courseSessionMap,
+                              HttpServletResponse response) {
+        courseSessionMap.remove(course);
         response.addHeader("HX-Redirect", "/courses/" + course.getUrl());
     }
 

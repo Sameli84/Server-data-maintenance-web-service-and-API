@@ -59,7 +59,7 @@ public class CourseDataInputController {
     @ModelAttribute("courseDataInputDto")
     public CourseDataInputDto addCourseDataInputDtoToModel(@ModelAttribute CourseSessionMap<CourseDataInputDto> courseSessionMap,
                                                            @ModelAttribute Course course) {
-        return courseSessionMap.get(course, () -> courseService.getCourseDataForm(course));
+        return courseSessionMap.getOrDefault(course, () -> courseService.getCourseDataForm(course));
     }
 
     @ModelAttribute("isStudent")
