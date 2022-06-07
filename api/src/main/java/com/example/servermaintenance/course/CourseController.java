@@ -213,12 +213,6 @@ public class CourseController {
         return "course/tab-input";
     }
 
-    @GetMapping("/data")
-    public String getDataTab(@PathVariable Course course, Model model) {
-        model.addAttribute("courseData", courseService.getCourseData(course));
-        return "course/tab-data";
-    }
-
     @Secured("ROLE_TEACHER")
     @GetMapping("/students")
     public String getStudentsTab(@PathVariable Course course, Model model) {
