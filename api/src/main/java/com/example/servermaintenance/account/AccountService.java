@@ -18,6 +18,7 @@ public class AccountService {
         KeycloakAuthenticationToken keycloakAuthenticationToken = (KeycloakAuthenticationToken) principal;
         AccessToken accessToken = keycloakAuthenticationToken.getAccount().getKeycloakSecurityContext().getToken();
         var email = accessToken.getEmail();
+        System.out.println(accessToken.getName());
         return accountRepository.findByEmail(email);
     }
 

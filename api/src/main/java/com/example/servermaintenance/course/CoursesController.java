@@ -42,10 +42,7 @@ public class CoursesController {
     }
 
     @GetMapping("/courses")
-    public String getCoursesPage(Model model, Principal principal) {
-        KeycloakAuthenticationToken keycloakAuthenticationToken = (KeycloakAuthenticationToken) principal;
-        AccessToken accessToken = keycloakAuthenticationToken.getAccount().getKeycloakSecurityContext().getToken();
-        var account = accountService.getAccountByEmail(accessToken.getEmail()).get();
+    public String getCoursesPage(@ModelAttribute Account account, Model model) {
         var courses = account.getCourseStudentData().stream().map(CourseStudent::getCourse).collect(Collectors.toCollection(HashSet::new));
 
         var userCourses = account.getCourses();
@@ -54,17 +51,13 @@ public class CoursesController {
         }
 
         model.addAttribute("courses", courses);
-        model.addAttribute("account", account);
+
         return "courses";
     }
 
     @PostMapping("/courses/join")
-    public String joinCourseByKey(Principal principal, Model model, @RequestParam String key, RedirectAttributes redirectAttributes) {
+    public String joinCourseByKey(@ModelAttribute Account account, @RequestParam String key, RedirectAttributes redirectAttributes) {
         var courseKey = courseKeyRepository.findCourseKeyByKey(key);
-        KeycloakAuthenticationToken keycloakAuthenticationToken = (KeycloakAuthenticationToken) principal;
-        AccessToken accessToken = keycloakAuthenticationToken.getAccount().getKeycloakSecurityContext().getToken();
-        var account = accountService.getAccountByEmail(accessToken.getEmail()).get();
-        model.addAttribute("account", account);
         if (courseKey.isEmpty()) {
             redirectAttributes.addFlashAttribute("error", "Course with the given key not found!");
             return "redirect:/courses";
@@ -88,12 +81,8 @@ public class CoursesController {
 
     @RolesAllowed("TEACHER")
     @PostMapping("/courses/create")
-    public String createCourse(@ModelAttribute CourseCreationDto courseCreationDto, Principal principal, Model model) {
-        KeycloakAuthenticationToken keycloakAuthenticationToken = (KeycloakAuthenticationToken) principal;
-        AccessToken accessToken = keycloakAuthenticationToken.getAccount().getKeycloakSecurityContext().getToken();
-        var account = accountService.getAccountByEmail(accessToken.getEmail()).get();
+    public String createCourse(@ModelAttribute CourseCreationDto courseCreationDto, @ModelAttribute Account account) {
         var course = courseService.createCourse(courseCreationDto, account);
-        model.addAttribute("account", account);
         return String.format("redirect:/courses/%s/schema", course.getUrl());
     }
 }
