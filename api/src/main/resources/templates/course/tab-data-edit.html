@@ -33,13 +33,14 @@
             <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
             <button type="button"
                     th:hx-post="@{/courses/{course}/data/save(course=${course.url})}"
-                    class="btn btn-primary"
-            >
+                    class="btn btn-success">
+                <i class="fa-solid fa-check"></i>
                 Save
             </button>
             <button type="button"
                     th:hx-post="@{/courses/{course}/data/cancel(course=${course.url})}"
                     class="btn btn-danger">
+                <i class="fa-solid fa-x"></i>
                 Cancel
             </button>
         </form>
