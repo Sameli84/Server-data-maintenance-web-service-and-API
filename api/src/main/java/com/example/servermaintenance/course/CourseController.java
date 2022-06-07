@@ -51,7 +51,6 @@ public class CourseController {
         redirectAttributes.addFlashAttribute("error", "Course not found");
         return "redirect:/courses";
     }
-
     @ModelAttribute("account")
     public Account addAccountToModel(Principal principal) throws AccountNotFoundException {
         return accountService.getContextAccount(principal).orElseThrow(AccountNotFoundException::new);

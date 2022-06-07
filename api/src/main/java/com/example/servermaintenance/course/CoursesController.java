@@ -35,7 +35,10 @@ public class CoursesController {
         request.getSession().invalidate();
         return "redirect:/courses";
     }
-
+    @ModelAttribute("account")
+    public Account addAccountToModel(Principal principal) throws AccountNotFoundException {
+        return accountService.getContextAccount(principal).orElseThrow(AccountNotFoundException::new);
+    }
     @GetMapping("/")
     public String getIndexPage() {
         return "redirect:/courses";
