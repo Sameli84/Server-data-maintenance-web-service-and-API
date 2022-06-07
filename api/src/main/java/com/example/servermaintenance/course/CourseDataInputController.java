@@ -102,7 +102,7 @@ public class CourseDataInputController {
         if (!canEdit(model)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized action");
         }
-        courseService.saveCourseDataInput(courseDataInputDto);
+        courseService.saveCourseDataInput(courseDataInputDto, course);
         model.addAttribute("courseData", courseDataInputDto.getCourseDataDto());
         courseSessionMap.remove(course);
 

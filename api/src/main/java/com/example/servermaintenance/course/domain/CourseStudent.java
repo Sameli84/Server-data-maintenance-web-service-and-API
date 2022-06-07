@@ -30,7 +30,7 @@ public class CourseStudent implements Serializable{
     @Column(name = "course_local_index")
     private long courseLocalIndex;
 
-    @OneToMany(mappedBy = "courseStudent")
+    @OneToMany(mappedBy = "courseStudent", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private Set<CourseStudentPart> courseStudentParts = new HashSet<>();
 
     public CourseStudent(Account account, Course course, long courseLocalIndex) {

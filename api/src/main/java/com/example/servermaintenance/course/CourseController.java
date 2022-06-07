@@ -30,7 +30,6 @@ public class CourseController {
     private final AccountService accountService;
     private final CourseService courseService;
     private final RoleService roleService;
-    private final CourseStudentPartRepository courseStudentPartRepository;
     private final CourseStudentService courseStudentService;
     private final ModelMapper modelMapper;
     private final AlertService alertService;

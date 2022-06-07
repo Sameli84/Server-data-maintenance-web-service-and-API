@@ -220,10 +220,16 @@ public class CourseService {
     }
 
     @Transactional
-    public void saveCourseDataInput(CourseDataInputDto courseDataInputDto) {
+    public void saveCourseDataInput(CourseDataInputDto courseDataInputDto, Course course) {
+        var students = this.courseStudentService.getCourseStudents(course);
+        if (students.isEmpty()) {
+            return;
+        }
+
         var parts = courseDataInputDto.getCourseDataDto().getRows()
                 .stream()
-                .flatMap((a) -> a.getParts().stream())
+                .flatMap(a -> a.getParts().stream())
+                .filter(p -> students.contains(p.getCourseStudent()))
                 .toList();
 
         courseStudentPartRepository.saveAll(parts);
