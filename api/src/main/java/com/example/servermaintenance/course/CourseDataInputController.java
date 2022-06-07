@@ -62,6 +62,11 @@ public class CourseDataInputController {
         return Objects.equals(account.getId(), course.getOwner().getId()) || roleService.isAdmin(account);
     }
 
+    @ModelAttribute("isStudent")
+    public boolean addIsStudentToModel(@ModelAttribute Course course, @ModelAttribute Account account) {
+        return courseService.isStudentOnCourse(course, account);
+    }
+
     @ModelAttribute("courseDataInputDto")
     public CourseDataInputDto addCourseDataInputDtoToModel(@ModelAttribute CourseSessionMap<CourseDataInputDto> courseSessionMap,
                                                            @ModelAttribute Course course) {
