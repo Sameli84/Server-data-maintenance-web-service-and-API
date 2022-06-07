@@ -59,8 +59,12 @@ public class CoursesController {
     }
 
     @PostMapping("/courses/join")
-    public String joinCourseByKey(@ModelAttribute Account account, @RequestParam String key, RedirectAttributes redirectAttributes) {
+    public String joinCourseByKey(Principal principal, Model model, @RequestParam String key, RedirectAttributes redirectAttributes) {
         var courseKey = courseKeyRepository.findCourseKeyByKey(key);
+        KeycloakAuthenticationToken keycloakAuthenticationToken = (KeycloakAuthenticationToken) principal;
+        AccessToken accessToken = keycloakAuthenticationToken.getAccount().getKeycloakSecurityContext().getToken();
+        var account = accountService.getAccountByEmail(accessToken.getEmail()).get();
+        model.addAttribute("account", account);
         if (courseKey.isEmpty()) {
             redirectAttributes.addFlashAttribute("error", "Course with the given key not found!");
             return "redirect:/courses";
