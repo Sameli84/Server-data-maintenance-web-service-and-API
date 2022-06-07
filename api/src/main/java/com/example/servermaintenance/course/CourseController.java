@@ -223,6 +223,7 @@ public class CourseController {
     }
 
     @RolesAllowed("TEACHER")
+    @Secured("ROLE_TEACHER")
     @GetMapping("/students")
     public String getStudentsTab(@PathVariable Course course, Model model) {
         if (!canEdit(model)) {

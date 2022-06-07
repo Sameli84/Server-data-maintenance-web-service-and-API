@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class SchemaPartDto {
-    private String name;
+    private String name = "";
     private boolean locked;
     private boolean validator;
     private String validatorRegex;

@@ -235,23 +235,24 @@
                 </div>
             </div>
         </div>
-        <button type="button"
-                th:hx-get="${#mvc.url('CSC#addPartToSchema').arg(0, course.url).build()}"
-                hx-target="#schemaForm"
-                hx-swap="outerHTML"
-                hx-include="closest form"
-                class="btn btn-primary">
-            <i class="fa-solid fa-plus"></i>
-            New field
-        </button>
-        <a th:hx-post="${#mvc.url('CSC#renderSchema').arg(0, course.url).build()}"
-           class="btn btn-outline-primary"
-           hx-include="closest form"
-           hx-target="#modal-here">
-            <i class="fa-solid fa-table"></i>
-            Render form
-        </a>
-    </form>
+        <div class="mb-5">
+            <button type="button"
+                    th:hx-get="${#mvc.url('CSC#addPartToSchema').arg(0, course.url).build()}"
+                    hx-target="#schemaForm"
+                    hx-swap="outerHTML"
+                    hx-include="closest form"
+                    class="btn btn-primary">
+                <i class="fa-solid fa-plus"></i>
+                New field
+            </button>
+            <a th:hx-post="${#mvc.url('CSC#renderSchema').arg(0, course.url).build()}"
+               class="btn btn-outline-primary"
+               hx-include="closest form"
+               hx-target="#modal-here">
+                <i class="fa-solid fa-table"></i>
+                Render form
+            </a>
+        </div>    </form>
     <div id="modal-here"></div>
 </section>
 <div id="render" class="container">

@@ -197,4 +197,35 @@ public class CourseService {
 
         return new CourseDataDto(headers, rows);
     }
+
+    @Transactional
+    public CourseDataInputDto getCourseDataForm(Course course) {
+        var students = courseStudentService.getCourseStudents(course);
+        var rows = new ArrayList<CourseDataRowDto>();
+
+        for (var student : students) {
+            var row = new CourseDataRowDto();
+            row.setIndex(student.getCourseLocalIndex());
+            row.setParts(courseStudentPartRepository.findCourseStudentPartsByCourseStudentOrderBySchemaPart_Order(student));
+            rows.add(row);
+        }
+
+        var headers = course.getSchemaParts()
+                .stream()
+                .sorted(Comparator.comparingInt(SchemaPart::getOrder))
+                .map(SchemaPart::getName)
+                .toList();
+
+        return new CourseDataInputDto(new CourseDataDto(headers, rows));
+    }
+
+    @Transactional
+    public void saveCourseDataInput(CourseDataInputDto courseDataInputDto) {
+        var parts = courseDataInputDto.getCourseDataDto().getRows()
+                .stream()
+                .flatMap((a) -> a.getParts().stream())
+                .toList();
+
+        courseStudentPartRepository.saveAll(parts);
+    }
 }

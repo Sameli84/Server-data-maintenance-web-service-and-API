@@ -19,5 +19,14 @@
             </tbody>
         </table>
         <p th:if="${courseData.rows?.size() == 0}">No entries...</p>
+        <form th:if="${canEdit}">
+            <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+            <button type="button"
+                    th:hx-post="@{/courses/{course}/data/edit(course=${course.url})}"
+                    class="btn btn-primary px-3 py-2">
+                <i class="fa-solid fa-pen"></i>
+                Edit
+            </button>
+        </form>
     </div>
 </th:block>
