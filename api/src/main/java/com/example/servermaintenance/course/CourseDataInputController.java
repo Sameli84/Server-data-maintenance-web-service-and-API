@@ -16,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import java.security.Principal;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
@@ -43,8 +44,8 @@ public class CourseDataInputController {
     }
 
     @ModelAttribute("account")
-    public Account addAccountToModel() throws AccountNotFoundException {
-        return accountService.getContextAccount().orElseThrow(AccountNotFoundException::new);
+    public Account addAccountToModel(Principal principal) throws AccountNotFoundException {
+        return accountService.getContextAccount(principal).orElseThrow(AccountNotFoundException::new);
     }
 
     @ModelAttribute("course")
