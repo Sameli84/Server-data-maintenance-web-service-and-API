@@ -10,7 +10,7 @@
             </thead>
             <tbody>
             <tr th:each="row, rs : ${courseDataInputDto.courseDataDto.rows}">
-                <td class="align-middle" th:text="${row.index}"></td>
+                <td class="align-middle text-center" th:text="${row.index}"></td>
                 <th:block th:each="part, ps : ${row.parts}">
                     <td>
                         <form>

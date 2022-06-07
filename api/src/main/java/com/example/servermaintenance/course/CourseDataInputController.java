@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,7 +21,7 @@ import java.util.Objects;
 @Slf4j
 @Controller
 @RequiredArgsConstructor
-@SessionAttributes("courseDataInputDto")
+@SessionAttributes("courseSessionMap")
 @RequestMapping("/courses/{course}/data")
 public class CourseDataInputController {
     private final AccountService accountService;
@@ -52,9 +51,15 @@ public class CourseDataInputController {
         return course;
     }
 
+    @ModelAttribute("courseSessionMap")
+    public CourseSessionMap<CourseDataInputDto> addCourseSessionMapToModel() {
+        return new CourseSessionMap<>();
+    }
+
     @ModelAttribute("courseDataInputDto")
-    public CourseDataInputDto addCourseDataInputDtoToModel(@ModelAttribute Course course) {
-        return courseService.getCourseDataForm(course);
+    public CourseDataInputDto addCourseDataInputDtoToModel(@ModelAttribute CourseSessionMap<CourseDataInputDto> courseSessionMap,
+                                                           @ModelAttribute Course course) {
+        return courseSessionMap.get(course, () -> courseService.getCourseDataForm(course));
     }
 
     @ModelAttribute("isStudent")
@@ -78,10 +83,13 @@ public class CourseDataInputController {
     }
 
     @PostMapping("/save")
-    public String saveEdits(@PathVariable Course course, @ModelAttribute CourseDataInputDto courseDataInputDto, Model model, SessionStatus sessionStatus) {
+    public String saveEdits(@PathVariable Course course,
+                            @ModelAttribute CourseSessionMap<CourseDataInputDto> courseSessionMap,
+                            @ModelAttribute CourseDataInputDto courseDataInputDto,
+                            Model model) {
         courseService.saveCourseDataInput(courseDataInputDto);
         model.addAttribute("courseData", courseDataInputDto.getCourseDataDto());
-        sessionStatus.setComplete();
+        courseSessionMap.remove(course);
 
         return "course/tab-data";
     }
@@ -93,22 +101,20 @@ public class CourseDataInputController {
     }
 
     @PostMapping("/cancel")
-    public String cancelEdits(@PathVariable Course course, SessionStatus sessionStatus, Model model) {
-        sessionStatus.setComplete();
-        return getDataTab(course, addCourseDataInputDtoToModel(course), model);
+    public String cancelEdits(@PathVariable Course course, @ModelAttribute CourseSessionMap<CourseDataInputDto> courseSessionMap, Model model) {
+        var courseDataInputDto = courseSessionMap.add(course, courseService.getCourseDataForm(course));
+        return getDataTab(course, courseDataInputDto, model);
     }
 
     @PutMapping("/rows/{row}/parts/{part}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public void updateField(@PathVariable Course course,
+    public void updateField(@SuppressWarnings("unused") @PathVariable Course course,
                             @PathVariable int row,
                             @PathVariable int part,
                             @RequestParam String value,
                             @ModelAttribute CourseDataInputDto courseDataInputDto) {
-        var dataDto = courseDataInputDto.getCourseDataDto();
-        var parts = dataDto.getRows().get(row).getParts();
+        var parts = courseDataInputDto.getCourseDataDto().getRows().get(row).getParts();
 
-        // TODO: use dto
         var studentPart = parts.get(part);
         studentPart.setData(value);
         parts.set(part, studentPart);
