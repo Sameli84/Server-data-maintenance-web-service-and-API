@@ -48,9 +48,9 @@
                  th:x-data="|{partOpen: selectedIndex === ${stat.index}, partName: | + '\'' + ${part.name} + '\'' + |, partWidth: ${part.controlWidth}, partLocked: ${part.locked}}|"
                  th:x-init="|$watch('selectedIndex', (v) => { partOpen = (v === ${stat.index}) })|"
                  th::class="|{'border-start border-primary': partOpen, 'border-info': dragging === ${stat.index}}|"
-                 draggable="true"
                  th:@dragstart="|dragging = ${stat.index}|"
-                 @dragend="dragging = null">
+                 @dragend="dragging = null"
+                 x-ref="card">
                 <div class="position-absolute h-100 w-100"
                      x-show="dragging !== null"
                      th:@dragenter.prevent="|if (dragging !== ${stat.index}) dropping = ${stat.index};|"
@@ -61,7 +61,9 @@
                 <div class="card-header p-0"
                      x-show="partOpen">
                     <div class="text-center"
-                         style="cursor: move">
+                         style="cursor: move"
+                         @mouseover="$refs.card.setAttribute('draggable', 'true')"
+                         @mouseout="$refs.card.removeAttribute('draggable')">
                         <i class="fa-solid fa-grip-horizontal text-muted"></i>
                     </div>
                     <div class="px-3 pb-2">
@@ -84,7 +86,6 @@
                             <input type="text"
                                    th:field="*{parts[__${stat.index}__].name}"
                                    class="col form-control"
-                                   @click.stop
                                    required
                                    aria-label="Part name"
                                    x-model="partName"
@@ -109,7 +110,9 @@
                 <div class="card-header p-0"
                      x-show="!partOpen">
                     <div class="text-center"
-                         style="cursor: move">
+                         style="cursor: move"
+                         @mouseover="$refs.card.setAttribute('draggable', 'true')"
+                         @mouseout="$refs.card.removeAttribute('draggable')">
                         <i class="fa-solid fa-grip-horizontal text-muted"></i>
                     </div>
                     <div :class="{ 'collapse': partOpen }">
@@ -252,7 +255,8 @@
                 <i class="fa-solid fa-table"></i>
                 Render form
             </a>
-        </div>    </form>
+        </div>
+    </form>
     <div id="modal-here"></div>
 </section>
 <div id="render" class="container">
