@@ -185,7 +185,10 @@ public class CourseService {
         for (var student : students) {
             var row = new CourseDataRowDto();
             row.setIndex(student.getCourseLocalIndex());
-            row.setParts(courseStudentPartRepository.findCourseStudentPartsByCourseStudentOrderBySchemaPart_Order(student).stream().map(s -> modelMapper.map(s, CourseStudentPartDto.class)).toList());
+            row.setParts(courseStudentPartRepository.findCourseStudentPartsByCourseStudentOrderBySchemaPart_Order(student)
+                    .stream()
+                    .map(p -> new CourseStudentPartDto(p.getData(), p))
+                    .toList());
             rows.add(row);
         }
 
@@ -199,41 +202,23 @@ public class CourseService {
     }
 
     @Transactional
-    public CourseDataInputDto getCourseDataForm(Course course) {
-        var students = courseStudentService.getCourseStudents(course);
-        var rows = new ArrayList<CourseDataRowDto>();
-
-        for (var student : students) {
-            var row = new CourseDataRowDto();
-            row.setIndex(student.getCourseLocalIndex());
-            var parts = courseStudentPartRepository.findCourseStudentPartsByCourseStudentOrderBySchemaPart_Order(student);
-            row.setParts(parts.stream().map(p -> new CourseStudentPartDto(p.getData(), p)).toList());
-            rows.add(row);
-        }
-
-        var headers = course.getSchemaParts()
-                .stream()
-                .sorted(Comparator.comparingInt(SchemaPart::getOrder))
-                .map(SchemaPart::getName)
-                .toList();
-
-        return new CourseDataInputDto(new CourseDataDto(headers, rows));
-    }
-
-    @Transactional
-    public void saveCourseDataInput(CourseDataInputDto courseDataInputDto, Course course) {
+    public void saveCourseData(CourseDataDto courseDataDto, Course course) {
         var students = this.courseStudentService.getCourseStudents(course);
         if (students.isEmpty()) {
             return;
         }
 
-        var parts = courseDataInputDto.getCourseDataDto().getRows()
+        var parts = courseDataDto.getRows()
                 .stream()
-                .filter(p -> students.contains(p.getParts().get(0).get_courseStudentPart().getCourseStudent()))
-                .flatMap(a -> a.getParts().stream().map(b -> {
-                    b.get_courseStudentPart().setData(b.getData());
-                    return b.get_courseStudentPart();
-                }))
+                .flatMap(a -> a.getParts().stream()
+                        // take modified parts
+                        .filter(c -> !c.getData().equals(c.get_courseStudentPart().getData()))
+                        // update data
+                        .map(b -> {
+                            b.get_courseStudentPart().setData(b.getData());
+                            return b.get_courseStudentPart();
+                        }))
+                .filter(p -> students.contains(p.getCourseStudent()))
                 .toList();
 
         courseStudentPartRepository.saveAll(parts);

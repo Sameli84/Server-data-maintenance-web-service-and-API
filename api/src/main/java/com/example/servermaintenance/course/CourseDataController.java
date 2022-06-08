@@ -5,7 +5,7 @@ import com.example.servermaintenance.account.AccountNotFoundException;
 import com.example.servermaintenance.account.AccountService;
 import com.example.servermaintenance.account.RoleService;
 import com.example.servermaintenance.course.domain.Course;
-import com.example.servermaintenance.course.domain.CourseDataInputDto;
+import com.example.servermaintenance.course.domain.CourseDataDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -23,7 +23,7 @@ import java.util.Objects;
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/courses/{course}/data")
-public class CourseDataInputController {
+public class CourseDataController {
     private final AccountService accountService;
     private final CourseService courseService;
     private final RoleService roleService;
@@ -61,9 +61,9 @@ public class CourseDataInputController {
         return courseService.isStudentOnCourse(course, account);
     }
 
-    @ModelAttribute("courseDataInputDto")
-    public CourseDataInputDto addCourseDataInputDtoToModel(@ModelAttribute Course course) {
-        return courseService.getCourseDataForm(course);
+    @ModelAttribute("courseDataDto")
+    public CourseDataDto addCourseDataDtoToModel(@ModelAttribute Course course) {
+        return courseService.getCourseData(course);
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
@@ -76,49 +76,40 @@ public class CourseDataInputController {
     }
 
     @GetMapping
-    public String getDataTab(@PathVariable Course course,
-                             @ModelAttribute CourseDataInputDto courseDataInputDto,
-                             Model model) {
-        if (canEdit(model) && courseDataInputDto.isEdit()) {
-            return "course/tab-data-edit";
-        } else {
-            model.addAttribute("courseData", courseDataInputDto.getCourseDataDto());
-            return "course/tab-data";
-        }
+    public String getDataTab(@SuppressWarnings("unused") @PathVariable Course course,
+                             @ModelAttribute CourseDataDto courseDataDto) {
+        return "course/tab-data";
     }
 
     @PostMapping("/save")
     public String saveEdits(@PathVariable Course course,
-                            @ModelAttribute CourseDataInputDto courseDataInputDto,
+                            @ModelAttribute CourseDataDto courseDataDto,
                             Model model) {
         if (!canEdit(model)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized action");
         }
-        courseService.saveCourseDataInput(courseDataInputDto, course);
-        model.addAttribute("courseData", courseDataInputDto.getCourseDataDto());
+        courseService.saveCourseData(courseDataDto, course);
 
         return "course/tab-data";
     }
 
     @PostMapping("/edit")
-    public String setEdit(@PathVariable Course course,
-                          @ModelAttribute CourseDataInputDto courseDataInputDto,
+    public String setEdit(@SuppressWarnings("unused") @PathVariable Course course,
+                          @ModelAttribute CourseDataDto courseDataDto,
                           Model model) {
         if (!canEdit(model)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized action");
         }
-        courseDataInputDto.setEdit(true);
-        return getDataTab(course, courseDataInputDto, model);
+
+        return "course/tab-data-edit";
     }
 
     @PostMapping("/cancel")
-    public String cancelEdits(@PathVariable Course course,
-                              @ModelAttribute CourseSessionMap<CourseDataInputDto> courseSessionMap,
+    public String cancelEdits(@SuppressWarnings("unused") @PathVariable Course course,
                               Model model) {
         if (!canEdit(model)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized action");
         }
-        var courseDataInputDto = courseSessionMap.add(course, courseService.getCourseDataForm(course));
-        return getDataTab(course, courseDataInputDto, model);
+        return "course/tab-data";
     }
 }
