@@ -10,7 +10,7 @@
             </thead>
             <tbody>
             <tr th:each="row : ${courseData.rows}"
-                th:classappend="${row.parts[0].courseStudent.account.id == account.id ? 'table-info' : ''}">
+                th:classappend="${row.parts[0]._courseStudentPart.courseStudent.account.id == account.id ? 'table-info' : ''}">
                 <td th:text="${row.index}" style="width: 1%" class="px-3 text-center"></td>
                 <th:block th:each="part : ${row.parts}">
                     <td layout:replace="~{course/table-cell :: table-cell(${part.getData()})}"></td>

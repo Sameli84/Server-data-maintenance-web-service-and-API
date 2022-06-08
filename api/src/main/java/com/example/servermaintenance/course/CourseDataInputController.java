@@ -22,7 +22,6 @@ import java.util.Objects;
 @Slf4j
 @Controller
 @RequiredArgsConstructor
-@SessionAttributes("courseSessionMap")
 @RequestMapping("/courses/{course}/data")
 public class CourseDataInputController {
     private final AccountService accountService;
@@ -52,11 +51,6 @@ public class CourseDataInputController {
         return course;
     }
 
-    @ModelAttribute("courseSessionMap")
-    public CourseSessionMap<CourseDataInputDto> addCourseSessionMapToModel() {
-        return new CourseSessionMap<>();
-    }
-
     @ModelAttribute("canEdit")
     public boolean addCanEditToModel(@ModelAttribute Course course, @ModelAttribute Account account) {
         return Objects.equals(account.getId(), course.getOwner().getId()) || roleService.isAdmin(account);
@@ -68,9 +62,8 @@ public class CourseDataInputController {
     }
 
     @ModelAttribute("courseDataInputDto")
-    public CourseDataInputDto addCourseDataInputDtoToModel(@ModelAttribute CourseSessionMap<CourseDataInputDto> courseSessionMap,
-                                                           @ModelAttribute Course course) {
-        return courseSessionMap.getOrDefault(course, () -> courseService.getCourseDataForm(course));
+    public CourseDataInputDto addCourseDataInputDtoToModel(@ModelAttribute Course course) {
+        return courseService.getCourseDataForm(course);
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
@@ -89,14 +82,13 @@ public class CourseDataInputController {
         if (canEdit(model) && courseDataInputDto.isEdit()) {
             return "course/tab-data-edit";
         } else {
-            model.addAttribute("courseData", courseService.getCourseData(course));
+            model.addAttribute("courseData", courseDataInputDto.getCourseDataDto());
             return "course/tab-data";
         }
     }
 
     @PostMapping("/save")
     public String saveEdits(@PathVariable Course course,
-                            @ModelAttribute CourseSessionMap<CourseDataInputDto> courseSessionMap,
                             @ModelAttribute CourseDataInputDto courseDataInputDto,
                             Model model) {
         if (!canEdit(model)) {
@@ -104,7 +96,6 @@ public class CourseDataInputController {
         }
         courseService.saveCourseDataInput(courseDataInputDto, course);
         model.addAttribute("courseData", courseDataInputDto.getCourseDataDto());
-        courseSessionMap.remove(course);
 
         return "course/tab-data";
     }
@@ -129,24 +120,5 @@ public class CourseDataInputController {
         }
         var courseDataInputDto = courseSessionMap.add(course, courseService.getCourseDataForm(course));
         return getDataTab(course, courseDataInputDto, model);
-    }
-
-    @PutMapping("/rows/{row}/parts/{part}")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public void updateField(@SuppressWarnings("unused") @PathVariable Course course,
-                            @PathVariable int row,
-                            @PathVariable int part,
-                            @RequestParam String value,
-                            @ModelAttribute CourseDataInputDto courseDataInputDto,
-                            Model model) {
-        if (!canEdit(model)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized action");
-        }
-
-        var parts = courseDataInputDto.getCourseDataDto().getRows().get(row).getParts();
-
-        var studentPart = parts.get(part);
-        studentPart.setData(value);
-        parts.set(part, studentPart);
     }
 }

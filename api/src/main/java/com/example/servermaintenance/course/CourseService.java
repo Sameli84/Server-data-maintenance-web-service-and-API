@@ -117,7 +117,7 @@ public class CourseService {
         writer.writeNext(headers.toArray(new String[0]));
 
         for (CourseDataRowDto cdrd : this.getCourseData(course.get()).getRows()) {
-            writer.writeNext(cdrd.getParts().stream().map(CourseStudentPart::getData).collect(Collectors.toList()).toArray(new String[0]));
+            writer.writeNext(cdrd.getParts().stream().map(CourseStudentPartDto::getData).collect(Collectors.toList()).toArray(new String[0]));
         }
         writer.close();
     }
@@ -185,7 +185,7 @@ public class CourseService {
         for (var student : students) {
             var row = new CourseDataRowDto();
             row.setIndex(student.getCourseLocalIndex());
-            row.setParts(courseStudentPartRepository.findCourseStudentPartsByCourseStudentOrderBySchemaPart_Order(student));
+            row.setParts(courseStudentPartRepository.findCourseStudentPartsByCourseStudentOrderBySchemaPart_Order(student).stream().map(s -> modelMapper.map(s, CourseStudentPartDto.class)).toList());
             rows.add(row);
         }
 
@@ -206,7 +206,8 @@ public class CourseService {
         for (var student : students) {
             var row = new CourseDataRowDto();
             row.setIndex(student.getCourseLocalIndex());
-            row.setParts(courseStudentPartRepository.findCourseStudentPartsByCourseStudentOrderBySchemaPart_Order(student));
+            var parts = courseStudentPartRepository.findCourseStudentPartsByCourseStudentOrderBySchemaPart_Order(student);
+            row.setParts(parts.stream().map(p -> new CourseStudentPartDto(p.getData(), p)).toList());
             rows.add(row);
         }
 
@@ -228,8 +229,11 @@ public class CourseService {
 
         var parts = courseDataInputDto.getCourseDataDto().getRows()
                 .stream()
-                .flatMap(a -> a.getParts().stream())
-                .filter(p -> students.contains(p.getCourseStudent()))
+                .filter(p -> students.contains(p.getParts().get(0).get_courseStudentPart().getCourseStudent()))
+                .flatMap(a -> a.getParts().stream().map(b -> {
+                    b.get_courseStudentPart().setData(b.getData());
+                    return b.get_courseStudentPart();
+                }))
                 .toList();
 
         courseStudentPartRepository.saveAll(parts);
