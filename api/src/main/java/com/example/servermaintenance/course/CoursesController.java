@@ -1,8 +1,6 @@
 package com.example.servermaintenance.course;
 
 import com.example.servermaintenance.account.Account;
-import com.example.servermaintenance.account.AccountNotFoundException;
-import com.example.servermaintenance.account.AccountService;
 import com.example.servermaintenance.course.domain.CourseCreationDto;
 import com.example.servermaintenance.course.domain.CourseStudent;
 import lombok.AllArgsConstructor;
@@ -12,7 +10,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
@@ -21,18 +18,6 @@ import java.util.stream.Collectors;
 public class CoursesController {
     private final CourseKeyRepository courseKeyRepository;
     private final CourseService courseService;
-    private final AccountService accountService;
-
-    @ExceptionHandler(AccountNotFoundException.class)
-    public String processAccountException(HttpServletRequest request) {
-        request.getSession().invalidate();
-        return "redirect:/login";
-    }
-
-    @ModelAttribute("account")
-    public Account addAccountToModel() throws AccountNotFoundException {
-        return accountService.getContextAccount().orElseThrow(AccountNotFoundException::new);
-    }
 
     @GetMapping("/")
     public String getIndexPage() {

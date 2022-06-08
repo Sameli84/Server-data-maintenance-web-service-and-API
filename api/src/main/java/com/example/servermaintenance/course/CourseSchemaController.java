@@ -31,7 +31,6 @@ import java.util.*;
 @RequestMapping("/courses/{course}/schema")
 public class CourseSchemaController {
     private final CourseService courseService;
-    private final AccountService accountService;
     private final SchemaPartRepository schemaPartRepository;
     private final ModelMapper modelMapper;
     private final RoleService roleService;
@@ -42,32 +41,6 @@ public class CourseSchemaController {
         } else if (index >= list.size()) {
             index = list.size() - 1;
         }
-    }
-
-    @ExceptionHandler(AccountNotFoundException.class)
-    public String processAccountException(HttpServletRequest request) {
-        request.getSession().invalidate();
-        return "redirect:/login";
-    }
-
-    // TODO: specific exception for courses!
-    @ExceptionHandler(NoSuchElementException.class)
-    public String processCourseNotFoundException(RedirectAttributes redirectAttributes) {
-        redirectAttributes.addFlashAttribute("error", "Course not found");
-        return "redirect:/courses";
-    }
-
-    @ModelAttribute("account")
-    public Account addAccountToModel() throws AccountNotFoundException {
-        return accountService.getContextAccount().orElseThrow(AccountNotFoundException::new);
-    }
-
-    @ModelAttribute("course")
-    public Course addCourseToModel(@PathVariable Course course, @ModelAttribute Account account) {
-        if (!Objects.equals(course.getOwner().getId(), account.getId()) && !roleService.isAdmin(account)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized access");
-        }
-        return course;
     }
 
     @ModelAttribute("courseSchemaSessionMap")
