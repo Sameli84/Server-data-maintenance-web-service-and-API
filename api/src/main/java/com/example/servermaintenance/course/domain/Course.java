@@ -32,16 +32,16 @@ public class Course extends AbstractPersistable<Long> {
     @JoinColumn(name = "owner_id")
     private Account owner;
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "course", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private Set<CourseKey> courseKeys = new HashSet<>();
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "course", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private Set<CourseStudent> courseStudents = new HashSet<>();
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "course", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private Set<SchemaPart> schemaParts = new HashSet<>();
 
-    @OneToOne(mappedBy = "course", cascade = CascadeType.REMOVE)
+    @OneToOne(mappedBy = "course", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @PrimaryKeyJoinColumn
     private CourseIndex courseIndex;
 

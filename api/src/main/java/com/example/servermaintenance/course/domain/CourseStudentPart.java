@@ -19,11 +19,11 @@ public class CourseStudentPart implements Serializable {
     @Column(name = "data")
     private String data;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_student_id")
     private CourseStudent courseStudent;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "schema_part_id")
     private SchemaPart schemaPart;
 

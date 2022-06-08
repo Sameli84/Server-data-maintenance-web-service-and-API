@@ -38,12 +38,13 @@ public class Account extends AbstractPersistable<Long> implements UserDetails {
     @Column
     private String password;
 
-    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Course> courses;
 
-    @OneToMany(mappedBy = "account")
+    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
     private List<CourseStudent> courseStudentData;
 
+    // TODO: enable transactional authentication and change to lazy loading
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "account_roles",

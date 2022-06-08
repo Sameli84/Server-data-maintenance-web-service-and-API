@@ -55,6 +55,6 @@ public class SchemaPart implements Serializable {
     @JoinColumn(name = "data_type")
     private DataType dataType;
 
-    @OneToMany(mappedBy = "schemaPart", cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "schemaPart", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<CourseStudentPart> courseStudentParts;
 }
