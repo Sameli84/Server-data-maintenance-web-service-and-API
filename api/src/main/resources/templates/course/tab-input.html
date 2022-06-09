@@ -3,7 +3,7 @@
     <div class="tab-content">
         <br>
         <div class="row mx-0" th:if="${isStudent}">
-            <div class="col-lg-8 col px-0">
+            <div class="col-lg-8 col px-0 mb-3">
                 <form th:object="${schemaInputDto}" class="row" id="student-data-form">
                     <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
                     <div th:each="part, stat : ${schemaInputDto.parts}"

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 @ControllerAdvice(assignableTypes = {
@@ -23,7 +24,7 @@ public class AccountAdvice {
 
     @ExceptionHandler(AccountNotFoundException.class)
     public String processAccountException(HttpServletRequest request, HttpServletResponse response) {
-        if (request.getHeader("HX-Request") != null) {
+        if (Objects.equals(request.getHeader("HX-Request"), "true")) {
             response.addHeader("HX-Redirect", "/login");
         }
         request.getSession().invalidate();
