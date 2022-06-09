@@ -7,7 +7,7 @@
                 <form th:object="${schemaInputDto}" class="row" id="student-data-form">
                     <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
                     <div th:each="part, stat : ${schemaInputDto.parts}"
-                         th:class="'mb-3 col col-md-' + ${3*part.controlWidth}">
+                         th:class="'mb-3 col-12 col-md-' + ${3*part.controlWidth}">
                         <label th:text="${part.name}"
                                th:for="*{parts[__${stat.index}__].name}">
                         </label>
