@@ -4,7 +4,10 @@
         <br>
         <div class="row mx-0" th:if="${isStudent}">
             <div class="col-lg-8 col px-0 mb-3">
-                <form th:object="${schemaInputDto}" class="row" id="student-data-form">
+                <form th:object="${schemaInputDto}"
+                      th:hx-post="@{/courses/{course}/students/{id}/update(course=${course.getUrl()}, id=${account.getId()})}"
+                      class="row"
+                      id="student-data-form">
                     <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
                     <div th:each="part, stat : ${schemaInputDto.parts}"
                          th:class="'mb-3 col-12 col-md-' + ${3*part.controlWidth}">
@@ -22,13 +25,12 @@
                         <div class="invalid-feedback" th:if="${schemaInputDto.errors?.get(__${stat.index}__)}"
                              th:text="${schemaInputDto.errors?.get(__${stat.index}__)}"></div>
                     </div>
+                    <div class="col-12">
+                        <button class="btn btn-primary btn-lg" th:disabled="${updateLocked}">
+                            Update information
+                        </button>
+                    </div>
                 </form>
-                <button th:hx-post="@{/courses/{course}/students/{id}/update(course=${course.getUrl()}, id=${account.getId()})}"
-                        hx-include="#student-data-form"
-                        class="btn btn-primary btn-lg"
-                        th:disabled="${updateLocked}">
-                    Update information
-                </button>
             </div>
         </div>
     </div>
