@@ -90,6 +90,10 @@ public class CourseDataController {
     public String generate(@PathVariable Course course,
                            @ModelAttribute DataGenerationDto dataGenerationDto,
                            @ModelAttribute CourseDataDto courseDataDto) {
+        if (dataGenerationDto.getTarget() < 0 || dataGenerationDto.getTarget() >= courseDataDto.getHeaders().size()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
         var slug = new Slugify();
         courseDataDto.setHeaders(courseDataDto.getHeaders().stream().map(slug::slugify).toList());
 
