@@ -33,30 +33,30 @@
         <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
         <input type="hidden" th:field="*{selectedIndex}" x-model="selectedIndex">
         <div x-data="{dragging: null, dropping: null}"
-             th:@drop.prevent="|if (dragging !== null && dropping !== null && dragging !== dropping) {
-                 console.log('douh');
-                 fetch('/courses/${course.url}/schema/sort?drag=' + dragging + '&drop=' + dropping + '&' + `${_csrf?.parameterName}` + '=' + `${_csrf?.token}`, { method: 'POST' })
-                     .then(r => r.text())
-                     .then(d => { $refs.schemaForm.outerHTML = d; htmx.process($refs.schemaForm); });
-             }
-             console.log(dragging, dropping);
-             dropping = null;|"
+             @drop.prevent="if (dragging !== null && dropping !== null && dragging !== dropping) { $dispatch('sort') } else { dropping = null }"
              @dragover.prevent="$event.dataTransfer.dropEffect = &quot;move&quot;">
+            <input type="hidden" :name="dragging !== null ? 'drag' : ''" x-model="dragging">
+            <input type="hidden" :name="dropping !== null ? 'drop' : ''" x-model="dropping">
             <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+            <input type="hidden"
+                   th:hx-post="@{/courses/{course}/schema/sort(course=${course.url})}"
+                   hx-trigger="sort from:body"
+                   hx-include="closest form"
+                   hx-target="#schemaForm"
+                   hx-swap="outerHTML">
             <div class="card mb-3 border-4"
                  th:each="part, stat : ${schemaDto.parts}"
                  th:x-data="|{partOpen: selectedIndex === ${stat.index}, partName: | + '\'' + ${part.name} + '\'' + |, partWidth: ${part.controlWidth}, partLocked: ${part.locked}}|"
                  th:x-init="|$watch('selectedIndex', (v) => { partOpen = (v === ${stat.index}) })|"
                  th::class="|{'border-start border-primary': partOpen, 'border-info': dragging === ${stat.index}}|"
                  th:@dragstart="|dragging = ${stat.index}|"
-                 @dragend="dragging = null"
+                 @dragend="if (dragging === dropping || dropping === null) dragging = null;"
                  x-ref="card">
                 <div class="position-absolute h-100 w-100"
                      x-show="dragging !== null"
                      th:@dragenter.prevent="|if (dragging !== ${stat.index}) dropping = ${stat.index};|"
                      th:@dragleave="|if (dropping === ${stat.index}) dropping = null;|"
                      style="z-index: 10">
-
                 </div>
                 <div class="card-header p-0"
                      x-show="partOpen">
