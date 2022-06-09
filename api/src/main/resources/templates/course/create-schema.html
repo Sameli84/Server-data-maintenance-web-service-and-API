@@ -202,8 +202,8 @@
                         </div>
                     </div>
                     <div class="card-footer row mx-0 justify-content-between">
-                        <div class="col col-xl-4 col-lg-5 col-md-6" th:x-data="|{ width: ${part.controlWidth} }|">
-                            <label>Field width: <span x-text="width"></span> / 4</label>
+                        <div class="col col-xl-4 col-lg-5 col-md-6">
+                            <label>Field width: <span x-text="partWidth"></span> / 4</label>
                             <input type="range"
                                    th:field="*{parts[__${stat.index}__].controlWidth}"
                                    min="1"
