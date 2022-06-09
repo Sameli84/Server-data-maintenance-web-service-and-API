@@ -71,13 +71,14 @@ public class CourseSchemaController {
     }
 
     @PostMapping
-    public String createCourseSchema(@PathVariable Course course,
+    public void createCourseSchema(@PathVariable Course course,
                                      @ModelAttribute SchemaDto schemaDto,
                                      @ModelAttribute Account account,
-                                     @ModelAttribute("courseSchemaSessionMap") CourseSessionMap<SchemaDto> courseSessionMap) {
+                                     @ModelAttribute("courseSchemaSessionMap") CourseSessionMap<SchemaDto> courseSessionMap,
+                                     HttpServletResponse response) {
         courseService.saveCourseSchema(course, schemaDto);
         courseSessionMap.remove(course);
-        return "redirect:/courses/" + course.getUrl();
+        response.addHeader("HX-Redirect", "/courses/" + course.getUrl());
     }
 
     @PostMapping("/cancel")
