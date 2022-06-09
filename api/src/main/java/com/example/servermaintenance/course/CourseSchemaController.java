@@ -27,13 +27,14 @@ public class CourseSchemaController {
     private final CourseService courseService;
     private final SchemaPartRepository schemaPartRepository;
     private final ModelMapper modelMapper;
-    private final RoleService roleService;
 
-    void clampToList(List<?> list, int index) {
+    private int clampToList(List<?> list, int index) {
         if (index < 0) {
-            index = 0;
+            return 0;
         } else if (index >= list.size()) {
-            index = list.size() - 1;
+            return list.size() - 1;
+        } else {
+            return index;
         }
     }
 
@@ -102,7 +103,7 @@ public class CourseSchemaController {
                                        @PathVariable int index,
                                        @ModelAttribute SchemaDto schemaDto) {
         var parts = schemaDto.getParts();
-        clampToList(parts, index);
+        index = clampToList(parts, index);
         if (parts.size() <= index + 1) {
             // is last, select new last index
             schemaDto.setSelectedIndex(parts.size() - 2);
@@ -122,7 +123,7 @@ public class CourseSchemaController {
                                            @PathVariable int index,
                                            @ModelAttribute SchemaDto schemaDto) {
         var parts = schemaDto.getParts();
-        clampToList(parts, index);
+        index = clampToList(parts, index);
         var part = parts.get(index);
         var schemaEntity = part.get_schemaPartEntity();
         if (schemaEntity != null) {
@@ -144,8 +145,8 @@ public class CourseSchemaController {
                        @RequestParam int drop,
                        @ModelAttribute SchemaDto schemaDto) {
         var parts = schemaDto.getParts();
-        clampToList(parts, drag);
-        clampToList(parts, drop);
+        drag = clampToList(parts, drag);
+        drop = clampToList(parts, drop);
         var sub = parts.subList(Math.min(drag, drop), Math.max(drag, drop) + 1);
         if (drag < drop) {
             Collections.rotate(sub, -1);
