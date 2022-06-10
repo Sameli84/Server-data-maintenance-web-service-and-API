@@ -1,7 +1,6 @@
 package com.example.servermaintenance.course;
 
 import com.example.servermaintenance.account.Account;
-import com.example.servermaintenance.account.RoleService;
 import com.example.servermaintenance.course.domain.Course;
 import com.example.servermaintenance.course.domain.SchemaDto;
 import com.example.servermaintenance.course.domain.SchemaPartDto;
@@ -135,6 +134,25 @@ public class CourseSchemaController {
             resetPart.setOrder(index);
 
             schemaDto.getParts().set(index, resetPart);
+        }
+
+        return "course/create-schema :: #schemaForm";
+    }
+
+    @PostMapping("/removed-parts/recover")
+    public String recoverPart(@PathVariable Course course,
+                              @RequestParam int recover,
+                              @ModelAttribute SchemaDto schemaDto) {
+        var parts = schemaDto.getRemovedEntities().stream().filter(e -> e.getId() == recover).toList();
+        if (parts.size() == 1) {
+            var part = parts.get(0);
+            schemaDto.getRemovedEntities().remove(part);
+
+            var partDto = modelMapper.map(part, SchemaPartDto.class);
+            partDto.set_schemaPartEntity(part);
+            partDto.setOrder(schemaDto.getParts().size());
+
+            schemaDto.addPart(partDto);
         }
 
         return "course/create-schema :: #schemaForm";

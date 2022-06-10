@@ -15,6 +15,18 @@
         <div class="row mb-2">
             <h3 class="col">Editing <b>[[${course.name}]]</b> schema</h3>
             <div class="col-auto">
+                <div class="d-inline-block" th:if="${schemaDto.removedEntities.size() > 0}">
+                    <select name="recover" class="form-select"
+                            th:hx-post="@{/courses/{course}/schema/removed-parts/recover(course=${course.url})}"
+                            hx-include="closest form"
+                            hx-target="#schemaForm">
+                        <option value="-1">Recover part</option>
+                        <option th:each="part : ${schemaDto.removedEntities}"
+                                th:value="${part.id}"
+                                th:text="${part.name}">
+                        </option>
+                    </select>
+                </div>
                 <button th:hx-post="${#mvc.url('CSC#cancelEditing').arg(0, course.url).build()}"
                         type="button"
                         class="btn btn-danger"
@@ -38,7 +50,6 @@
              @dragover.prevent="$event.dataTransfer.dropEffect = 'move'">
             <input type="hidden" :name="dragging !== null ? 'drag' : ''" x-model="dragging">
             <input type="hidden" :name="dropping !== null ? 'drop' : ''" x-model="dropping">
-            <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
             <input type="hidden"
                    th:hx-post="@{/courses/{course}/schema/sort(course=${course.url})}"
                    hx-trigger="sort from:body"
