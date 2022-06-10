@@ -70,10 +70,10 @@ public class CoursesController {
     public void createCourse(@ModelAttribute CourseCreationDto courseCreationDto,
                              @ModelAttribute Account account,
                              HttpServletResponse response) {
-        if (!courseService.keyIsUnique(courseCreationDto.getKey())) {
+        if (!courseCreationDto.getKey().isEmpty() && !courseService.keyIsUnique(courseCreationDto.getKey())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Course key has to be unique");
         }
         var course = courseService.createCourse(courseCreationDto, account);
-        response.addHeader("HX-Redirect", String.format("redirect:/courses/%s/schema", course.getUrl()));
+        response.addHeader("HX-Redirect", String.format("/courses/%s/schema", course.getUrl()));
     }
 }
