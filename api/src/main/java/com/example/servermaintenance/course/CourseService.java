@@ -38,6 +38,11 @@ public class CourseService {
     }
 
     @Transactional
+    public boolean keyIsUnique(String key) {
+        return !courseKeyRepository.existsCourseKeyByKey(key);
+    }
+
+    @Transactional
     public void saveCourseSchema(Course course, SchemaDto schemaDto) {
         var parts = schemaDto.getParts();
         var newEntities = new HashSet<SchemaPart>(parts.size());

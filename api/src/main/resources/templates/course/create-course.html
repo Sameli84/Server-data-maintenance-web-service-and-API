@@ -11,7 +11,7 @@
     <div class="row mx-0">
         <div class="col col-lg-6 col-md-8 px-0 mb-3">
             <h3>Create course</h3>
-            <form action="/courses/create" method="post" th:object="${courseCreationDto}">
+            <form th:object="${courseCreationDto}">
                 <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
                 <div class="mb-3">
                     <label for="courseName">Course name</label>
@@ -34,7 +34,12 @@
                     <div class="invalid-feedback" th:if="${#fields.hasErrors('key')}"
                          th:text="${#fields.errors('key')[0]}"></div>
                 </div>
-                <input type="submit" value="Create" class="btn btn-primary btn-lg">
+                <button type="button"
+                        class="btn btn-primary btn-lg"
+                        hx-post="/courses/create"
+                        hx-include="closest form">
+                    Create
+                </button>
             </form>
         </div>
     </div>

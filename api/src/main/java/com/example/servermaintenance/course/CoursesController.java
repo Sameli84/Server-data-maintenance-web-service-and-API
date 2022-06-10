@@ -4,12 +4,15 @@ import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.course.domain.CourseCreationDto;
 import com.example.servermaintenance.course.domain.CourseStudent;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
@@ -64,8 +67,13 @@ public class CoursesController {
 
     @Secured("ROLE_TEACHER")
     @PostMapping("/courses/create")
-    public String createCourse(@ModelAttribute CourseCreationDto courseCreationDto, @ModelAttribute Account account) {
+    public void createCourse(@ModelAttribute CourseCreationDto courseCreationDto,
+                             @ModelAttribute Account account,
+                             HttpServletResponse response) {
+        if (!courseService.keyIsUnique(courseCreationDto.getKey())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Course key has to be unique");
+        }
         var course = courseService.createCourse(courseCreationDto, account);
-        return String.format("redirect:/courses/%s/schema", course.getUrl());
+        response.addHeader("HX-Redirect", String.format("redirect:/courses/%s/schema", course.getUrl()));
     }
 }
