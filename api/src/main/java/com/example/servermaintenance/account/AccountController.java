@@ -4,6 +4,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
@@ -18,12 +19,9 @@ import java.util.Locale;
 import java.util.Optional;
 
 @Controller
+@AllArgsConstructor
 public class AccountController {
-    @Autowired
-    private AccountService accountService;
-
-    @Autowired
-    private RoleRepository roleRepository;
+    private final AccountService accountService;
 
     @GetMapping("/register")
     public String getRegisterPage(@ModelAttribute RegisterDTO registerDTO) {
