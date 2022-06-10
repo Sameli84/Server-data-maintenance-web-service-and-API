@@ -3,18 +3,14 @@ package com.example.servermaintenance.course.domain;
 import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Data
 public class SchemaDto {
     @NotEmpty(message = "Course has to have parts")
     private List<SchemaPartDto> parts = new ArrayList<>();
 
-    private Set<SchemaPart> removedEntities = new HashSet<>();
+    private LinkedHashSet<SchemaPart> removedEntities = new LinkedHashSet<>();
 
     private int selectedIndex = 0;
 

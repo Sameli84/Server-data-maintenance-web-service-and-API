@@ -117,7 +117,7 @@ public class CourseService {
         writer.writeNext(headers.toArray(new String[0]));
 
         for (CourseDataRowDto cdrd : this.getCourseData(course.get()).getRows()) {
-            writer.writeNext(cdrd.getParts().stream().map(CourseStudentPart::getData).collect(Collectors.toList()).toArray(new String[0]));
+            writer.writeNext(cdrd.getParts().stream().map(CourseStudentPartDto::getData).collect(Collectors.toList()).toArray(new String[0]));
         }
         writer.close();
     }
@@ -185,7 +185,10 @@ public class CourseService {
         for (var student : students) {
             var row = new CourseDataRowDto();
             row.setIndex(student.getCourseLocalIndex());
-            row.setParts(courseStudentPartRepository.findCourseStudentPartsByCourseStudentOrderBySchemaPart_Order(student));
+            row.setParts(courseStudentPartRepository.findCourseStudentPartsByCourseStudentOrderBySchemaPart_Order(student)
+                    .stream()
+                    .map(p -> new CourseStudentPartDto(p.getData(), p))
+                    .toList());
             rows.add(row);
         }
 
@@ -199,31 +202,23 @@ public class CourseService {
     }
 
     @Transactional
-    public CourseDataInputDto getCourseDataForm(Course course) {
-        var students = courseStudentService.getCourseStudents(course);
-        var rows = new ArrayList<CourseDataRowDto>();
-
-        for (var student : students) {
-            var row = new CourseDataRowDto();
-            row.setIndex(student.getCourseLocalIndex());
-            row.setParts(courseStudentPartRepository.findCourseStudentPartsByCourseStudentOrderBySchemaPart_Order(student));
-            rows.add(row);
+    public void saveCourseData(CourseDataDto courseDataDto, Course course) {
+        var students = this.courseStudentService.getCourseStudents(course);
+        if (students.isEmpty()) {
+            return;
         }
 
-        var headers = course.getSchemaParts()
+        var parts = courseDataDto.getRows()
                 .stream()
-                .sorted(Comparator.comparingInt(SchemaPart::getOrder))
-                .map(SchemaPart::getName)
-                .toList();
-
-        return new CourseDataInputDto(new CourseDataDto(headers, rows));
-    }
-
-    @Transactional
-    public void saveCourseDataInput(CourseDataInputDto courseDataInputDto) {
-        var parts = courseDataInputDto.getCourseDataDto().getRows()
-                .stream()
-                .flatMap((a) -> a.getParts().stream())
+                .flatMap(a -> a.getParts().stream()
+                        // take modified parts
+                        .filter(c -> !c.getData().equals(c.get_courseStudentPart().getData()))
+                        // update data
+                        .map(b -> {
+                            b.get_courseStudentPart().setData(b.getData());
+                            return b.get_courseStudentPart();
+                        }))
+                .filter(p -> students.contains(p.getCourseStudent()))
                 .toList();
 
         courseStudentPartRepository.saveAll(parts);

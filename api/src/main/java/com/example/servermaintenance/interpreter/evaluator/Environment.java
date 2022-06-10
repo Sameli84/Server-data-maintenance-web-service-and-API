@@ -13,6 +13,8 @@ public class Environment {
         env.put(key, value);
     }
 
+    public void declareString(String key, String value) {env.putIfAbsent(key, new EvalString(value));}
+
     public void putInteger(String key, int value) {
         env.put(key, new EvalInteger(value));
     }

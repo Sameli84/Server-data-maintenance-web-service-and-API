@@ -9,4 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CourseStudentPartDto {
     private String data;
+    private CourseStudentPart _courseStudentPart;
+
+    public CourseStudentPartDto(String data) {
+        this.data = data;
+    }
 }

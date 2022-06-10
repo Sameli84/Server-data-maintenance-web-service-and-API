@@ -30,7 +30,7 @@ public class CourseStudentService {
                 courseStudentPart.setData("");
             } else {
                 var out = new Interpreter(part.getGenerationStatement())
-                        .declareLong("id", id)
+                        .putLong("id", id)
                         .execute();
                 courseStudentPart.setData(out);
             }
@@ -47,7 +47,7 @@ public class CourseStudentService {
                 courseStudentPart.setData("");
             } else {
                 var out = new Interpreter(part.getGenerationStatement())
-                        .declareLong("id", courseStudent.getCourseLocalIndex())
+                        .putLong("id", courseStudent.getCourseLocalIndex())
                         .execute();
                 courseStudentPart.setData(out);
             }

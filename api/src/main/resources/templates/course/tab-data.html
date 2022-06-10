@@ -5,12 +5,12 @@
             <thead>
             <tr>
                 <th class="text-center">#</th>
-                <th th:each="header : ${courseData.headers}" th:text="${header}"></th>
+                <th th:each="header : ${courseDataDto.headers}" th:text="${header}"></th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="row : ${courseData.rows}"
-                th:classappend="${row.parts[0].courseStudent.account.id == account.id ? 'table-info' : ''}">
+            <tr th:each="row : ${courseDataDto.rows}"
+                th:classappend="${row.parts[0]._courseStudentPart.courseStudent.account.id == account.id ? 'table-info' : ''}">
                 <td th:text="${row.index}" style="width: 1%" class="px-3 text-center"></td>
                 <th:block th:each="part : ${row.parts}">
                     <td layout:replace="~{course/table-cell :: table-cell(${part.getData()})}"></td>
@@ -18,14 +18,20 @@
             </tr>
             </tbody>
         </table>
-        <p th:if="${courseData.rows?.size() == 0}">No entries...</p>
+        <p th:if="${courseDataDto.rows?.size() == 0}">No entries...</p>
         <form th:if="${canEdit}">
             <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
             <button type="button"
-                    th:hx-post="@{/courses/{course}/data/edit(course=${course.url})}"
+                    th:hx-get="@{/courses/{course}/data/edit(course=${course.url})}"
                     class="btn btn-primary px-3 py-2">
                 <i class="fa-solid fa-pen"></i>
                 Edit
+            </button>
+            <button type="button"
+                    th:hx-get="@{/courses/{course}/data/generate(course=${course.url})}"
+                    class="btn btn-primary px-3 py-2">
+                <i class="fa-solid fa-code"></i>
+                Generate
             </button>
         </form>
     </div>

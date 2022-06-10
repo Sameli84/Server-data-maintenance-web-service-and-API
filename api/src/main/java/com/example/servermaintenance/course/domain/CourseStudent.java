@@ -19,18 +19,18 @@ public class CourseStudent implements Serializable{
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id")
     private Account account;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id")
     private Course course;
 
     @Column(name = "course_local_index")
     private long courseLocalIndex;
 
-    @OneToMany(mappedBy = "courseStudent")
+    @OneToMany(mappedBy = "courseStudent", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
     private Set<CourseStudentPart> courseStudentParts = new HashSet<>();
 
     public CourseStudent(Account account, Course course, long courseLocalIndex) {

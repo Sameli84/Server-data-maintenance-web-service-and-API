@@ -8,5 +8,5 @@ import java.util.List;
 @Data
 public class CourseDataRowDto {
     long index;
-    List<CourseStudentPart> parts = new ArrayList<>();
+    List<CourseStudentPartDto> parts = new ArrayList<>();
 }

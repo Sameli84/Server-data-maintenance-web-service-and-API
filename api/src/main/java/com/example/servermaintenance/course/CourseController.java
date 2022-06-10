@@ -82,7 +82,7 @@ public class CourseController {
 
     @GetMapping
     public String getCoursePage(@PathVariable Course course, @ModelAttribute Account account, Model model) {
-        model.addAttribute("courseData", courseService.getCourseData(course));
+        model.addAttribute("courseDataDto", courseService.getCourseData(course));
 
         model.addAttribute("hasKey", courseService.hasCourseKey(course));
 

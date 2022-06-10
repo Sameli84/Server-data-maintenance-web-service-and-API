@@ -40,11 +40,13 @@ public class CourseSchemaController {
     private final ModelMapper modelMapper;
     private final RoleService roleService;
 
-    void clampToList(List<?> list, int index) {
+    private int clampToList(List<?> list, int index) {
         if (index < 0) {
-            index = 0;
+            return 0;
         } else if (index >= list.size()) {
-            index = list.size() - 1;
+            return list.size() - 1;
+        } else {
+            return index;
         }
     }
 
@@ -107,13 +109,14 @@ public class CourseSchemaController {
     }
 
     @PostMapping
-    public String createCourseSchema(@PathVariable Course course,
+    public void createCourseSchema(@PathVariable Course course,
                                      @ModelAttribute SchemaDto schemaDto,
                                      @ModelAttribute Account account,
-                                     @ModelAttribute("courseSchemaSessionMap") CourseSessionMap<SchemaDto> courseSessionMap) {
+                                     @ModelAttribute("courseSchemaSessionMap") CourseSessionMap<SchemaDto> courseSessionMap,
+                                     HttpServletResponse response) {
         courseService.saveCourseSchema(course, schemaDto);
         courseSessionMap.remove(course);
-        return "redirect:/courses/" + course.getUrl();
+        response.addHeader("HX-Redirect", "/courses/" + course.getUrl());
     }
 
     @PostMapping("/cancel")
@@ -139,7 +142,7 @@ public class CourseSchemaController {
                                        @PathVariable int index,
                                        @ModelAttribute SchemaDto schemaDto) {
         var parts = schemaDto.getParts();
-        clampToList(parts, index);
+        index = clampToList(parts, index);
         if (parts.size() <= index + 1) {
             // is last, select new last index
             schemaDto.setSelectedIndex(parts.size() - 2);
@@ -159,7 +162,7 @@ public class CourseSchemaController {
                                            @PathVariable int index,
                                            @ModelAttribute SchemaDto schemaDto) {
         var parts = schemaDto.getParts();
-        clampToList(parts, index);
+        index = clampToList(parts, index);
         var part = parts.get(index);
         var schemaEntity = part.get_schemaPartEntity();
         if (schemaEntity != null) {
@@ -175,14 +178,33 @@ public class CourseSchemaController {
         return "course/create-schema :: #schemaForm";
     }
 
+    @PostMapping("/removed-parts/recover")
+    public String recoverPart(@PathVariable Course course,
+                              @RequestParam int recover,
+                              @ModelAttribute SchemaDto schemaDto) {
+        var parts = schemaDto.getRemovedEntities().stream().filter(e -> e.getId() == recover).toList();
+        if (parts.size() == 1) {
+            var part = parts.get(0);
+            schemaDto.getRemovedEntities().remove(part);
+
+            var partDto = modelMapper.map(part, SchemaPartDto.class);
+            partDto.set_schemaPartEntity(part);
+            partDto.setOrder(schemaDto.getParts().size());
+
+            schemaDto.addPart(partDto);
+        }
+
+        return "course/create-schema :: #schemaForm";
+    }
+
     @PostMapping("/sort")
     public String sort(@SuppressWarnings("unused") @PathVariable Course course,
                        @RequestParam int drag,
                        @RequestParam int drop,
                        @ModelAttribute SchemaDto schemaDto) {
         var parts = schemaDto.getParts();
-        clampToList(parts, drag);
-        clampToList(parts, drop);
+        drag = clampToList(parts, drag);
+        drop = clampToList(parts, drop);
         var sub = parts.subList(Math.min(drag, drop), Math.max(drag, drop) + 1);
         if (drag < drop) {
             Collections.rotate(sub, -1);
@@ -209,7 +231,7 @@ public class CourseSchemaController {
         var out = new ArrayList<String>(revolutions);
         var interpreter = new Interpreter(schemaDto.getParts().get(id).getGenerationStatement());
         for (int i = 0; i < revolutions; i++) {
-            out.add(interpreter.declareInt("id", i).execute());
+            out.add(interpreter.putInt("id", i).execute());
         }
 
         model.addAttribute("out", out);
