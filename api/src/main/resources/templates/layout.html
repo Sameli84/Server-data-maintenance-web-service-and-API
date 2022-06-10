@@ -43,7 +43,7 @@
                     <div class="col-auto row my-auto">
                         <div class="col my-auto" sec:authentication="name"></div>
                         <div class="col-auto">
-                            <form th:action="@{/logout}" method="post">
+                            <form th:action="@{/logout}" method="get">
                                 <button type="submit" class="btn btn-danger px-4">
                                     <i class="fa-solid fa-arrow-right-from-bracket"></i>
                                     Logout

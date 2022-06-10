@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.security.Principal;
 import java.util.Objects;
 
 @RequiredArgsConstructor
@@ -32,7 +33,7 @@ public class AccountAdvice {
     }
 
     @ModelAttribute("account")
-    public Account addAccountToModel() throws AccountNotFoundException {
-        return accountService.getContextAccount().orElseThrow(AccountNotFoundException::new);
+    public Account addAccountToModel(Principal principal) throws AccountNotFoundException {
+        return accountService.getContextAccount(principal).orElseThrow(AccountNotFoundException::new);
     }
 }
