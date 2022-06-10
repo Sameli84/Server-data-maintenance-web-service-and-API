@@ -1,5 +1,6 @@
 package com.example.servermaintenance.course;
 
+import com.example.servermaintenance.AlertService;
 import com.example.servermaintenance.course.domain.Course;
 import com.example.servermaintenance.course.domain.CourseDataDto;
 import com.example.servermaintenance.course.domain.DataGenerationDto;
@@ -13,12 +14,15 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.servlet.http.HttpServletResponse;
+
 @Slf4j
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/courses/{course}/data")
 public class CourseDataController {
     private final CourseService courseService;
+    private final AlertService alertService;
 
     @ModelAttribute("courseDataDto")
     public CourseDataDto addCourseDataDtoToModel(@ModelAttribute Course course) {
@@ -89,13 +93,16 @@ public class CourseDataController {
     @PostMapping("/generate")
     public String generate(@PathVariable Course course,
                            @ModelAttribute DataGenerationDto dataGenerationDto,
-                           @ModelAttribute CourseDataDto courseDataDto) {
+                           @ModelAttribute CourseDataDto courseDataDto,
+                           HttpServletResponse response) {
         if (dataGenerationDto.getTarget() < 0 || dataGenerationDto.getTarget() >= courseDataDto.getHeaders().size()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
         var slug = new Slugify();
         courseDataDto.setHeaders(courseDataDto.getHeaders().stream().map(slug::slugify).toList());
+
+        int rowsAffected = 0;
 
         for (int i = 0; i < courseDataDto.getRows().size(); i++) {
             // selected rows will be shorter than rows if the last checkbox isn't checked
@@ -119,7 +126,11 @@ public class CourseDataController {
             if (interpreter.hasErrors()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Generator error: %s", interpreter.getErrors().get(0)));
             }
+
+            rowsAffected++;
         }
+
+        alertService.addAlertToResponse(response, "success", String.format("Rows affected %d", rowsAffected));
 
         courseService.saveCourseData(courseDataDto, course);
         return "course/tab-data-generate";
