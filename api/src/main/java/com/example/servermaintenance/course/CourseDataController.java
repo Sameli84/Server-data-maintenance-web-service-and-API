@@ -83,7 +83,7 @@ public class CourseDataController {
         if (!canEdit(model)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized action");
         }
-        var slug = new Slugify();
+        var slug = new Slugify().withUnderscoreSeparator(true);
         courseDataDto.setHeaders(courseDataDto.getHeaders().stream().map(slug::slugify).toList());
         model.addAttribute("dataGenerationDto", new DataGenerationDto());
 
@@ -99,7 +99,7 @@ public class CourseDataController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
-        var slug = new Slugify();
+        var slug = new Slugify().withUnderscoreSeparator(true);
         courseDataDto.setHeaders(courseDataDto.getHeaders().stream().map(slug::slugify).toList());
 
         int rowsAffected = 0;
