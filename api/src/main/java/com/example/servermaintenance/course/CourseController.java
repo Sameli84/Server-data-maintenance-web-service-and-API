@@ -233,6 +233,9 @@ public class CourseController {
         if (!canEdit(model)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
         }
+        if (key.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Key can't be empty!");
+        }
         if (courseService.addKey(course, key)) {
             alertService.addAlertToResponse(response, "success", "Added new key");
         } else {
