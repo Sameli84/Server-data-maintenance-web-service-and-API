@@ -189,7 +189,7 @@ public class CourseController {
 
     @Secured("ROLE_TEACHER")
     @DeleteMapping("/students/{studentId}/kick")
-    public String kickFromCourse(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, @ModelAttribute Account account, @PathVariable int studentId, Model model) {
+    public String kickFromCourse(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, @ModelAttribute Account account, @PathVariable int studentId, Model model, HttpServletResponse response) {
         if (!canEdit(model)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
         }
@@ -213,6 +213,7 @@ public class CourseController {
         // remove isStudent when kicking self
         if (Objects.equals(account.getId(), student.getId())) {
             model.addAttribute("isStudent", false);
+            response.addHeader("HX-Redirect", "/courses/" + courseUrl);
         }
 
         return "course/tab-students";
@@ -232,6 +233,9 @@ public class CourseController {
     public String createCourseKey(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, @RequestParam String key, Model model, HttpServletResponse response) {
         if (!canEdit(model)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
+        }
+        if (key.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Key can't be empty!");
         }
         if (courseService.addKey(course, key)) {
             alertService.addAlertToResponse(response, "success", "Added new key");
