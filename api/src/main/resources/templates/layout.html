@@ -70,7 +70,7 @@
             [[${warning}]]
             <button type="button" class="btn-close" @click="$el.parentElement.remove()" aria-label="Close"></button>
         </div>
-        <div th:if="${success}" class="alert alert-success alert-dismissible" x-data>
+        <div th:if="${success}" class="alert alert-success alert-dismissible" x-data x-init="setTimeout(() => $el.remove(), 5000)">
             [[${success}]]
             <button type="button" class="btn-close" @click="$el.parentElement.remove()" aria-label="Close"></button>
         </div>
