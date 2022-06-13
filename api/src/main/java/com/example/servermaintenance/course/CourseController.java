@@ -22,13 +22,14 @@ import java.util.*;
 @Slf4j
 @Controller
 @AllArgsConstructor
-@RequestMapping("/courses/{course}")
+@RequestMapping("/courses/{courseUrl}")
 public class CourseController {
     private final AccountService accountService;
     private final CourseService courseService;
     private final CourseStudentService courseStudentService;
     private final ModelMapper modelMapper;
     private final AlertService alertService;
+    private CourseRepository courseRepository;
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean canEdit(Model model) {
@@ -40,22 +41,22 @@ public class CourseController {
     }
 
     @GetMapping
-    public String getCoursePage(@PathVariable Course course, @ModelAttribute Account account, Model model) {
-        model.addAttribute("courseDataDto", courseService.getCourseData(course));
-
+    public String getCoursePage(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, @ModelAttribute Account account, Model model) {
         model.addAttribute("hasKey", courseService.hasCourseKey(course));
 
         if (courseService.isStudentOnCourse(course, account)) {
             var studentForm = courseService.getStudentForm(course, account);
             model.addAttribute("schemaInputDto", studentForm);
             model.addAttribute("updateLocked", studentForm.getParts().stream().allMatch(SchemaPartDto::isLocked));
+        } else if (canEdit(model)) {
+            model.addAttribute("courseDataDto", courseService.getCourseData(course));
         }
 
         return "course/page";
     }
 
     @PostMapping("/join")
-    public String joinCourse(@PathVariable Course course, @RequestParam Optional<String> key, @ModelAttribute Account account, RedirectAttributes redirectAttributes) {
+    public String joinCourse(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, @RequestParam Optional<String> key, @ModelAttribute Account account, RedirectAttributes redirectAttributes) {
         if (courseService.joinToCourse(course, account, key.orElse(""))) {
             redirectAttributes.addFlashAttribute("success", "Joined course");
         } else {
@@ -66,7 +67,7 @@ public class CourseController {
 
     @Secured("ROLE_TEACHER")
     @DeleteMapping("/delete")
-    public void deleteCourse(@PathVariable Course course, @ModelAttribute Account account, HttpServletResponse response, Model model) {
+    public void deleteCourse(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, @ModelAttribute Account account, HttpServletResponse response, Model model) {
         if (!canEdit(model)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
         }
@@ -78,7 +79,7 @@ public class CourseController {
     }
 
     @GetMapping("/input")
-    public String getInputTab(@PathVariable Course course, @ModelAttribute Account account, Model model) {
+    public String getInputTab(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, @ModelAttribute Account account, Model model) {
         if (!courseService.isStudentOnCourse(course, account)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
         }
@@ -91,7 +92,8 @@ public class CourseController {
     }
 
     @PostMapping("/students/{studentId}/update")
-    public String createData(@PathVariable Course course,
+    public String createData(@SuppressWarnings("unused") @PathVariable String courseUrl,
+                             @ModelAttribute Course course,
                              @PathVariable Long studentId,
                              @ModelAttribute Account account,
                              @Valid @ModelAttribute SchemaInputDto schemaInputDto,
@@ -177,17 +179,17 @@ public class CourseController {
 
     @Secured("ROLE_TEACHER")
     @GetMapping("/students")
-    public String getStudentsTab(@PathVariable Course course, Model model) {
+    public String getStudentsTab(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, Model model) {
         if (!canEdit(model)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
         }
-        model.addAttribute("students", course.getCourseStudents().stream().map(CourseStudent::getAccount).toList());
+        model.addAttribute("students", courseRepository.findAllStudents(course));
         return "course/tab-students";
     }
 
     @Secured("ROLE_TEACHER")
     @DeleteMapping("/students/{studentId}/kick")
-    public String kickFromCourse(@PathVariable Course course, @ModelAttribute Account account, @PathVariable int studentId, Model model) {
+    public String kickFromCourse(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, @ModelAttribute Account account, @PathVariable int studentId, Model model) {
         if (!canEdit(model)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
         }
@@ -218,7 +220,7 @@ public class CourseController {
 
     @Secured("ROLE_TEACHER")
     @GetMapping("/keys")
-    public String getKeysTab(@SuppressWarnings("unused") @PathVariable Course course, Model model) {
+    public String getKeysTab(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, Model model) {
         if (!canEdit(model)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
         }
@@ -227,7 +229,7 @@ public class CourseController {
 
     @Secured("ROLE_TEACHER")
     @PostMapping("/keys/create")
-    public String createCourseKey(@PathVariable Course course, @RequestParam String key, Model model, HttpServletResponse response) {
+    public String createCourseKey(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, @RequestParam String key, Model model, HttpServletResponse response) {
         if (!canEdit(model)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
         }
@@ -242,7 +244,7 @@ public class CourseController {
 
     @Secured("ROLE_TEACHER")
     @DeleteMapping("/keys/{keyId}/revoke")
-    public String revokeCourseKey(@PathVariable Course course, @PathVariable int keyId, Model model, HttpServletResponse response) {
+    public String revokeCourseKey(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, @PathVariable int keyId, Model model, HttpServletResponse response) {
         if (!canEdit(model)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
         }
@@ -256,7 +258,7 @@ public class CourseController {
 
     @Secured("ROLE_TEACHER")
     @GetMapping("/settings")
-    public String getSettingsTab(@SuppressWarnings("unused") @PathVariable Course course, Model model) {
+    public String getSettingsTab(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, Model model) {
         if (!canEdit(model)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized user");
         }

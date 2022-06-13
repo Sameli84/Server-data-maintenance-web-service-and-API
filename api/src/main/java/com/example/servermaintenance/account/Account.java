@@ -44,8 +44,7 @@ public class Account extends AbstractPersistable<Long> implements UserDetails {
     @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
     private List<CourseStudent> courseStudentData;
 
-    // TODO: enable transactional authentication and change to lazy loading
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "account_roles",
             joinColumns = @JoinColumn(name = "account_id", referencedColumnName = "id", columnDefinition = "int8"),

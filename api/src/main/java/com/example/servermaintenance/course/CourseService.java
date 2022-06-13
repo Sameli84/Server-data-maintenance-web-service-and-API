@@ -27,6 +27,8 @@ public class CourseService {
     private final SchemaPartRepository schemaPartRepository;
     private final CourseStudentPartRepository courseStudentPartRepository;
 
+    private final CourseStudentRepository courseStudentRepository;
+
     @Transactional
     public Course createCourse(CourseCreationDto creationDto, Account account) {
         var slug = String.format("%s-%d", new Slugify().slugify(creationDto.getCourseName()), courseRepository.count() + 1);
@@ -70,7 +72,7 @@ public class CourseService {
     }
 
     public boolean isStudentOnCourse(Course course, Account account) {
-        return course.getCourseStudents().stream().map(CourseStudent::getAccount).toList().contains(account);
+        return courseStudentRepository.findFirstByCourseAndAccount(course, account) != null;
     }
 
     @Transactional
@@ -160,8 +162,10 @@ public class CourseService {
         return false;
     }
 
-    public List<Course> getCoursesByTeacher(Account account) {
-        return courseRepository.findAllByOwner(account);
+    public List<Course> getCoursesByAccount(Account account) {
+        var courses = courseRepository.findAllStudentOn(account);
+        courses.addAll(courseRepository.findAllByOwner(account));
+        return courses.stream().toList();
     }
 
     public boolean hasCourseKey(Course course) {
@@ -184,14 +188,16 @@ public class CourseService {
 
     @Transactional
     public CourseDataDto getCourseData(Course course) {
-        var students = courseStudentService.getCourseStudents(course);
+        var students = courseRepository.findAllCourseStudentsFetchData(course);
+
         var rows = new ArrayList<CourseDataRowDto>();
 
         for (var student : students) {
             var row = new CourseDataRowDto();
             row.setIndex(student.getCourseLocalIndex());
-            row.setParts(courseStudentPartRepository.findCourseStudentPartsByCourseStudentOrderBySchemaPart_Order(student)
+            row.setParts(student.getCourseStudentParts()
                     .stream()
+                    .sorted(Comparator.comparingInt((CourseStudentPart a) -> a.getSchemaPart().getOrder()))
                     .map(p -> new CourseStudentPartDto(p.getData(), p))
                     .toList());
             rows.add(row);

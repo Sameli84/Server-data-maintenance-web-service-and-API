@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 @Slf4j
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/courses/{course}/data")
+@RequestMapping("/courses/{courseUrl}/data")
 public class CourseDataController {
     private final CourseService courseService;
     private final AlertService alertService;
@@ -39,13 +39,15 @@ public class CourseDataController {
     }
 
     @GetMapping
-    public String getDataTab(@SuppressWarnings("unused") @PathVariable Course course,
+    public String getDataTab(@SuppressWarnings("unused") @PathVariable String courseUrl,
+                             @ModelAttribute Course course,
                              @ModelAttribute CourseDataDto courseDataDto) {
         return "course/tab-data";
     }
 
     @PostMapping("/save")
-    public String saveEdits(@PathVariable Course course,
+    public String saveEdits(@SuppressWarnings("unused") @PathVariable String courseUrl,
+                            @ModelAttribute Course course,
                             @ModelAttribute CourseDataDto courseDataDto,
                             Model model) {
         if (!canEdit(model)) {
@@ -57,7 +59,8 @@ public class CourseDataController {
     }
 
     @PostMapping("/cancel")
-    public String cancelEdits(@SuppressWarnings("unused") @PathVariable Course course,
+    public String cancelEdits(@SuppressWarnings("unused") @PathVariable String courseUrl,
+                              @ModelAttribute Course course,
                               Model model) {
         if (!canEdit(model)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized action");
@@ -66,7 +69,8 @@ public class CourseDataController {
     }
 
     @GetMapping("/edit")
-    public String showEditView(@SuppressWarnings("unused") @PathVariable Course course,
+    public String showEditView(@SuppressWarnings("unused") @PathVariable String courseUrl,
+                               @ModelAttribute Course course,
                                @ModelAttribute CourseDataDto courseDataDto,
                                Model model) {
         if (!canEdit(model)) {
@@ -77,7 +81,8 @@ public class CourseDataController {
     }
 
     @GetMapping("/generate")
-    public String showGenerateView(@SuppressWarnings("unused") @PathVariable Course course,
+    public String showGenerateView(@SuppressWarnings("unused") @PathVariable String courseUrl,
+                                   @ModelAttribute Course course,
                                    @ModelAttribute CourseDataDto courseDataDto,
                                    Model model) {
         if (!canEdit(model)) {
@@ -91,7 +96,8 @@ public class CourseDataController {
     }
 
     @PostMapping("/generate")
-    public String generate(@PathVariable Course course,
+    public String generate(@SuppressWarnings("unused") @PathVariable String courseUrl,
+                           @ModelAttribute Course course,
                            @ModelAttribute DataGenerationDto dataGenerationDto,
                            @ModelAttribute CourseDataDto courseDataDto,
                            HttpServletResponse response) {

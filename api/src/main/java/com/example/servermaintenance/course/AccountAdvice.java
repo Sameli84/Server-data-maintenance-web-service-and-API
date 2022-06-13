@@ -2,8 +2,9 @@ package com.example.servermaintenance.course;
 
 import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.account.AccountNotFoundException;
-import com.example.servermaintenance.account.AccountService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -20,8 +21,6 @@ import java.util.Objects;
         CourseSchemaController.class
 })
 public class AccountAdvice {
-    private final AccountService accountService;
-
     @ExceptionHandler(AccountNotFoundException.class)
     public String processAccountException(HttpServletRequest request, HttpServletResponse response) {
         if (Objects.equals(request.getHeader("HX-Request"), "true")) {
@@ -32,7 +31,7 @@ public class AccountAdvice {
     }
 
     @ModelAttribute("account")
-    public Account addAccountToModel() throws AccountNotFoundException {
-        return accountService.getContextAccount().orElseThrow(AccountNotFoundException::new);
+    public Account addAccountToModel(@AuthenticationPrincipal UserDetails userDetails) {
+        return (Account) userDetails;
     }
 }

@@ -2,7 +2,6 @@ package com.example.servermaintenance.course;
 
 import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.course.domain.CourseCreationDto;
-import com.example.servermaintenance.course.domain.CourseStudent;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
@@ -13,8 +12,6 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashSet;
-import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Controller
@@ -29,15 +26,8 @@ public class CoursesController {
 
     @GetMapping("/courses")
     public String getCoursesPage(@ModelAttribute Account account, Model model) {
-        var courses = account.getCourseStudentData().stream().map(CourseStudent::getCourse).collect(Collectors.toCollection(HashSet::new));
-
-        var userCourses = account.getCourses();
-        if (userCourses != null) {
-            courses.addAll(userCourses);
-        }
-
+        var courses = courseService.getCoursesByAccount(account);
         model.addAttribute("courses", courses);
-
         return "courses";
     }
 

@@ -60,8 +60,7 @@ public class CourseStudentService {
     }
 
     public List<CourseStudentPart> getCourseStudentParts(Course course, Account account) {
-        return courseStudentRepository.findFirstByCourseAndAccount(course, account)
-                .getCourseStudentParts()
+        return courseStudentRepository.findStudentPartsByCourseAndAccount(course, account)
                 .stream()
                 .sorted(Comparator.comparingInt(a -> a.getSchemaPart().getOrder()))
                 .toList();

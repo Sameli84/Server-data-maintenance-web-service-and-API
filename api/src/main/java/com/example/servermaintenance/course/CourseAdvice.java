@@ -23,16 +23,15 @@ public class CourseAdvice {
     private final CourseService courseService;
     private final RoleService roleService;
 
-    // TODO: specific exception for courses!
-    @ExceptionHandler(NoSuchElementException.class)
+    @ExceptionHandler(CourseNotFoundException.class)
     public String processCourseNotFoundException(RedirectAttributes redirectAttributes) {
         redirectAttributes.addFlashAttribute("error", "Course not found");
         return "redirect:/courses";
     }
 
     @ModelAttribute("course")
-    public Course addCourseToModel(@PathVariable Course course) {
-        return course;
+    public Course addCourseToModel(@PathVariable String courseUrl) throws CourseNotFoundException {
+        return courseService.getCourseByUrl(courseUrl).orElseThrow(CourseNotFoundException::new);
     }
 
     @ModelAttribute("isStudent")

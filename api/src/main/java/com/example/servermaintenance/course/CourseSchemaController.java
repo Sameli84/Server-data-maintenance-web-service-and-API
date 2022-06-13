@@ -21,7 +21,7 @@ import java.util.*;
 @Controller
 @SessionAttributes("courseSchemaSessionMap")
 @AllArgsConstructor
-@RequestMapping("/courses/{course}/schema")
+@RequestMapping("/courses/{courseUrl}/schema")
 public class CourseSchemaController {
     private final CourseService courseService;
     private final SchemaPartRepository schemaPartRepository;
@@ -64,24 +64,27 @@ public class CourseSchemaController {
     }
 
     @GetMapping
-    public String showCourseSchemaPage(@SuppressWarnings("unused") @PathVariable Course course,
+    public String showCourseSchemaPage(@SuppressWarnings("unused") @PathVariable String courseUrl,
+                                       @ModelAttribute Course course,
                                        @ModelAttribute SchemaDto schemaDto) {
         return "course/create-schema";
     }
 
     @PostMapping
-    public void createCourseSchema(@PathVariable Course course,
-                                     @ModelAttribute SchemaDto schemaDto,
-                                     @ModelAttribute Account account,
-                                     @ModelAttribute("courseSchemaSessionMap") CourseSessionMap<SchemaDto> courseSessionMap,
-                                     HttpServletResponse response) {
+    public void createCourseSchema(@SuppressWarnings("unused") @PathVariable String courseUrl,
+                                   @ModelAttribute Course course,
+                                   @ModelAttribute SchemaDto schemaDto,
+                                   @ModelAttribute Account account,
+                                   @ModelAttribute("courseSchemaSessionMap") CourseSessionMap<SchemaDto> courseSessionMap,
+                                   HttpServletResponse response) {
         courseService.saveCourseSchema(course, schemaDto);
         courseSessionMap.remove(course);
         response.addHeader("HX-Redirect", "/courses/" + course.getUrl());
     }
 
     @PostMapping("/cancel")
-    public void cancelEditing(@PathVariable Course course,
+    public void cancelEditing(@SuppressWarnings("unused") @PathVariable String courseUrl,
+                              @ModelAttribute Course course,
                               @ModelAttribute("courseSchemaSessionMap") CourseSessionMap<SchemaDto> courseSessionMap,
                               HttpServletResponse response) {
         courseSessionMap.remove(course);
@@ -89,7 +92,8 @@ public class CourseSchemaController {
     }
 
     @GetMapping("/parts/add")
-    public String addPartToSchema(@SuppressWarnings("unused") @PathVariable Course course,
+    public String addPartToSchema(@SuppressWarnings("unused") @PathVariable String courseUrl,
+                                  @ModelAttribute Course course,
                                   SchemaPartDto part,
                                   @ModelAttribute SchemaDto schemaDto) {
         schemaDto.setSelectedIndex(schemaDto.getParts().size());
@@ -99,7 +103,8 @@ public class CourseSchemaController {
     }
 
     @DeleteMapping("/parts/{index}/delete")
-    public String deletePartFromSchema(@SuppressWarnings("unused") @PathVariable Course course,
+    public String deletePartFromSchema(@SuppressWarnings("unused") @PathVariable String courseUrl,
+                                       @ModelAttribute Course course,
                                        @PathVariable int index,
                                        @ModelAttribute SchemaDto schemaDto) {
         var parts = schemaDto.getParts();
@@ -119,7 +124,8 @@ public class CourseSchemaController {
     }
 
     @PostMapping("/parts/{index}/reset")
-    public String resetPartToOriginalState(@SuppressWarnings("unused") @PathVariable Course course,
+    public String resetPartToOriginalState(@SuppressWarnings("unused") @PathVariable String courseUrl,
+                                           @ModelAttribute Course course,
                                            @PathVariable int index,
                                            @ModelAttribute SchemaDto schemaDto) {
         var parts = schemaDto.getParts();
@@ -140,7 +146,8 @@ public class CourseSchemaController {
     }
 
     @PostMapping("/removed-parts/recover")
-    public String recoverPart(@PathVariable Course course,
+    public String recoverPart(@SuppressWarnings("unused") @PathVariable String courseUrl,
+                              @ModelAttribute Course course,
                               @RequestParam int recover,
                               @ModelAttribute SchemaDto schemaDto) {
         var parts = schemaDto.getRemovedEntities().stream().filter(e -> e.getId() == recover).toList();
@@ -159,7 +166,8 @@ public class CourseSchemaController {
     }
 
     @PostMapping("/sort")
-    public String sort(@SuppressWarnings("unused") @PathVariable Course course,
+    public String sort(@SuppressWarnings("unused") @PathVariable String courseUrl,
+                       @ModelAttribute Course course,
                        @RequestParam int drag,
                        @RequestParam int drop,
                        @ModelAttribute SchemaDto schemaDto) {
@@ -178,13 +186,15 @@ public class CourseSchemaController {
     }
 
     @PostMapping("/render")
-    public String renderSchema(@SuppressWarnings("unused") @PathVariable Course course,
+    public String renderSchema(@SuppressWarnings("unused") @PathVariable String courseUrl,
+                               @ModelAttribute Course course,
                                @ModelAttribute SchemaDto schemaDto) {
         return "course/create-schema :: #render";
     }
 
     @PostMapping("/parts/{id}/generate")
-    public String renderGenerationStatement(@SuppressWarnings("unused") @PathVariable Course course,
+    public String renderGenerationStatement(@SuppressWarnings("unused") @PathVariable String courseUrl,
+                                            @ModelAttribute Course course,
                                             @PathVariable int id,
                                             @ModelAttribute SchemaDto schemaDto,
                                             Model model) {
