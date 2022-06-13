@@ -80,6 +80,9 @@ public class CourseService {
         if (isStudentOnCourse(course, account)) {
             return false;
         }
+        if (course.getOwner().equals(account)) {
+            return courseStudentService.generate(course, account, course.getCourseIndex().getIndex()) != null;
+        }
 
         var courseKeys = course.getCourseKeys();
         if (courseKeys.size() > 0) {
