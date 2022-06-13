@@ -80,7 +80,7 @@ public class CourseService {
         if (isStudentOnCourse(course, account)) {
             return false;
         }
-        if (course.getOwner().equals(account)) {
+        if (course.getOwner().equals(account) || account.getRoles().contains("ROLE_ADMIN")) {
             return courseStudentService.generate(course, account, course.getCourseIndex().getIndex()) != null;
         }
 
