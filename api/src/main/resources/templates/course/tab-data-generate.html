@@ -1,7 +1,9 @@
 <th:block layout:fragment="tab-data()">
     <th:block layout:insert="~{course/tabs :: tabs('data')}"></th:block>
     <div class="tab-content">
-        <form th:object="${dataGenerationDto}">
+        <form th:object="${dataGenerationDto}"
+              th:hx-post="@{/courses/{course}/data/generate(course=${course.url})}"
+              hx-include="this">
             <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
             <div class="col-12 col-md-8 col-lg-7 col-xl-6 mt-3" x-data="{ target: '-1' }">
                 <div class="mb-2">
@@ -23,12 +25,10 @@
                            name="statement"
                            aria-label="Generation statement"
                            :disabled="target === '-1'">
-                    <button type="button"
+                    <button type="submit"
                             class="btn btn-success"
                             :disabled="target === '-1'"
-                            title="Execute statement"
-                            th:hx-post="@{/courses/{course}/data/generate(course=${course.url})}"
-                            hx-include="closest form">
+                            title="Execute statement">
                         <i class="fa-solid fa-play"></i>
                     </button>
                 </div>
