@@ -13,13 +13,28 @@
 
     <script src="/webjars/htmx.org/1.7.0/dist/htmx.min.js" defer></script>
     <script src="/webjars/alpinejs/3.9.1/dist/cdn.min.js"></script>
-    <script>
-        function makeProgress(el) {
-        el.style.width = el.style.width.split("%")[0] - 1 + "%";
-        setTimeout(function() { makeProgress(el); }, 35);}
-    </script>
     <link href="/webjars/bootstrap/5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/webjars/fortawesome__fontawesome-free/6.1.1/css/all.min.css" rel="stylesheet">
+    <style>
+        .progress {
+            background-color: transparent;
+            margin-top: 0.5rem;
+            height: 3px;
+        }
+
+        .progress-bar {
+            animation: progress 5s linear;
+        }
+
+        @keyframes progress {
+            from {
+                width: 100%;
+            }
+            to {
+                width: 0;
+            }
+        }
+    </style>
 </head>
 <body>
 <header>
@@ -62,50 +77,24 @@
     </nav>
 </header>
 <main class="container">
-    <div id="alerts">
-        <div th:if="${error}" class="alert alert-danger alert-dismissible" x-data x-init="setTimeout(() => $el.remove(), 5000)">
-            [[${error}]]
-            <button type="button" class="btn-close" @click="$el.parentElement.remove()" aria-label="Close"></button>
-            <div class="progress" style="height: 3px;">
-                <div x-init="makeProgress($el)" class="progress-bar" role="progressbar" style="width: 100%; background-color: #f8d7da;"></div>
-            </div>
-        </div>
-        <div th:if="${param.error}" class="alert alert-danger alert-dismissible" x-data x-init="setTimeout(() => $el.remove(), 5000)">
-            Invalid email or password
-            <button type="button" class="btn-close" @click="$el.parentElement.remove()" aria-label="Close"></button>
-            <div class="progress" style="height: 3px;">
-                <div x-init="makeProgress($el)" class="progress-bar" role="progressbar" style="width: 100%; background-color: #f8d7da;"></div>
-            </div>
-        </div>
-        <div th:if="${warning}" class="alert alert-warning alert-dismissible" x-data>
-            [[${warning}]]
-            <button type="button" class="btn-close" @click="$el.parentElement.remove()" aria-label="Close"></button>
-            <div class="progress" style="height: 3px;">
-                <div x-init="makeProgress($el)" class="progress-bar" role="progressbar" style="width: 100%; background-color: #fff3cd;"></div>
-            </div>
-        </div>
-        <div th:if="${success}" class="alert alert-success alert-dismissible" x-data x-init="setTimeout(() => $el.remove(), 5000)">
-            [[${success}]]
-            <button type="button" class="btn-close" @click="$el.parentElement.remove()" aria-label="Close"></button>
-            <div class="progress" style="height: 3px;">
-                <div x-init="makeProgress($el)" class="progress-bar" role="progressbar" style="width: 100%; background-color: #d4edda;"></div>
-            </div>
-        </div>
-    </div>
-    <div layout:fragment="content"></div>
     <script>
+        function timeoutRemove(el) {
+            return setTimeout(() => el.remove(), 5000);
+        }
+
         const alerts = document.getElementById("alerts");
 
         function addAlert(message, type) {
             const wrapper = document.createElement("div");
-            wrapper.innerHTML = `<div class="alert alert-${type} alert-dismissible" x-data x-init="setTimeout(() => $el.remove(), 5000)">${message}<button type="button" class="btn-close" @click="$root.remove()" aria-label="Close"></button><div class="progress" style="height: 3px;">
-                <div x-init="makeProgress($el)" class="progress-bar" role="progressbar" style="width: 100%; background-color: #d4edda;"></div>
-            </div></div>`
+            wrapper.innerHTML =
+                `<div class="alert alert-${type} alert-dismissible" x-data x-init="timeoutRemove($el)">
+                    ${message}
+                    <button type="button" class="btn-close" @click="$root.remove()" aria-label="Close"></button>
+                    <div class="progress">
+                        <div class="progress-bar bg-${type}"></div>
+                    </div>
+                </div>`
             alerts.append(wrapper);
-        }
-        function makeProgress(el) {
-            el.style.width = el.style.width.split("%")[0] - 1 + "%";
-            setTimeout(function() { makeProgress(el); }, 35);
         }
 
         document.body.addEventListener("htmx:responseError", (e) => {
@@ -115,6 +104,37 @@
             addAlert(e.detail.value, "success")
         })
     </script>
+    <div id="alerts">
+        <div th:if=${error} class="alert alert-danger alert-dismissible" x-data x-init="timeoutRemove($el)">
+            [[${error}]]
+            <button type="button" class="btn-close" @click="$root.remove()" aria-label="Close"></button>
+            <div class="progress">
+                <div class="progress-bar bg-danger"></div>
+            </div>
+        </div>
+        <div th:if="${param.error}" class="alert alert-danger alert-dismissible" x-data x-init="timeoutRemove($el)">
+            Invalid email or password
+            <button type="button" class="btn-close" @click="$root.remove()" aria-label="Close"></button>
+            <div class="progress">
+                <div class="progress-bar bg-danger"></div>
+            </div>
+        </div>
+        <div th:if="${warning}" class="alert alert-warning alert-dismissible" x-data x-init="timeoutRemove($el)">
+            [[${warning}]]
+            <button type="button" class="btn-close" @click="$root.remove()" aria-label="Close"></button>
+            <div class="progress">
+                <div class="progress-bar bg-warning"></div>
+            </div>
+        </div>
+        <div th:if="${success}" class="alert alert-success alert-dismissible" x-data x-init="timeoutRemove($el)">
+            [[${success}]]
+            <button type="button" class="btn-close" @click="$root.remove()" aria-label="Close"></button>
+            <div class="progress">
+                <div class="progress-bar bg-success"></div>
+            </div>
+        </div>
+    </div>
+    <div layout:fragment="content"></div>
 </main>
 </body>
 </html>
