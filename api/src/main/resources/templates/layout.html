@@ -24,9 +24,19 @@
 
         .progress-bar {
             animation: progress 5s linear;
+            -webkit-animation: progress 5s linear;
         }
 
         @keyframes progress {
+            from {
+                width: 100%;
+            }
+            to {
+                width: 0;
+            }
+        }
+
+        @-webkit-keyframes progress {
             from {
                 width: 100%;
             }
