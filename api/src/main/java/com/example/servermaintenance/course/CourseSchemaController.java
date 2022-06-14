@@ -104,8 +104,8 @@ public class CourseSchemaController {
 
     @DeleteMapping("/parts/{index}/delete")
     public String deletePartFromSchema(@SuppressWarnings("unused") @PathVariable String courseUrl,
-                                       @ModelAttribute Course course,
                                        @PathVariable int index,
+                                       @ModelAttribute Course course,
                                        @ModelAttribute SchemaDto schemaDto) {
         var parts = schemaDto.getParts();
         index = clampToList(parts, index);
@@ -125,8 +125,8 @@ public class CourseSchemaController {
 
     @PostMapping("/parts/{index}/reset")
     public String resetPartToOriginalState(@SuppressWarnings("unused") @PathVariable String courseUrl,
-                                           @ModelAttribute Course course,
                                            @PathVariable int index,
+                                           @ModelAttribute Course course,
                                            @ModelAttribute SchemaDto schemaDto) {
         var parts = schemaDto.getParts();
         index = clampToList(parts, index);
@@ -147,8 +147,8 @@ public class CourseSchemaController {
 
     @PostMapping("/removed-parts/recover")
     public String recoverPart(@SuppressWarnings("unused") @PathVariable String courseUrl,
-                              @ModelAttribute Course course,
                               @RequestParam int recover,
+                              @ModelAttribute Course course,
                               @ModelAttribute SchemaDto schemaDto) {
         var parts = schemaDto.getRemovedEntities().stream().filter(e -> e.getId() == recover).toList();
         if (parts.size() == 1) {
@@ -167,9 +167,9 @@ public class CourseSchemaController {
 
     @PostMapping("/sort")
     public String sort(@SuppressWarnings("unused") @PathVariable String courseUrl,
-                       @ModelAttribute Course course,
                        @RequestParam int drag,
                        @RequestParam int drop,
+                       @ModelAttribute Course course,
                        @ModelAttribute SchemaDto schemaDto) {
         var parts = schemaDto.getParts();
         drag = clampToList(parts, drag);
@@ -194,8 +194,8 @@ public class CourseSchemaController {
 
     @PostMapping("/parts/{id}/generate")
     public String renderGenerationStatement(@SuppressWarnings("unused") @PathVariable String courseUrl,
-                                            @ModelAttribute Course course,
                                             @PathVariable int id,
+                                            @ModelAttribute Course course,
                                             @ModelAttribute SchemaDto schemaDto,
                                             Model model) {
         int revolutions = 10;
