@@ -92,8 +92,6 @@
             return setTimeout(() => el.remove(), 5000);
         }
 
-        const alerts = document.getElementById("alerts");
-
         function addAlert(message, type) {
             const wrapper = document.createElement("div");
             wrapper.innerHTML =
@@ -104,13 +102,14 @@
                         <div class="progress-bar bg-${type}"></div>
                     </div>
                 </div>`
-            alerts.append(wrapper);
+            document.getElementById("alerts").append(wrapper);
         }
 
         document.body.addEventListener("htmx:responseError", (e) => {
             addAlert(JSON.parse(e.detail.xhr.response).message, "danger");
         })
         document.body.addEventListener("success", (e) => {
+            console.log("moi")
             addAlert(e.detail.value, "success")
         })
     </script>
