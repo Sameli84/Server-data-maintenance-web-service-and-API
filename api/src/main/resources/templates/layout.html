@@ -58,21 +58,33 @@
 </header>
 <main class="container">
     <div id="alerts">
-        <div th:if="${error}" class="alert alert-danger alert-dismissible" x-data>
+        <div th:if="${error}" class="alert alert-danger alert-dismissible" x-data x-init="setTimeout(() => $el.remove(), 5000)">
             [[${error}]]
             <button type="button" class="btn-close" @click="$el.parentElement.remove()" aria-label="Close"></button>
+            <div class="progress" x-data>
+                <div class="progress-bar bg-success" role="progressbar" style="width: 100%; z-index: -1;"></div>
+            </div>
         </div>
         <div th:if="${param.error}" class="alert alert-danger alert-dismissible" x-data>
             Invalid email or password
             <button type="button" class="btn-close" @click="$el.parentElement.remove()" aria-label="Close"></button>
+            <div class="progress" x-data>
+                <div class="progress-bar bg-success" role="progressbar" style="width: 100%; z-index: -1;"></div>
+            </div>
         </div>
         <div th:if="${warning}" class="alert alert-warning alert-dismissible" x-data>
             [[${warning}]]
             <button type="button" class="btn-close" @click="$el.parentElement.remove()" aria-label="Close"></button>
+            <div class="progress" x-data>
+                <div class="progress-bar bg-success" role="progressbar" style="width: 100%; z-index: -1;"></div>
+            </div>
         </div>
         <div th:if="${success}" class="alert alert-success alert-dismissible" x-data x-init="setTimeout(() => $el.remove(), 5000)">
             [[${success}]]
             <button type="button" class="btn-close" @click="$el.parentElement.remove()" aria-label="Close"></button>
+            <div th:if="${success}" class="progress" x-data>
+                <div class="progress-bar bg-success" role="progressbar" style="width: 100%; z-index: -1;"></div>
+            </div>
         </div>
     </div>
     <div layout:fragment="content"></div>
@@ -81,8 +93,14 @@
 
         function addAlert(message, type) {
             const wrapper = document.createElement("div");
-            wrapper.innerHTML = `<div class="alert alert-${type} alert-dismissible" x-data x-init="setTimeout(() => $el.remove(), 5000)">${message}<button type="button" class="btn-close" @click="$root.remove()" aria-label="Close"></button></div>`
+            wrapper.innerHTML = `<div class="alert alert-${type} alert-dismissible" x-data x-init="setTimeout(() => $el.remove(), 5000)">${message}<button type="button" class="btn-close" @click="$root.remove()" aria-label="Close"></button><div class="progress" style="height: 3px;">
+                <div x-init="makeProgress($el)" class="progress-bar" role="progressbar" style="width: 100%; background-color: #d4edda;"></div>
+            </div></div>`
             alerts.append(wrapper);
+        }
+        function makeProgress(el) {
+            el.style.width = el.style.width.split("%")[0] - 1 + "%";
+            setTimeout(function() { makeProgress(el); }, 35);
         }
 
         document.body.addEventListener("htmx:responseError", (e) => {
