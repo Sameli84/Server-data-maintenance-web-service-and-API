@@ -103,6 +103,10 @@
             </div></div>`
             alerts.append(wrapper);
         }
+        function makeProgress(el) {
+            el.style.width = el.style.width.split("%")[0] - 1 + "%";
+            setTimeout(function() { makeProgress(el); }, 35);
+        }
 
         document.body.addEventListener("htmx:responseError", (e) => {
             addAlert(JSON.parse(e.detail.xhr.response).message, "danger");
