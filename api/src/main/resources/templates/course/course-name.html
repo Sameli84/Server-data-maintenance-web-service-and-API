@@ -1,7 +1,7 @@
     <form id="nameUpdateForm" th:action="@{/courses/{url}/update-name(url=${course.getUrl()})}" method="post">
         <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
         <h1 class="px-3 py-2">
-            <input name="changedName" type="text" th:value="${course.name}">
+            <input name="changedName" type="text" th:value="${course.name}" required>
             <button type="submit" class= "btn btn-success px-3 py-2">
                 <i class="fa-solid fa-check"></i>
                 Save
