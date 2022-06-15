@@ -1,5 +1,6 @@
 package com.example.servermaintenance.course;
 
+import com.example.servermaintenance.AlertService;
 import com.example.servermaintenance.course.domain.Course;
 import com.example.servermaintenance.course.domain.CourseDataDto;
 import com.example.servermaintenance.course.domain.DataGenerationDto;
@@ -13,12 +14,15 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.servlet.http.HttpServletResponse;
+
 @Slf4j
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/courses/{course}/data")
+@RequestMapping("/courses/{courseUrl}/data")
 public class CourseDataController {
     private final CourseService courseService;
+    private final AlertService alertService;
 
     @ModelAttribute("courseDataDto")
     public CourseDataDto addCourseDataDtoToModel(@ModelAttribute Course course) {
@@ -35,13 +39,15 @@ public class CourseDataController {
     }
 
     @GetMapping
-    public String getDataTab(@SuppressWarnings("unused") @PathVariable Course course,
+    public String getDataTab(@SuppressWarnings("unused") @PathVariable String courseUrl,
+                             @ModelAttribute Course course,
                              @ModelAttribute CourseDataDto courseDataDto) {
         return "course/tab-data";
     }
 
     @PostMapping("/save")
-    public String saveEdits(@PathVariable Course course,
+    public String saveEdits(@SuppressWarnings("unused") @PathVariable String courseUrl,
+                            @ModelAttribute Course course,
                             @ModelAttribute CourseDataDto courseDataDto,
                             Model model) {
         if (!canEdit(model)) {
@@ -53,7 +59,8 @@ public class CourseDataController {
     }
 
     @PostMapping("/cancel")
-    public String cancelEdits(@SuppressWarnings("unused") @PathVariable Course course,
+    public String cancelEdits(@SuppressWarnings("unused") @PathVariable String courseUrl,
+                              @ModelAttribute Course course,
                               Model model) {
         if (!canEdit(model)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized action");
@@ -62,7 +69,8 @@ public class CourseDataController {
     }
 
     @GetMapping("/edit")
-    public String showEditView(@SuppressWarnings("unused") @PathVariable Course course,
+    public String showEditView(@SuppressWarnings("unused") @PathVariable String courseUrl,
+                               @ModelAttribute Course course,
                                @ModelAttribute CourseDataDto courseDataDto,
                                Model model) {
         if (!canEdit(model)) {
@@ -73,13 +81,14 @@ public class CourseDataController {
     }
 
     @GetMapping("/generate")
-    public String showGenerateView(@SuppressWarnings("unused") @PathVariable Course course,
+    public String showGenerateView(@SuppressWarnings("unused") @PathVariable String courseUrl,
+                                   @ModelAttribute Course course,
                                    @ModelAttribute CourseDataDto courseDataDto,
                                    Model model) {
         if (!canEdit(model)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized action");
         }
-        var slug = new Slugify();
+        var slug = new Slugify().withUnderscoreSeparator(true);
         courseDataDto.setHeaders(courseDataDto.getHeaders().stream().map(slug::slugify).toList());
         model.addAttribute("dataGenerationDto", new DataGenerationDto());
 
@@ -87,15 +96,19 @@ public class CourseDataController {
     }
 
     @PostMapping("/generate")
-    public String generate(@PathVariable Course course,
+    public String generate(@SuppressWarnings("unused") @PathVariable String courseUrl,
+                           @ModelAttribute Course course,
                            @ModelAttribute DataGenerationDto dataGenerationDto,
-                           @ModelAttribute CourseDataDto courseDataDto) {
+                           @ModelAttribute CourseDataDto courseDataDto,
+                           HttpServletResponse response) {
         if (dataGenerationDto.getTarget() < 0 || dataGenerationDto.getTarget() >= courseDataDto.getHeaders().size()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
-        var slug = new Slugify();
+        var slug = new Slugify().withUnderscoreSeparator(true);
         courseDataDto.setHeaders(courseDataDto.getHeaders().stream().map(slug::slugify).toList());
+
+        int rowsAffected = 0;
 
         for (int i = 0; i < courseDataDto.getRows().size(); i++) {
             // selected rows will be shorter than rows if the last checkbox isn't checked
@@ -119,7 +132,11 @@ public class CourseDataController {
             if (interpreter.hasErrors()) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Generator error: %s", interpreter.getErrors().get(0)));
             }
+
+            rowsAffected++;
         }
+
+        alertService.addAlertToResponse(response, "success", String.format("Rows affected %d", rowsAffected));
 
         courseService.saveCourseData(courseDataDto, course);
         return "course/tab-data-generate";

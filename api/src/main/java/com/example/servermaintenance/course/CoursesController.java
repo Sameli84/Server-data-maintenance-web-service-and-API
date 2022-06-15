@@ -1,44 +1,24 @@
 package com.example.servermaintenance.course;
 
 import com.example.servermaintenance.account.Account;
-import com.example.servermaintenance.account.AccountNotFoundException;
-import com.example.servermaintenance.account.AccountService;
 import com.example.servermaintenance.course.domain.CourseCreationDto;
-import com.example.servermaintenance.course.domain.CourseStudent;
 import lombok.AllArgsConstructor;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
-import org.keycloak.representations.AccessToken;
-import org.modelmapper.internal.util.ToStringBuilder;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.annotation.security.RolesAllowed;
-import javax.servlet.http.HttpServletRequest;
-import java.security.Principal;
-import java.util.HashSet;
-import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletResponse;
 
 @AllArgsConstructor
 @Controller
 public class CoursesController {
     private final CourseKeyRepository courseKeyRepository;
     private final CourseService courseService;
-    private final AccountService accountService;
 
-    @ExceptionHandler(AccountNotFoundException.class)
-    public String processAccountException(HttpServletRequest request) {
-        request.getSession().invalidate();
-        return "redirect:/courses";
-    }
-    @ModelAttribute("account")
-    public Account addAccountToModel(Principal principal) throws AccountNotFoundException {
-        return accountService.getContextAccount(principal).orElseThrow(AccountNotFoundException::new);
-    }
     @GetMapping("/")
     public String getIndexPage() {
         return "redirect:/courses";
@@ -46,15 +26,8 @@ public class CoursesController {
 
     @GetMapping("/courses")
     public String getCoursesPage(@ModelAttribute Account account, Model model) {
-        var courses = account.getCourseStudentData().stream().map(CourseStudent::getCourse).collect(Collectors.toCollection(HashSet::new));
-
-        var userCourses = account.getCourses();
-        if (userCourses != null) {
-            courses.addAll(userCourses);
-        }
-
+        var courses = courseService.getCoursesByAccount(account);
         model.addAttribute("courses", courses);
-
         return "courses";
     }
 
@@ -75,17 +48,22 @@ public class CoursesController {
         }
     }
 
-    @RolesAllowed("TEACHER")
+    @Secured("ROLE_TEACHER")
     @GetMapping("/courses/create")
     public String showCourseCreationPage(Model model) {
         model.addAttribute("courseCreationDto", new CourseCreationDto());
         return "course/create-course";
     }
 
-    @RolesAllowed("TEACHER")
+    @Secured("ROLE_TEACHER")
     @PostMapping("/courses/create")
-    public String createCourse(@ModelAttribute CourseCreationDto courseCreationDto, @ModelAttribute Account account) {
+    public void createCourse(@ModelAttribute CourseCreationDto courseCreationDto,
+                             @ModelAttribute Account account,
+                             HttpServletResponse response) {
+        if (!courseCreationDto.getKey().isEmpty() && !courseService.keyIsUnique(courseCreationDto.getKey())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Course key has to be unique");
+        }
         var course = courseService.createCourse(courseCreationDto, account);
-        return String.format("redirect:/courses/%s/schema", course.getUrl());
+        response.addHeader("HX-Redirect", String.format("/courses/%s/schema", course.getUrl()));
     }
 }

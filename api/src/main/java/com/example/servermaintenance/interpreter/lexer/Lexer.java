@@ -74,7 +74,7 @@ public class Lexer {
 
     private String readIdentifier() {
         int pos = position;
-        while (isLetter(aChar)) {
+        while (isIdent(aChar)) {
             readChar();
         }
         return input.substring(pos, position);
@@ -106,5 +106,9 @@ public class Lexer {
     private boolean isLetter(char c) {
         // [a-zA-Z]
         return 'a' <= c && c <= 'z' || 'A' <= c && c <= 'Z';
+    }
+
+    private boolean isIdent(char c) {
+        return isLetter(c) || '0' <= c && c <= '9' || c == '_';
     }
 }
