@@ -6,6 +6,7 @@ import com.example.servermaintenance.account.AccountNotFoundException;
 import com.example.servermaintenance.account.RoleService;
 import com.example.servermaintenance.account.AccountService;
 import com.example.servermaintenance.course.domain.*;
+import com.github.slugify.Slugify;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.keycloak.adapters.springsecurity.token.KeycloakAuthenticationToken;
@@ -309,5 +310,28 @@ public class CourseController {
         }
 
         return "course/tab-settings";
+    }
+
+    @Secured("ROLE_TEACHER")
+    @GetMapping("/course-name")
+    public String getCourseName(@PathVariable String courseUrl, @ModelAttribute Course course) {
+        return "course/course-name";
+    }
+
+    @Secured("ROLE_TEACHER")
+    @GetMapping("/name-cancel")
+    public String getNameCancel(@PathVariable String courseUrl, @ModelAttribute Course course) {
+        return "course/course-name-cancel";
+    }
+
+    @Secured("ROLE_TEACHER")
+    @PostMapping("/update-name")
+    public String updateCourseName(@PathVariable String courseUrl, @ModelAttribute Course course, @ModelAttribute("changedName") String changedName) {
+        System.out.println(changedName);
+        course.setName(changedName);
+        int slugNumber = Integer.parseInt(courseUrl.substring(courseUrl.length() - 1));
+        course.setUrl(String.format("%s-%d", new Slugify().slugify(changedName), slugNumber));
+        courseRepository.save(course);
+        return "redirect:/courses/" + course.getUrl();
     }
 }
