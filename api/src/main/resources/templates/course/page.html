@@ -7,7 +7,7 @@
 </head>
 <body>
 <section layout:fragment="content">
-    <h1>[[${course.name}]]</h1>
+    <h1 id="course-name">[[${course.name}]]</h1>
     <p>by [[${course.getOwner()?.getName()}]]</p>
 
     <div class="row mx-0" th:if="${!isStudent}">
