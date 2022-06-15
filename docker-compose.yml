@@ -10,10 +10,6 @@ services:
       - POSTGRES_DSN=${POSTGRES_DSN}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - ROOT_FIRSTNAME=${ROOT_FIRSTNAME}
-      - ROOT_LASTNAME=${ROOT_LASTNAME}
-      - ROOT_EMAIL=${ROOT_EMAIL}
-      - ROOT_PASSWORD=${ROOT_PASSWORD}
       - KEYCLOAK_URL=${KEYCLOAK_URL}
   db:
     image: postgres:14
@@ -26,8 +22,8 @@ services:
     volumes:
       - db:/var/lib/postgresql/data
   keycloak:
-    image: quay.io/keycloak/keycloak:latest
-    command: ["start-dev", "--import-realm"]
+    image: quay.io/keycloak/keycloak:18.0.0
+    command: ["start","--auto-build","--http-enabled=true","--hostname-strict=false","--hostname-strict-https=false","--import-realm"]
     restart: always
     environment:
       - KEYCLOAK_ADMIN=admin
