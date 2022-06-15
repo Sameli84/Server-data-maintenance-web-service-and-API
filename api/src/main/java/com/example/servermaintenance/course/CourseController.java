@@ -272,24 +272,21 @@ public class CourseController {
     }
 
     @Secured("ROLE_TEACHER")
-    @GetMapping("/course-name")
+    @GetMapping("/name")
     public String getCourseName(@PathVariable String courseUrl, @ModelAttribute Course course) {
         return "course/course-name";
     }
 
     @Secured("ROLE_TEACHER")
-    @GetMapping("/name-cancel")
+    @GetMapping("/cancel-name-update")
     public String getNameCancel(@PathVariable String courseUrl, @ModelAttribute Course course) {
         return "course/course-name-cancel";
     }
 
     @Secured("ROLE_TEACHER")
-    @PostMapping("/update-name")
+    @PostMapping("/name")
     public String updateCourseName(@PathVariable String courseUrl, @ModelAttribute Course course, @ModelAttribute("changedName") String changedName) {
-        System.out.println(changedName);
         course.setName(changedName);
-        int slugNumber = Integer.parseInt(courseUrl.substring(courseUrl.length() - 1));
-        course.setUrl(String.format("%s-%d", new Slugify().slugify(changedName), slugNumber));
         courseRepository.save(course);
         return "redirect:/courses/" + course.getUrl();
     }

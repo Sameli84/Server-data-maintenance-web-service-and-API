@@ -8,7 +8,7 @@
                 Edit schema
             </a>
             <button style="margin-top: 5px;" class="btn btn-primary btn-lg py-3 child w-100"
-                    th:hx-get="@{/courses/{url}/course-name(url=${course.getUrl()})}"
+                    th:hx-get="@{/courses/{url}/name(url=${course.getUrl()})}"
                     hx-swap="outerHTML"
                     hx-target="#course-name">
                 <i class="fa-solid fa-pen"></i>
