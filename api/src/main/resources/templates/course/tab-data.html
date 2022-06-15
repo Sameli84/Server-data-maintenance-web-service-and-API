@@ -33,6 +33,12 @@
                 <i class="fa-solid fa-code"></i>
                 Generate
             </button>
+            <button type="submit" form="csv"
+                    class="btn btn-warning px-3 py-2">
+                <i class="fa-solid fa-file-text"></i>
+                Download csv
+            </button>
         </form>
+        <form id="csv" th:if="${canEdit}" th:action="@{../api/course/{course}(course=${course.url})}"></form>
     </div>
 </th:block>
