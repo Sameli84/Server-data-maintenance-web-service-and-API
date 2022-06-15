@@ -2,7 +2,10 @@
         <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
         <h1 class="px-3 py-2">
             <input name="changedName" type="text" th:value="${course.name}">
-            <input type="submit" value="Submit" class= "btn btn-success px-3 py-2">
+            <button type="submit" class= "btn btn-success px-3 py-2">
+                <i class="fa-solid fa-check"></i>
+                Save
+            </button>
             <button class="btn btn-danger px-3 py-2"
                     th:hx-get="@{/courses/{url}/name-cancel(url=${course.getUrl()})}"
                     hx-swap="outerHTML"
