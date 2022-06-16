@@ -168,11 +168,16 @@
                                      title="Regex used for validating user input">
                                     Regex
                                 </div>
-                                <input type="text"
-                                       th:field="*{parts[__${stat.index}__].validatorRegex}"
+                                <input type="text" list="validators" th:field="*{parts[__${stat.index}__].validatorRegex}"
                                        class="form-control"
                                        :disabled="!selected"
-                                       aria-label="Validator regex">
+                                       aria-label="Validator regex"/>
+                                <datalist id="validators">
+                                    <option value="[0-9]+">Number</option>
+                                    <option value="^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\.(?!$)|$)){4}$">Ip address</option>
+                                    <option value='^(([^<>()\[\]\\.,;:\s@`]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$'>Email</option>
+                                    <option value="^(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?$">Url</option>
+                                </datalist>
                                 <div class="input-group-text"
                                      title="Message to display on validation error">
                                     Error message
