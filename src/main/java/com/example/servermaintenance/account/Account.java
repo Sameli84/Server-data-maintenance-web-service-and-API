@@ -7,8 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.jpa.domain.AbstractPersistable;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.util.*;
@@ -34,9 +32,6 @@ public class Account extends AbstractPersistable<Long> {
     @Column(unique = true)
     private String email;
 
-    @Column(name = "keycloak_uuid")
-    private UUID keyCloakUuid;
-
     @OneToMany(mappedBy = "owner", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Course> courses;
 
@@ -45,13 +40,6 @@ public class Account extends AbstractPersistable<Long> {
 
     @Transient
     private Set<String> roles = new HashSet<>();
-
-    public Account(String firstName, String lastName, String email, UUID keyCloakUuid) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.keyCloakUuid = keyCloakUuid;
-    }
 
     public String getName() {
         return firstName + " " + lastName;

@@ -2,15 +2,12 @@ package com.example.servermaintenance.account;
 
 import lombok.AllArgsConstructor;
 import org.keycloak.representations.AccessToken;
-import org.keycloak.representations.idm.authorization.Permission;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -19,10 +16,9 @@ public class AccountService implements UserDetailsService {
 
     @Transactional
     public void syncAccount(AccessToken token) throws AccountNotFoundException {
-        var uuid = UUID.fromString(token.getId());
-        var account = accountRepository.findAccountByKeyCloakUuid(uuid).orElse(new Account());
+        var account = accountRepository.findFirstByEmail(token.getEmail()).orElse(new Account());
         account.setEmail(token.getEmail());
-        account.setFirstName(token.getName());
+        account.setFirstName(token.getGivenName());
         account.setLastName(token.getFamilyName());
         account.setRoles(token.getRealmAccess().getRoles());
         accountRepository.save(account);
@@ -32,6 +28,10 @@ public class AccountService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return (UserDetails) accountRepository.findFirstByEmail(username).orElseThrow();
+    }
+
+    public Account findByEmail(String email) {
+        return accountRepository.findFirstByEmail(email).orElse(null);
     }
 
     public Account getAccountById(int accountId) {
