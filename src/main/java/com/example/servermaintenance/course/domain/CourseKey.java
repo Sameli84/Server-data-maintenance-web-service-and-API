@@ -1,6 +1,5 @@
 package com.example.servermaintenance.course.domain;
 
-import com.example.servermaintenance.course.domain.Course;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,16 +13,21 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Getter
 @Setter
-@Table(name = "course_index")
-public class CourseIndex extends AbstractPersistable<Long> {
+@Table(name = "course_key")
+public class CourseKey extends AbstractPersistable<Long> {
     @Id
-    @Column(name = "course_id")
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToOne
-    @MapsId
+    @Column(unique = true)
+    private String key;
+
+    @ManyToOne
     @JoinColumn(name = "course_id")
     private Course course;
 
-    private long index;
+    public CourseKey(String key, Course course) {
+        this.key = key;
+        this.course = course;
+    }
 }

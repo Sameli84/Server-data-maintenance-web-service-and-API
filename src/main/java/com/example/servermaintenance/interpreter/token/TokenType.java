@@ -1,7 +1,5 @@
 package com.example.servermaintenance.interpreter.token;
 
-import java.util.HashMap;
-
 public enum TokenType {
     ILLEGAL("ILLEGAL"),
     EOL("EOL"), // end of line
