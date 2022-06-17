@@ -4,7 +4,6 @@ import com.example.servermaintenance.AlertService;
 import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.account.AccountService;
 import com.example.servermaintenance.course.domain.*;
-import com.github.slugify.Slugify;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -24,6 +23,7 @@ import java.util.*;
 @Controller
 @AllArgsConstructor
 @RequestMapping("/courses/{courseUrl}")
+@Secured("ROLE_STUDENT")
 public class CourseController {
     private final AccountService accountService;
     private final CourseService courseService;

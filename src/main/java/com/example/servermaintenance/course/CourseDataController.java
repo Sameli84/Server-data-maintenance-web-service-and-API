@@ -9,11 +9,13 @@ import com.github.slugify.Slugify;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletResponse;
 
 @Slf4j
@@ -39,6 +41,7 @@ public class CourseDataController {
     }
 
     @GetMapping
+    @RolesAllowed("ROLE_STUDENT")
     public String getDataTab(@SuppressWarnings("unused") @PathVariable String courseUrl,
                              @ModelAttribute Course course,
                              @ModelAttribute CourseDataDto courseDataDto) {
@@ -46,6 +49,7 @@ public class CourseDataController {
     }
 
     @PostMapping("/save")
+    @Secured("ROLE_TEACHER")
     public String saveEdits(@SuppressWarnings("unused") @PathVariable String courseUrl,
                             @ModelAttribute Course course,
                             @ModelAttribute CourseDataDto courseDataDto,
@@ -59,6 +63,7 @@ public class CourseDataController {
     }
 
     @PostMapping("/cancel")
+    @Secured("ROLE_TEACHER")
     public String cancelEdits(@SuppressWarnings("unused") @PathVariable String courseUrl,
                               @ModelAttribute Course course,
                               Model model) {
@@ -69,6 +74,7 @@ public class CourseDataController {
     }
 
     @GetMapping("/edit")
+    @Secured("ROLE_TEACHER")
     public String showEditView(@SuppressWarnings("unused") @PathVariable String courseUrl,
                                @ModelAttribute Course course,
                                @ModelAttribute CourseDataDto courseDataDto,
@@ -81,6 +87,7 @@ public class CourseDataController {
     }
 
     @GetMapping("/generate")
+    @Secured("ROLE_TEACHER")
     public String showGenerateView(@SuppressWarnings("unused") @PathVariable String courseUrl,
                                    @ModelAttribute Course course,
                                    @ModelAttribute CourseDataDto courseDataDto,
@@ -96,6 +103,7 @@ public class CourseDataController {
     }
 
     @PostMapping("/generate")
+    @Secured("ROLE_TEACHER")
     public String generate(@SuppressWarnings("unused") @PathVariable String courseUrl,
                            @ModelAttribute Course course,
                            @ModelAttribute DataGenerationDto dataGenerationDto,

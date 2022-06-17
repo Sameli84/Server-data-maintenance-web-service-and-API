@@ -1,6 +1,5 @@
 package com.example.servermaintenance.course.domain;
 
-import com.example.servermaintenance.course.domain.Course;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

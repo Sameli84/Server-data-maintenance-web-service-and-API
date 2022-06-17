@@ -8,7 +8,6 @@ import com.example.servermaintenance.interpreter.parser.Parser;
 
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
