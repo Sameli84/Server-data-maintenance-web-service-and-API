@@ -92,4 +92,8 @@ public class AccountService implements UserDetailsService {
         roleFns.get(teacher).accept("TEACHER");
         roleFns.get(admin).accept("ADMIN");
     }
+
+    public Optional<Account> getAccountByEmail(String email) {
+        return accountRepository.findByEmail(email);
+    }
 }
