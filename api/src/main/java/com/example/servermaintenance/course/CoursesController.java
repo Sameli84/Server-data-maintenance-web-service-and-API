@@ -30,7 +30,7 @@ public class CoursesController {
         model.addAttribute("courses", courses);
         return "courses";
     }
-
+    @Secured("ROLE_STUDENT")
     @PostMapping("/courses/join")
     public String joinCourseByKey(@ModelAttribute Account account, @RequestParam String key, RedirectAttributes redirectAttributes) {
         var courseKey = courseKeyRepository.findCourseKeyByKey(key);

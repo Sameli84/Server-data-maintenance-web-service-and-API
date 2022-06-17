@@ -24,6 +24,7 @@ import java.util.*;
 @Controller
 @AllArgsConstructor
 @RequestMapping("/courses/{courseUrl}")
+@Secured("ROLE_STUDENT")
 public class CourseController {
     private final AccountService accountService;
     private final CourseService courseService;
