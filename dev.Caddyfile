@@ -1,0 +1,18 @@
+(reverseproxyheaders) {
+    header_up X-Real-Ip {remote}
+    header_down Strict-Transport-Security maxage=31536000
+}
+
+{$APP_DOMAIN} {
+    reverse_proxy 172.17.0.1:4000 {
+        import reverseproxyheaders
+        header_up X-Forwarded-Proto https
+        header_up X-Forwarded-Port 443
+    }
+}
+
+{$AUTH_SUBDOMAIN}.{$APP_DOMAIN} {
+    reverse_proxy keycloak:8080 {
+        import reverseproxyheaders
+    }
+}

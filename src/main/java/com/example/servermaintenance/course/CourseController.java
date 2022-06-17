@@ -4,6 +4,7 @@ import com.example.servermaintenance.AlertService;
 import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.account.AccountService;
 import com.example.servermaintenance.course.domain.*;
+import com.github.slugify.Slugify;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.*;
@@ -23,7 +25,6 @@ import java.util.*;
 @Controller
 @AllArgsConstructor
 @RequestMapping("/courses/{courseUrl}")
-@Secured("ROLE_STUDENT")
 public class CourseController {
     private final AccountService accountService;
     private final CourseService courseService;
@@ -66,7 +67,7 @@ public class CourseController {
         return "redirect:/courses/" + course.getUrl();
     }
 
-    @Secured("ROLE_TEACHER")
+    @RolesAllowed("TEACHER")
     @DeleteMapping("/delete")
     public void deleteCourse(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, @ModelAttribute Account account, HttpServletResponse response, Model model) {
         if (!canEdit(model)) {
@@ -178,7 +179,7 @@ public class CourseController {
         return "course/tab-input";
     }
 
-    @Secured("ROLE_TEACHER")
+    @RolesAllowed("TEACHER")
     @GetMapping("/students")
     public String getStudentsTab(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, Model model) {
         if (!canEdit(model)) {
@@ -188,7 +189,7 @@ public class CourseController {
         return "course/tab-students";
     }
 
-    @Secured("ROLE_TEACHER")
+    @RolesAllowed("TEACHER")
     @DeleteMapping("/students/{studentId}/kick")
     public String kickFromCourse(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, @ModelAttribute Account account, @PathVariable int studentId, Model model, HttpServletResponse response) {
         if (!canEdit(model)) {
@@ -220,7 +221,7 @@ public class CourseController {
         return "course/tab-students";
     }
 
-    @Secured("ROLE_TEACHER")
+    @RolesAllowed("TEACHER")
     @GetMapping("/keys")
     public String getKeysTab(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, Model model) {
         if (!canEdit(model)) {
@@ -229,7 +230,7 @@ public class CourseController {
         return "course/tab-keys";
     }
 
-    @Secured("ROLE_TEACHER")
+    @RolesAllowed("TEACHER")
     @PostMapping("/keys/create")
     public String createCourseKey(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, @RequestParam String key, Model model, HttpServletResponse response) {
         if (!canEdit(model)) {
@@ -247,7 +248,7 @@ public class CourseController {
         return "course/tab-keys";
     }
 
-    @Secured("ROLE_TEACHER")
+    @RolesAllowed("TEACHER")
     @DeleteMapping("/keys/{keyId}/revoke")
     public String revokeCourseKey(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, @PathVariable int keyId, Model model, HttpServletResponse response) {
         if (!canEdit(model)) {
@@ -261,7 +262,7 @@ public class CourseController {
         return "course/tab-keys";
     }
 
-    @Secured("ROLE_TEACHER")
+    @RolesAllowed("TEACHER")
     @GetMapping("/settings")
     public String getSettingsTab(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, Model model) {
         if (!canEdit(model)) {
@@ -271,19 +272,19 @@ public class CourseController {
         return "course/tab-settings";
     }
 
-    @Secured("ROLE_TEACHER")
+    @RolesAllowed("TEACHER")
     @GetMapping("/name")
     public String getCourseName(@PathVariable String courseUrl, @ModelAttribute Course course) {
         return "course/course-name";
     }
 
-    @Secured("ROLE_TEACHER")
+    @RolesAllowed("TEACHER")
     @GetMapping("/cancel-name-update")
     public String getNameCancel(@PathVariable String courseUrl, @ModelAttribute Course course) {
         return "course/course-name-cancel";
     }
 
-    @Secured("ROLE_TEACHER")
+    @RolesAllowed("TEACHER")
     @PostMapping("/name")
     public String updateCourseName(@PathVariable String courseUrl, @ModelAttribute Course course, @ModelAttribute("changedName") String changedName) {
         course.setName(changedName);

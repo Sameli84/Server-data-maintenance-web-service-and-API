@@ -8,16 +8,17 @@ import com.example.servermaintenance.interpreter.Interpreter;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.RolesAllowed;
+import java.util.ArrayList;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 @Slf4j
-@Secured("ROLE_TEACHER")
+@RolesAllowed("TEACHER")
 @Controller
 @SessionAttributes("courseSchemaSessionMap")
 @AllArgsConstructor

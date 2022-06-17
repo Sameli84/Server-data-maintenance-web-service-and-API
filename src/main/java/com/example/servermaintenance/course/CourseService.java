@@ -1,7 +1,7 @@
 package com.example.servermaintenance.course;
 
-import com.example.servermaintenance.account.RoleService;
 import com.example.servermaintenance.account.Account;
+import com.example.servermaintenance.account.AccountService;
 import com.example.servermaintenance.course.domain.*;
 import com.github.slugify.Slugify;
 import com.opencsv.CSVWriter;
@@ -12,14 +12,12 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.io.Writer;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class CourseService {
     private final CourseRepository courseRepository;
     private final CourseKeyRepository courseKeyRepository;
-    private final RoleService roleService;
     private final CourseSchemaPartRepository courseSchemaPartRepository;
 
     private ModelMapper modelMapper;
@@ -28,6 +26,7 @@ public class CourseService {
     private final CourseStudentPartRepository courseStudentPartRepository;
 
     private final CourseStudentRepository courseStudentRepository;
+    private final AccountService accountService;
 
     @Transactional
     public Course createCourse(CourseCreationDto creationDto, Account account) {
@@ -112,10 +111,6 @@ public class CourseService {
         return courseRepository.findAll();
     }
 
-    public Course getCourseById(Long id) {
-        return courseRepository.getById(id);
-    }
-
     public void writeReportContext(String courseUrl, Writer w) throws Exception {
         var course = getCourseByUrl(courseUrl);
         if (course.isEmpty()) {
@@ -127,7 +122,7 @@ public class CourseService {
         writer.writeNext(headers.toArray(new String[0]));
 
         for (CourseDataRowDto cdrd : this.getCourseData(course.get()).getRows()) {
-            writer.writeNext(cdrd.getParts().stream().map(CourseStudentPartDto::getData).collect(Collectors.toList()).toArray(new String[0]));
+            writer.writeNext(cdrd.getParts().stream().map(CourseStudentPartDto::getData).toList().toArray(new String[0]));
         }
         writer.close();
     }
@@ -158,7 +153,7 @@ public class CourseService {
 
     @Transactional
     public boolean deleteCourse(Course course, Account account) {
-        if (Objects.equals(course.getOwner().getId(), account.getId()) || roleService.isAdmin(account)) {
+        if (isOwnerOrAdmin(course, account)) {
             courseRepository.delete(course);
             return true;
         }
@@ -236,5 +231,9 @@ public class CourseService {
                 .toList();
 
         courseStudentPartRepository.saveAll(parts);
+    }
+
+    public boolean isOwnerOrAdmin(Course course, Account account) {
+        return Objects.equals(account.getId(), course.getOwner().getId()) || accountService.isAdmin(account);
     }
 }

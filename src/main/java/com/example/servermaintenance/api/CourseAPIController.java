@@ -10,7 +10,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.annotation.security.RolesAllowed;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 
 @RestController
 @RequestMapping(path = "/api/course")
@@ -23,7 +26,7 @@ public class CourseAPIController {
         return "moi";
     }
 
-    @Secured("ROLE_TEACHER")
+    @RolesAllowed("TEACHER")
     @GetMapping("/{courseUrl}")
     public void generateReport(@PathVariable String courseUrl, HttpServletResponse response) {
         try {
