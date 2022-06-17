@@ -34,8 +34,11 @@ public class AccountAdvice {
     }
 
     @ModelAttribute("account")
-    @SessionScope
-    public Account addAccountToModel(Principal principal) {
+    public Account addAccountToModel(Principal principal, HttpServletRequest request) {
+        if (principal == null) {
+            request.getSession().invalidate();
+            return null;
+        }
         return accountService.findByEmail(principal.getName());
     }
 }
