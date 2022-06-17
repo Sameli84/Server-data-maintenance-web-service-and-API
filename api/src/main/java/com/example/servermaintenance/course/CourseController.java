@@ -1,172 +1,63 @@
 package com.example.servermaintenance.course;
 
+import com.example.servermaintenance.AlertService;
 import com.example.servermaintenance.account.Account;
-import com.example.servermaintenance.account.AccountNotFoundException;
-import com.example.servermaintenance.account.RoleService;
-import com.example.servermaintenance.datarow.DataRowService;
 import com.example.servermaintenance.account.AccountService;
+import com.example.servermaintenance.course.domain.*;
+import com.github.slugify.Slugify;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.*;
 
+@Slf4j
 @Controller
 @AllArgsConstructor
+@RequestMapping("/courses/{courseUrl}")
 public class CourseController {
     private final AccountService accountService;
     private final CourseService courseService;
-    private final DataRowService dataRowService;
-    private final RoleService roleService;
-    private final CourseKeyRepository courseKeyRepository;
+    private final CourseStudentService courseStudentService;
+    private final ModelMapper modelMapper;
+    private final AlertService alertService;
+    private CourseRepository courseRepository;
 
-    @ExceptionHandler(AccountNotFoundException.class)
-    public String processAccountException(HttpServletRequest request) {
-        request.getSession().invalidate();
-        return "redirect:/login";
-    }
-
-    // TODO: specific exception for courses!
-    @ExceptionHandler(NoSuchElementException.class)
-    public String processCourseNotFoundException(RedirectAttributes redirectAttributes) {
-        redirectAttributes.addFlashAttribute("error", "Course not found");
-        return "redirect:/courses";
-    }
-
-    @ModelAttribute("account")
-    public Account addAccountToModel() throws AccountNotFoundException {
-        return accountService.getContextAccount().orElseThrow(AccountNotFoundException::new);
-    }
-
-    private boolean canEdit(Account account, Course course) {
-        return Objects.equals(account.getId(), course.getOwner().getId()) || roleService.isAdmin(account);
-    }
-
-    @GetMapping("/")
-    public String getIndexPage() {
-        return "redirect:/courses";
-    }
-
-    @GetMapping("/courses")
-    public String getCoursesPage(@ModelAttribute Account account, Model model) {
-        var courses = new HashSet<>(account.getStudentCourses());
-
-        var userCourses = account.getCourses();
-        if (userCourses != null) {
-            courses.addAll(userCourses);
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private boolean canEdit(Model model) {
+        var canEdit = (Boolean) model.getAttribute("canEdit");
+        if (canEdit == null) {
+            return false;
         }
-
-        model.addAttribute("courses", courses);
-
-        return "courses";
+        return canEdit;
     }
 
-    @PostMapping("/courses/join")
-    public String joinCourseByKey(@ModelAttribute Account account, @RequestParam String key, RedirectAttributes redirectAttributes) {
-        var courseKey = courseKeyRepository.findCourseKeyByKey(key);
-        if (courseKey.isEmpty()) {
-            redirectAttributes.addFlashAttribute("error", "Course with the given key not found!");
-            return "redirect:/courses";
-        }
-        var course = courseKey.get().getCourse();
-        if (courseService.joinToCourse(course, account, key)) {
-            redirectAttributes.addFlashAttribute("success", "Joined course");
-            return "redirect:/courses/" + course.getUrl();
-        } else {
-            redirectAttributes.addFlashAttribute("error", "Failed to join course");
-            return "redirect:/courses";
-        }
-    }
-
-    @Secured("ROLE_TEACHER")
-    @GetMapping("/courses/create")
-    public String getCourseCreationPage(@ModelAttribute CourseCreationDTO courseCreationDTO) {
-        return "create-course";
-    }
-
-    @Secured("ROLE_TEACHER")
-    @PostMapping("/courses/create")
-    public String createCourse(@ModelAttribute Account account, @Valid @ModelAttribute CourseCreationDTO courseCreationDTO, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return "create-course";
-        }
-        var course = courseService.newCourse(courseCreationDTO, account);
-        return "redirect:/courses/" + course.getUrl();
-    }
-
-    @GetMapping("/courses/{course}")
-    public String getCoursePage(@PathVariable Course course, @ModelAttribute Account account, Model model) {
-        var studentData = dataRowService.getStudentData(course, account);
-        if (studentData != null) {
-            model.addAttribute("studentData", studentData);
-            model.addAttribute("courseDataDTO", dataRowService.getCourseDataDTO(studentData));
-        }
-        boolean isStudent = course.getStudents().contains(account);
-        model.addAttribute("isStudent", isStudent);
+    @GetMapping
+    public String getCoursePage(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, @ModelAttribute Account account, Model model) {
         model.addAttribute("hasKey", courseService.hasCourseKey(course));
-        boolean canEdit = canEdit(account, course);
-        model.addAttribute("canEdit", canEdit);
 
-        if (!isStudent && canEdit) {
-            model.addAttribute("datarows", dataRowService.getCourseDataRows(course));
+        if (courseService.isStudentOnCourse(course, account)) {
+            var studentForm = courseService.getStudentForm(course, account);
+            model.addAttribute("schemaInputDto", studentForm);
+            model.addAttribute("updateLocked", studentForm.getParts().stream().allMatch(SchemaPartDto::isLocked));
+        } else if (canEdit(model)) {
+            model.addAttribute("courseDataDto", courseService.getCourseData(course));
         }
+
         return "course/page";
     }
 
-    @GetMapping("/courses/{course}/input")
-    public String getInputTab(@PathVariable Course course, @ModelAttribute Account account, Model model) {
-        var studentData = dataRowService.getStudentData(course, account);
-        if (studentData != null) {
-            model.addAttribute("studentData", studentData);
-            model.addAttribute("courseDataDTO", dataRowService.getCourseDataDTO(studentData));
-        }
-        model.addAttribute("isStudent", course.getStudents().contains(account));
-        model.addAttribute("canEdit", canEdit(account, course));
-
-        return "course/tab-input";
-    }
-
-    @GetMapping("/courses/{course}/data")
-    public String getDataTab(@PathVariable Course course, @ModelAttribute Account account, Model model) {
-        model.addAttribute("datarows", dataRowService.getCourseDataRows(course));
-        model.addAttribute("canEdit", canEdit(account, course));
-        model.addAttribute("isStudent", course.getStudents().contains(account));
-        return "course/tab-data";
-    }
-
-    @Secured("ROLE_TEACHER")
-    @GetMapping("/courses/{course}/students")
-    public String getStudentsTab(@PathVariable Course course, @ModelAttribute Account account, Model model) {
-        if (!canEdit(account, course)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
-        }
-        model.addAttribute("canEdit", true);
-        model.addAttribute("isStudent", course.getStudents().contains(account));
-        return "course/tab-students";
-    }
-
-    @Secured("ROLE_TEACHER")
-    @GetMapping("/courses/{course}/keys")
-    public String getKeysTab(@PathVariable Course course, @ModelAttribute Account account, Model model) {
-        if (!canEdit(account, course)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
-        }
-        model.addAttribute("canEdit", true);
-        model.addAttribute("isStudent", course.getStudents().contains(account));
-        return "course/tab-keys";
-    }
-
-    @PostMapping("/courses/{course}/join")
-    public String joinCourse(@PathVariable Course course, @RequestParam Optional<String> key, @ModelAttribute Account account, RedirectAttributes redirectAttributes) {
+    @PostMapping("/join")
+    public String joinCourse(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, @RequestParam Optional<String> key, @ModelAttribute Account account, RedirectAttributes redirectAttributes) {
         if (courseService.joinToCourse(course, account, key.orElse(""))) {
             redirectAttributes.addFlashAttribute("success", "Joined course");
         } else {
@@ -176,12 +67,133 @@ public class CourseController {
     }
 
     @Secured("ROLE_TEACHER")
-    @DeleteMapping("/courses/{course}/students/{studentId}/kick")
-    public String kickFromCourse(@PathVariable Course course, @PathVariable int studentId, @ModelAttribute Account account, Model model) {
-        if (!canEdit(account, course)) {
+    @DeleteMapping("/delete")
+    public void deleteCourse(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, @ModelAttribute Account account, HttpServletResponse response, Model model) {
+        if (!canEdit(model)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
         }
-        model.addAttribute("canEdit", true);
+        if (!courseService.deleteCourse(course, account)) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete the course");
+        } else {
+            response.addHeader("HX-Redirect", "/courses/");
+        }
+    }
+
+    @GetMapping("/input")
+    public String getInputTab(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, @ModelAttribute Account account, Model model) {
+        if (!courseService.isStudentOnCourse(course, account)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized");
+        }
+
+        var studentForm = courseService.getStudentForm(course, account);
+        model.addAttribute("schemaInputDto", studentForm);
+        model.addAttribute("updateLocked", studentForm.getParts().stream().allMatch(SchemaPartDto::isLocked));
+
+        return "course/tab-input";
+    }
+
+    @PostMapping("/students/{studentId}/update")
+    public String createData(@SuppressWarnings("unused") @PathVariable String courseUrl,
+                             @ModelAttribute Course course,
+                             @PathVariable Long studentId,
+                             @ModelAttribute Account account,
+                             @Valid @ModelAttribute SchemaInputDto schemaInputDto,
+                             Model model,
+                             HttpServletResponse response) {
+        if (!Objects.equals(account.getId(), studentId) && !canEdit(model)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized action");
+        }
+
+        if (!courseService.isStudentOnCourse(course, account)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You must sign up for course before submitting data");
+        }
+
+        var studentParts = courseStudentService.getCourseStudentParts(course, account);
+
+        // remove locked parts at the end from the count
+        int studentPartCount = studentParts.size();
+        for (int i = studentParts.size() - 1; i >= 0; i--) {
+            var part = studentParts.get(i);
+            if (part.getSchemaPart().isLocked()) {
+                studentPartCount--;
+            } else {
+                break;
+            }
+        }
+
+        if (studentPartCount == 0) {
+            // TODO: better error message
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No open fields");
+        }
+
+        schemaInputDto.setErrors(new HashMap<>());
+        schemaInputDto.setParts(new ArrayList<>());
+
+        var dataParts = schemaInputDto.getData();
+        if (dataParts.size() != studentPartCount) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong amount of data parts");
+        }
+
+        // validoot
+        boolean hasErrors = false;
+        for (int i = 0; i < studentParts.size(); i++) {
+            var schemaPart = studentParts.get(i).getSchemaPart();
+            schemaInputDto.getParts().add(modelMapper.map(schemaPart, SchemaPartDto.class));
+
+            if (dataParts.size() == i) {
+                dataParts.add(new CourseStudentPartDto(studentParts.get(i).getData()));
+            }
+
+            CourseStudentPartDto dataPart = dataParts.get(i);
+
+            if (schemaPart.isLocked()) {
+                // locked data isn't sent in post request
+                dataPart.setData(studentParts.get(i).getData());
+                continue;
+            }
+            if (!schemaPart.isValidator()) {
+                continue;
+            }
+            if (!dataPart.getData().matches(schemaPart.getValidatorRegex())) {
+                schemaInputDto.getErrors().put(i, schemaPart.getValidatorMessage());
+                hasErrors = true;
+            }
+        }
+
+        model.addAttribute("updateLocked", studentParts.stream().allMatch(s -> s.getSchemaPart().isLocked()));
+
+        if (hasErrors) {
+            return "course/tab-input";
+        }
+
+        for (int i = 0; i < studentParts.size(); i++) {
+            var studentPart = studentParts.get(i);
+            if (!studentPart.getSchemaPart().isLocked()) {
+                studentPart.setData(dataParts.get(i).getData());
+            }
+        }
+        courseStudentService.saveStudentParts(studentParts);
+
+        alertService.addAlertToResponse(response, "success", "Updated data");
+        return "course/tab-input";
+    }
+
+    @Secured("ROLE_TEACHER")
+    @GetMapping("/students")
+    public String getStudentsTab(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, Model model) {
+        if (!canEdit(model)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
+        }
+        model.addAttribute("students", courseRepository.findAllStudents(course));
+        return "course/tab-students";
+    }
+
+    @Secured("ROLE_TEACHER")
+    @DeleteMapping("/students/{studentId}/kick")
+    public String kickFromCourse(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, @ModelAttribute Account account, @PathVariable int studentId, Model model, HttpServletResponse response) {
+        if (!canEdit(model)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
+        }
 
         var student = accountService.getAccountById(studentId);
         if (student == null) {
@@ -191,88 +203,91 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Couldn't kick user from the course");
         }
 
-        model.addAttribute("isStudent", course.getStudents().contains(account));
+        var students = course.getCourseStudents()
+                .stream()
+                .map(CourseStudent::getAccount)
+                .filter(a -> !Objects.equals(a.getId(), student.getId()))
+                .toList();
+
+        model.addAttribute("students", students);
+
+        // remove isStudent when kicking self
+        if (Objects.equals(account.getId(), student.getId())) {
+            model.addAttribute("isStudent", false);
+            response.addHeader("HX-Redirect", "/courses/" + courseUrl);
+        }
+
         return "course/tab-students";
     }
 
-    @PostMapping("/courses/{course}/students/{studentId}/update-data")
-    public String createData(@PathVariable Course course,
-                             @PathVariable Long studentId,
-                             @ModelAttribute Account account,
-                             @ModelAttribute CourseDataDTO courseDataDTO,
-                             RedirectAttributes redirectAttributes) {
-
-        if (!Objects.equals(account.getId(), studentId) && !canEdit(account, course)) {
-            redirectAttributes.addFlashAttribute("error", "Unauthorized action");
-            return "redirect:/courses/" + course;
-        }
-
-        if (!courseService.checkIfStudentOnCourse(course, account)) {
-            redirectAttributes.addFlashAttribute("error", "You must sign up for course before submitting data!");
-            return "redirect:/courses/" + course;
-        }
-
-        var data = dataRowService.getStudentData(course, account);
-        if (data == null) {
-            data = dataRowService.generateData(course, account);
-        }
-
-        dataRowService.updateDataRow(data, courseDataDTO);
-        return "redirect:/courses/" + course.getUrl();
-    }
-
-
     @Secured("ROLE_TEACHER")
-    @PostMapping("/courses/{course}/keys/create")
-    public String createCourseKey(@PathVariable Course course, @RequestParam String key, @ModelAttribute Account account, Model model) {
-        if (!canEdit(account, course)) {
+    @GetMapping("/keys")
+    public String getKeysTab(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, Model model) {
+        if (!canEdit(model)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
         }
-        if (courseService.addKey(course, key)) {
-            // TODO: add success
-        } else {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete the course");
-        }
-        model.addAttribute("canEdit", true);
-        model.addAttribute("isStudent", course.getStudents().contains(account));
         return "course/tab-keys";
     }
 
     @Secured("ROLE_TEACHER")
-    @DeleteMapping("/courses/{course}/keys/{keyId}/revoke")
-    public String revokeCourseKey(@PathVariable Course course, @PathVariable int keyId, @ModelAttribute Account account, Model model) {
-        if (!canEdit(account, course)) {
+    @PostMapping("/keys/create")
+    public String createCourseKey(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, @RequestParam String key, Model model, HttpServletResponse response) {
+        if (!canEdit(model)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
+        }
+        if (key.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Key can't be empty!");
+        }
+        if (courseService.addKey(course, key)) {
+            alertService.addAlertToResponse(response, "success", "Added new key");
+        } else {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Key has to be unique");
+        }
+
+        return "course/tab-keys";
+    }
+
+    @Secured("ROLE_TEACHER")
+    @DeleteMapping("/keys/{keyId}/revoke")
+    public String revokeCourseKey(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, @PathVariable int keyId, Model model, HttpServletResponse response) {
+        if (!canEdit(model)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
         }
         if (!courseService.deleteKey(course, keyId)) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete the course");
         }
-        model.addAttribute("canEdit", true);
-        model.addAttribute("isStudent", course.getStudents().contains(account));
+
+        alertService.addAlertToResponse(response, "success", "Revoked key");
         return "course/tab-keys";
     }
 
     @Secured("ROLE_TEACHER")
-    @GetMapping("/courses/{course}/settings")
-    public String getSettingsTab(@PathVariable Course course, @ModelAttribute Account account, Model model) {
-        if (!canEdit(account, course)) {
+    @GetMapping("/settings")
+    public String getSettingsTab(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, Model model) {
+        if (!canEdit(model)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized user");
         }
-        model.addAttribute("canEdit", true);
-        model.addAttribute("isStudent", course.getStudents().contains(account));
+
         return "course/tab-settings";
     }
 
     @Secured("ROLE_TEACHER")
-    @DeleteMapping("/courses/{course}/delete")
-    public void deleteCourse(@PathVariable Course course, @ModelAttribute Account account, HttpServletResponse response) {
-        if (!canEdit(account, course)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Unauthorized action");
-        }
-        if (!courseService.deleteCourse(course, account)) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete the course");
-        } else {
-            response.addHeader("HX-Redirect", "/courses/");
-        }
+    @GetMapping("/name")
+    public String getCourseName(@PathVariable String courseUrl, @ModelAttribute Course course) {
+        return "course/course-name";
+    }
+
+    @Secured("ROLE_TEACHER")
+    @GetMapping("/cancel-name-update")
+    public String getNameCancel(@PathVariable String courseUrl, @ModelAttribute Course course) {
+        return "course/course-name-cancel";
+    }
+
+    @Secured("ROLE_TEACHER")
+    @PostMapping("/name")
+    public String updateCourseName(@PathVariable String courseUrl, @ModelAttribute Course course, @ModelAttribute("changedName") String changedName) {
+        course.setName(changedName);
+        courseRepository.save(course);
+        return "redirect:/courses/" + course.getUrl();
     }
 }

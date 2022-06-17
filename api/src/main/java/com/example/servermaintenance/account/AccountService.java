@@ -19,11 +19,6 @@ public class AccountService implements UserDetailsService {
     private final RoleService roleService;
     private final PasswordEncoder passwordEncoder;
 
-    public Optional<Account> getContextAccount() {
-        var email = SecurityContextHolder.getContext().getAuthentication().getName();
-        return accountRepository.findByEmail(email);
-    }
-
     public boolean registerStudent(RegisterDTO registerDTO) {
         return registerAccount(registerDTO, Set.of(roleService.getRole("STUDENT")));
     }
@@ -40,6 +35,7 @@ public class AccountService implements UserDetailsService {
         return true;
     }
 
+    @Transactional
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return accountRepository.findByEmail(username).orElseThrow();
@@ -95,5 +91,9 @@ public class AccountService implements UserDetailsService {
         roleFns.get(student).accept("STUDENT");
         roleFns.get(teacher).accept("TEACHER");
         roleFns.get(admin).accept("ADMIN");
+    }
+
+    public Optional<Account> getAccountByEmail(String email) {
+        return accountRepository.findByEmail(email);
     }
 }

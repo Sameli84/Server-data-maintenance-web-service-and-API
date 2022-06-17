@@ -1,12 +1,12 @@
 package com.example.servermaintenance.account;
 
-import com.example.servermaintenance.course.Course;
-import com.example.servermaintenance.datarow.DataRow;
+import com.example.servermaintenance.course.domain.CourseStudent;
+import com.example.servermaintenance.course.domain.Course;
+//import com.example.servermaintenance.datarow.DataRow;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
 import org.springframework.data.jpa.domain.AbstractPersistable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -38,16 +38,13 @@ public class Account extends AbstractPersistable<Long> implements UserDetails {
     @Column
     private String password;
 
-    @OneToMany(mappedBy = "account")
-    private List<DataRow> data;
-
-    @OneToMany(mappedBy = "owner")
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Course> courses;
 
-    @ManyToMany(mappedBy = "students")
-    private Set<Course> studentCourses = new HashSet<>();
+    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY)
+    private List<CourseStudent> courseStudentData;
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "account_roles",
             joinColumns = @JoinColumn(name = "account_id", referencedColumnName = "id", columnDefinition = "int8"),

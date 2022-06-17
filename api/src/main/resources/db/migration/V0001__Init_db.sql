@@ -65,3 +65,4 @@ create table datarow
     pouta_dns     text,
     self_made_dns text
 );
+

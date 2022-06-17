@@ -1,34 +1,44 @@
 <th:block layout:fragment="tab-data()">
     <th:block layout:insert="~{course/tabs :: tabs('data')}"></th:block>
     <div class="tab-content">
-        <table class="table table-striped text-center">
+        <table class="table table-striped">
             <thead>
             <tr>
-                <th>Project</th>
-                <th>Student name</th>
-                <th>Student alias</th>
-                <th>CSC username</th>
-                <th>Uid</th>
-                <th>Self made DNS</th>
-                <th>VPS username</th>
-                <th>Pouta DNS</th>
-                <th>IP address</th>
+                <th class="text-center">#</th>
+                <th th:each="header : ${courseDataDto.headers}" th:text="${header}"></th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="dataRow : ${datarows}">
-                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getProject()})}"></td>
-                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getAccount().getName()})}"></td>
-                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getStudentAlias()})}"></td>
-                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getCscUsername()})}"></td>
-                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getUid()})}"></td>
-                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getSelfMadeDns()})}"></td>
-                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getVpsUsername()})}"></td>
-                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getPoutaDns()})}"></td>
-                <td layout:replace="~{course/table-cell :: table-cell(${dataRow.getIpAddress()})}"></td>
+            <tr th:each="row : ${courseDataDto.rows}"
+                th:classappend="${row.parts[0]._courseStudentPart.courseStudent.account.id == account.id ? 'table-info' : ''}">
+                <td th:text="${row.index}" style="width: 1%" class="px-3 text-center"></td>
+                <th:block th:each="part : ${row.parts}">
+                    <td layout:replace="~{course/table-cell :: table-cell(${part.getData()})}"></td>
+                </th:block>
             </tr>
             </tbody>
         </table>
-        <p th:if="${datarows.size() == 0}">No entries...</p>
+        <p th:if="${courseDataDto.rows?.size() == 0}">No entries...</p>
+        <form th:if="${canEdit}">
+            <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+            <button type="button"
+                    th:hx-get="@{/courses/{course}/data/edit(course=${course.url})}"
+                    class="btn btn-primary px-3 py-2">
+                <i class="fa-solid fa-pen"></i>
+                Edit
+            </button>
+            <button type="button"
+                    th:hx-get="@{/courses/{course}/data/generate(course=${course.url})}"
+                    class="btn btn-primary px-3 py-2">
+                <i class="fa-solid fa-code"></i>
+                Generate
+            </button>
+            <button type="submit" form="csv"
+                    class="btn btn-success px-3 py-2">
+                <i class="fa-solid fa-file-text"></i>
+                Download csv
+            </button>
+        </form>
+        <form id="csv" th:if="${canEdit}" th:action="@{../api/course/{course}(course=${course.url})}"></form>
     </div>
 </th:block>
