@@ -1,42 +1,57 @@
 version: "3.8"
 services:
-  api:
-    build: ./api
-    restart: always
+  caddy:
+    image: caddy:2.5.1-alpine
+    restart: unless-stopped
     ports:
-      - ${API_PORT}
+      - "80:80"
+      - "443:443"
     environment:
-      - SERVER_PORT=${SERVER_PORT}
+      - APP_DOMAIN=${APP_DOMAIN}
+      - AUTH_SUBDOMAIN=${AUTH_SUBDOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:z
+  api:
+    build:
+      context: .
+    restart: always
+    expose:
+      - "4000"
+    environment:
+      - SERVER_PORT=4000
+      - SPRING_PROFILES_ACTIVE=prod
       - POSTGRES_DSN=${POSTGRES_DSN}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      - KEYCLOAK_URL=${KEYCLOAK_URL}
+      - APP_DOMAIN=${APP_DOMAIN}
+      - KC_REALM=${KC_REALM}
+      - KC_CLIENT=${KC_CLIENT}
   db:
     image: postgres:14
     restart: always
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-    ports:
-      - "5432:5432"
+    expose:
+      - "5432"
     volumes:
       - db:/var/lib/postgresql/data
   keycloak:
     image: quay.io/keycloak/keycloak:18.0.0
-    command: ["start","--auto-build","--http-enabled=true","--hostname-strict=false","--hostname-strict-https=false","--import-realm"]
+    command: ["start", "--auto-build", "--import-realm", "--proxy=edge"]
     restart: always
+    expose:
+      - "8080"
     environment:
-      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN=${KC_ADMIN_USERNAME}
       - KEYCLOAK_ADMIN_PASSWORD=${KC_ADMIN_PASSWORD}
       - KC_DB_URL=${KC_POSTGRES_DSN}
       - KC_DB_USERNAME=${POSTGRES_USER}
       - KC_DB_PASSWORD=${POSTGRES_PASSWORD}
       - KC_DB=postgres
-    ports:
-      - "8080:8080"
+      - KC_HOSTNAME=${AUTH_SUBDOMAIN}.${APP_DOMAIN}
     volumes:
       - ./realms/realm.json:/opt/keycloak/data/import/realm.json:z
 volumes:
   db:
     driver: local
-

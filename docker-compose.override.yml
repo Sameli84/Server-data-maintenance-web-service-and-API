@@ -1,0 +1,11 @@
+version: "3.8"
+services:
+  caddy:
+    volumes:
+      - ./dev.Caddyfile:/etc/caddy/Caddyfile:z
+  api:
+    restart: "no"
+    entrypoint: ["echo", "api Docker service disabled in development"]
+  db:
+    ports:
+      - "8432:5432"
