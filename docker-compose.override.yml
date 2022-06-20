@@ -3,6 +3,8 @@ services:
   caddy:
     volumes:
       - ./dev.Caddyfile:/etc/caddy/Caddyfile:z
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
   api:
     restart: "no"
     entrypoint: ["echo", "api Docker service disabled in development"]
