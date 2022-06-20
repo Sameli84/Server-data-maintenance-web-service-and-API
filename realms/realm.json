@@ -794,7 +794,7 @@
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "http://localhost:4000/*"
+        "https://${APP_DOMAIN}/*"
       ],
       "webOrigins": [],
       "notBefore": 0,
