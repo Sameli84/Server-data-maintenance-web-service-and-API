@@ -24,6 +24,7 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - APP_DOMAIN=${APP_DOMAIN}
+      - AUTH_SUBDOMAIN=${AUTH_SUBDOMAIN}
       - KC_REALM=${KC_REALM}
       - KC_CLIENT=${KC_CLIENT}
   db:
@@ -50,6 +51,9 @@ services:
       - KC_DB_PASSWORD=${POSTGRES_PASSWORD}
       - KC_DB=postgres
       - KC_HOSTNAME=${AUTH_SUBDOMAIN}.${APP_DOMAIN}
+      - APP_DOMAIN=${APP_DOMAIN}
+      - KC_REALM=${KC_REALM}
+      - KC_CLIENT=${KC_CLIENT}
     volumes:
       - ./realms/realm.json:/opt/keycloak/data/import/realm.json:z
 volumes:
