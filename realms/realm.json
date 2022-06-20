@@ -1,6 +1,6 @@
 {
-  "id": "springbootkeycloak",
-  "realm": "springbootkeycloak",
+  "id": "${KC_REALM}",
+  "realm": "${KC_REALM}",
   "notBefore": 0,
   "defaultSignatureAlgorithm": "RS256",
   "revokeRefreshToken": false,
@@ -51,7 +51,7 @@
         "description": "${role_offline-access}",
         "composite": false,
         "clientRole": false,
-        "containerId": "springbootkeycloak",
+        "containerId": "${KC_REALM}",
         "attributes": {}
       },
       {
@@ -64,7 +64,7 @@
           ]
         },
         "clientRole": false,
-        "containerId": "springbootkeycloak",
+        "containerId": "${KC_REALM}",
         "attributes": {}
       },
       {
@@ -72,12 +72,12 @@
         "name": "superuser",
         "composite": false,
         "clientRole": false,
-        "containerId": "springbootkeycloak",
+        "containerId": "${KC_REALM}",
         "attributes": {}
       },
       {
         "id": "699f1397-eda4-42d4-aaec-b24a8822448e",
-        "name": "default-roles-springbootkeycloak",
+        "name": "default-roles-${KC_REALM}",
         "description": "${role_default-roles}",
         "composite": true,
         "composites": {
@@ -94,7 +94,7 @@
           }
         },
         "clientRole": false,
-        "containerId": "springbootkeycloak",
+        "containerId": "${KC_REALM}",
         "attributes": {}
       },
       {
@@ -102,7 +102,7 @@
         "name": "STUDENT",
         "composite": false,
         "clientRole": false,
-        "containerId": "springbootkeycloak",
+        "containerId": "${KC_REALM}",
         "attributes": {}
       },
       {
@@ -116,7 +116,7 @@
           ]
         },
         "clientRole": false,
-        "containerId": "springbootkeycloak",
+        "containerId": "${KC_REALM}",
         "attributes": {}
       },
       {
@@ -125,7 +125,7 @@
         "description": "${role_uma_authorization}",
         "composite": false,
         "clientRole": false,
-        "containerId": "springbootkeycloak",
+        "containerId": "${KC_REALM}",
         "attributes": {}
       }
     ],
@@ -356,7 +356,7 @@
           "attributes": {}
         }
       ],
-      "serverdata": [
+      "${KC_CLIENT}": [
         {
           "id": "d7a27999-e26d-406f-864e-bf4ec9ee954c",
           "name": "superuser",
@@ -450,11 +450,11 @@
   "groups": [],
   "defaultRole": {
     "id": "699f1397-eda4-42d4-aaec-b24a8822448e",
-    "name": "default-roles-springbootkeycloak",
+    "name": "default-roles-${KC_REALM}",
     "description": "${role_default-roles}",
     "composite": true,
     "clientRole": false,
-    "containerId": "springbootkeycloak"
+    "containerId": "${KC_REALM}"
   },
   "requiredCredentials": [
     "password"
@@ -517,13 +517,13 @@
       "clientId": "account",
       "name": "${client_account}",
       "rootUrl": "${authBaseUrl}",
-      "baseUrl": "/realms/springbootkeycloak/account/",
+      "baseUrl": "/realms/${KC_REALM}/account/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "/realms/springbootkeycloak/account/*"
+        "/realms/${KC_REALM}/account/*"
       ],
       "webOrigins": [],
       "notBefore": 0,
@@ -559,13 +559,13 @@
       "clientId": "account-console",
       "name": "${client_account-console}",
       "rootUrl": "${authBaseUrl}",
-      "baseUrl": "/realms/springbootkeycloak/account/",
+      "baseUrl": "/realms/${KC_REALM}/account/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "/realms/springbootkeycloak/account/*"
+        "/realms/${KC_REALM}/account/*"
       ],
       "webOrigins": [],
       "notBefore": 0,
@@ -727,13 +727,13 @@
       "clientId": "security-admin-console",
       "name": "${client_security-admin-console}",
       "rootUrl": "${authAdminUrl}",
-      "baseUrl": "/admin/springbootkeycloak/console/",
+      "baseUrl": "/admin/${KC_REALM}/console/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "redirectUris": [
-        "/admin/springbootkeycloak/console/*"
+        "/admin/${KC_REALM}/console/*"
       ],
       "webOrigins": [
         "+"
@@ -787,7 +787,7 @@
     },
     {
       "id": "05b05d40-27f8-45e9-852b-6431f63e71ac",
-      "clientId": "serverdata",
+      "clientId": "${KC_CLIENT}",
       "baseUrl": "",
       "surrogateAuthRequired": false,
       "enabled": true,
