@@ -10,24 +10,24 @@
     <div th:replace="~{course/course-name}"></div>
     <p>by [[${course.getOwner()?.getName()}]]</p>
 
-    <div class="row mx-0" th:if="${!isStudent}">
-        <div class="mb-3 col col-lg-6 col-md-8 px-0">
-            <form method="post" th:action="@{/courses/{url}/join(url=${course.url})}" class="row mx-0">
-                <div class="input-group col ps-0" th:if="${hasKey}">
-                    <input name="key" id="join-key-input" class="form-control form-control-lg"
-                           placeholder="Enter course key"
-                           aria-label="Course key" th:if="${hasKey}">
-                </div>
-                <button type="submit" class="btn btn-success px-5 fw-bold col-auto">
-                    <i class="fa-solid fa-key" th:if="${hasKey}"></i>
-                    Join
-                </button>
-            </form>
-        </div>
+    <div class="mb-3 col col-lg-6 col-md-8" th:if="${!isStudent}">
+        <form method="post" th:action="@{/courses/{url}/join(url=${course.url})}" class="hstack gap-2">
+            <input th:if="${hasKey && !canEdit}"
+                   name="key"
+                   class="form-control form-control-lg"
+                   placeholder="Enter course key"
+                   aria-label="Course key">
+            <button type="submit" class="btn btn-success px-5 py-2 fw-bold hstack gap-2">
+                <i class="fa-solid fa-key" th:if="${hasKey && !canEdit}"></i>
+                Join
+            </button>
+        </form>
     </div>
 
-    <div th:if="${isStudent}" layout:insert="~{course/tab-input :: tab-input()}" hx-target="this" hx-swap="innerHTML"></div>
-    <div th:if="${!isStudent && canEdit}" layout:insert="~{course/tab-data :: tab-data()}" hx-target="this" hx-swap="innerHTML"></div>
+    <div th:if="${isStudent}" layout:insert="~{course/tab-input :: tab-input()}" hx-target="this"
+         hx-swap="innerHTML"></div>
+    <div th:if="${!isStudent && canEdit}" layout:insert="~{course/tab-data :: tab-data()}" hx-target="this"
+         hx-swap="innerHTML"></div>
 </section>
 </body>
 </html>
