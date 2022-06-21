@@ -34,37 +34,38 @@
                 </div>
             </div>
 
-            <table class="table table-striped table-responsive">
-                <thead>
-                <tr>
-                    <th x-data="{ all: true }" class="text-center">
-                        <button type="button"
-                                class="btn py-0 border-0"
-                                @click="document.querySelectorAll('.form-check-input').forEach(v => v.checked = all); all = !all;"
-                                aria-label="Toggle all checkboxes"
-                                title="Toggle checkboxes">
-                            <i class="fa-solid" :class="all ? 'fa-toggle-off' : 'fa-toggle-on'"></i>
-                        </button>
-                    </th>
-                    <th class="text-center">id</th>
-                    <th th:each="header : ${courseDataDto.headers}" th:text="${header}" th:title="${header}"></th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="row, rs : ${courseDataDto.rows}">
-                    <td style="width: 1%" class="px-2 text-center">
-                        <input type="checkbox"
-                               class="form-check-input"
-                               th:name="|selectedRows[${rs.index}]|">
-                    </td>
-                    <td th:text="${row.index}" style="width: 1%" class="px-3 text-center"></td>
-                    <th:block th:each="part : ${row.parts}">
-                        <td layout:replace="~{course/table-cell :: table-cell(${part.getData()})}"></td>
-                    </th:block>
-                </tr>
-                </tbody>
-            </table>
-            <p th:if="${courseDataDto.rows?.size() == 0}">No entries...</p>
+            <div class="table-responsive">
+                <table class="table table-striped table-sm">
+                    <thead>
+                    <tr>
+                        <th x-data="{ all: true }" class="text-center">
+                            <button type="button"
+                                    class="btn py-0 border-0"
+                                    @click="document.querySelectorAll('.form-check-input').forEach(v => v.checked = all); all = !all;"
+                                    aria-label="Toggle all checkboxes"
+                                    title="Toggle checkboxes">
+                                <i class="fa-solid" :class="all ? 'fa-toggle-off' : 'fa-toggle-on'"></i>
+                            </button>
+                        </th>
+                        <th class="text-center">id</th>
+                        <th th:each="header : ${courseDataDto.headers}" th:text="${header}" th:title="${header}"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="row, rs : ${courseDataDto.rows}">
+                        <td style="width: 1%" class="px-2 text-center">
+                            <input type="checkbox"
+                                   class="form-check-input"
+                                   th:name="|selectedRows[${rs.index}]|">
+                        </td>
+                        <td th:text="${row.index}" style="width: 1%" class="px-3 text-center"></td>
+                        <th:block th:each="part : ${row.parts}">
+                            <td layout:replace="~{course/table-cell :: table-cell(${part.getData()})}"></td>
+                        </th:block>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>            <p th:if="${courseDataDto.rows?.size() == 0}">No entries...</p>
 
             <button type="button"
                     th:hx-get="@{/courses/{course}/data(course=${course.url})}"
