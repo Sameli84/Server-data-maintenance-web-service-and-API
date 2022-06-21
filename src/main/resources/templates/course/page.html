@@ -7,7 +7,7 @@
 </head>
 <body>
 <section layout:fragment="content">
-    <h1 id="course-name">[[${course.name}]]</h1>
+    <div th:replace="~{course/course-name}"></div>
     <p>by [[${course.getOwner()?.getName()}]]</p>
 
     <div class="row mx-0" th:if="${!isStudent}">
