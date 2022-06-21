@@ -1,17 +1,12 @@
-    <form id="nameUpdateForm" th:action="@{/courses/{url}/name(url=${course.getUrl()})}" method="post">
-        <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
-        <h1 class="px-3 py-2">
-            <input name="changedName" type="text" th:value="${course.name}" required>
-            <button type="submit" class= "btn btn-success px-3 py-2">
-                <i class="fa-solid fa-check"></i>
-                Save
-            </button>
-            <button class="btn btn-danger px-3 py-2"
-                    th:hx-get="@{/courses/{url}/cancel-name-update(url=${course.getUrl()})}"
-                    hx-swap="outerHTML"
-                    hx-target="#nameUpdateForm">
-                <i class="fa-solid fa-x"></i>
-                Cancel
-            </button>
-        </h1>
-    </form>
+<div id="course-name" class="hstack gap-2">
+    <h1 class="text-truncate">
+        [[${course.name}]]
+    </h1>
+    <button title="Change name"
+       th:hx-get="@{/courses/{url}/name(url=${course.getUrl()})}"
+       hx-swap="outerHTML"
+       hx-target="#course-name"
+       class="btn btn-outline-primary border-0">
+        <i th:if="${canEdit}" class="fa-solid fa-pen fs-3"></i>
+    </button>
+</div>

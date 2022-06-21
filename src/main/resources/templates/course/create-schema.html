@@ -9,17 +9,18 @@
 <section layout:fragment="content">
     <form th:object="${schemaDto}"
           id="schemaForm"
-          method="post"
-          x-ref="schemaForm"
+          hx-target="this"
+          hx-include="this"
+          hx-swap="outerHTML"
           th:x-data="|{selectedIndex: ${schemaDto.selectedIndex}}|">
-        <div class="row mb-2">
-            <h3 class="col">Editing <b>[[${course.name}]]</b> schema</h3>
-            <div class="col-auto">
-                <div class="d-inline-block" th:if="${schemaDto.removedEntities.size() > 0}">
+        <div class="hstack mb-2">
+            <h3 class="text-break">Editing <b>[[${course.name}]]</b> schema</h3>
+            <div class="hstack gap-2 align-items-baseline">
+                <div th:if="${schemaDto.removedEntities.size() > 0}"
+                     style="width: max-content; max-width: 20rem">
                     <select name="recover" class="form-select"
                             th:hx-post="@{/courses/{course}/schema/removed-parts/recover(course=${course.url})}"
-                            hx-include="closest form"
-                            hx-target="#schemaForm">
+                            aria-label="Recover part">
                         <option value="-1">Recover part</option>
                         <option th:each="part : ${schemaDto.removedEntities}"
                                 th:value="${part.id}"
@@ -29,13 +30,15 @@
                 </div>
                 <button th:hx-post="${#mvc.url('CSC#cancelEditing').arg(0, course.url).build()}"
                         type="button"
-                        class="btn btn-danger"
+                        class="btn btn-danger hstack gap-1 py-2"
+                        style="height: min-content"
                         hx-confirm="Are you sure you want to cancel made changes?">
                     <i class="fa-solid fa-x"></i>
                     Cancel
                 </button>
                 <button type="button"
-                        class="btn btn-success px-3"
+                        class="btn btn-success px-3 hstack gap-1 py-2"
+                        style="height: min-content"
                         hx-confirm="Are you sure you want to save these changes?"
                         hx-post="">
                     <i class="fa-solid fa-floppy-disk"></i>
@@ -52,18 +55,14 @@
             <input type="hidden" :name="dropping !== null ? 'drop' : ''" x-model="dropping">
             <input type="hidden"
                    th:hx-post="@{/courses/{course}/schema/sort(course=${course.url})}"
-                   hx-trigger="sort from:body"
-                   hx-include="closest form"
-                   hx-target="#schemaForm"
-                   hx-swap="outerHTML">
+                   hx-trigger="sort from:body">
             <div class="card mb-3 border-4"
                  th:each="part, stat : ${schemaDto.parts}"
                  th:x-data="|{partOpen: selectedIndex === ${stat.index}, partName: '${part.name}', partWidth: ${part.controlWidth}, partLocked: ${part.locked}}|"
                  th:x-init="|$watch('selectedIndex', (v) => { partOpen = (v === ${stat.index}) })|"
                  th::class="|{'border-start border-primary': partOpen, 'border-info': dragging === ${stat.index}}|"
                  th:@dragstart="|dragging = ${stat.index}|"
-                 @dragend="if (dragging === dropping || dropping === null) dragging = null;"
-                 x-ref="card">
+                 @dragend="if (dragging === dropping || dropping === null) dragging = null;">
                 <div class="position-absolute w-100"
                      x-show="dragging != null"
                      th:@dragenter.prevent="|if (dragging !== ${stat.index}) dropping = ${stat.index};|"
@@ -74,13 +73,13 @@
                      x-show="partOpen">
                     <div class="text-center"
                          style="cursor: move"
-                         @mouseover="$refs.card.setAttribute('draggable', 'true')"
-                         @mouseout="$refs.card.removeAttribute('draggable')">
+                         @mouseover="$root.setAttribute('draggable', 'true')"
+                         @mouseout="$root.removeAttribute('draggable')">
                         <i class="fa-solid fa-grip-horizontal text-muted"></i>
                     </div>
                     <div class="px-3 pb-2">
-                        <div class="row mx-0">
-                            <div class="col-auto ps-0">
+                        <div class="hstack gap-3">
+                            <div>
                                 <input type="checkbox" th:id="${stat.index}+'locked'"
                                        class="btn-check"
                                        th:field="*{parts[__${stat.index}__].locked}"
@@ -103,17 +102,15 @@
                                    x-model="partName"
                                    placeholder="Enter part name">
 
-                            <div class="col-auto my-auto pe-0">
-                                <div class="form-check form-switch form-check-reverse">
-                                    <input type="checkbox" th:id="${stat.index}+'required'"
-                                           class="form-check-input"
-                                           th:field="*{parts[__${stat.index}__].required}"
-                                           aria-label="Required">
-                                    <label class="form-check-label"
-                                           th:for="${stat.index}+'required'">
-                                        Required
-                                    </label>
-                                </div>
+                            <div class="form-check form-switch form-check-reverse">
+                                <input type="checkbox" th:id="${stat.index}+'required'"
+                                       class="form-check-input"
+                                       th:field="*{parts[__${stat.index}__].required}"
+                                       aria-label="Required">
+                                <label class="form-check-label"
+                                       th:for="${stat.index}+'required'">
+                                    Required
+                                </label>
                             </div>
                         </div>
                     </div>
@@ -123,8 +120,8 @@
                      x-show="!partOpen">
                     <div class="text-center"
                          style="cursor: move"
-                         @mouseover="$refs.card.setAttribute('draggable', 'true')"
-                         @mouseout="$refs.card.removeAttribute('draggable')">
+                         @mouseover="$root.setAttribute('draggable', 'true')"
+                         @mouseout="$root.removeAttribute('draggable')">
                         <i class="fa-solid fa-grip-horizontal text-muted"></i>
                     </div>
                     <div :class="{ 'collapse': partOpen }">
@@ -168,15 +165,22 @@
                                      title="Regex used for validating user input">
                                     Regex
                                 </div>
-                                <input type="text" list="validators" th:field="*{parts[__${stat.index}__].validatorRegex}"
+                                <input type="text" list="validators"
+                                       th:field="*{parts[__${stat.index}__].validatorRegex}"
                                        class="form-control"
                                        :disabled="!selected"
                                        aria-label="Validator regex"/>
                                 <datalist id="validators">
                                     <option value="[0-9]+">Number</option>
-                                    <option value="^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\.(?!$)|$)){4}$">Ip address</option>
-                                    <option value='^(([^<>()\[\]\\.,;:\s@`]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$'>Email</option>
-                                    <option value="^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]">Url</option>
+                                    <option value="^(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\.(?!$)|$)){4}$">
+                                        Ip address
+                                    </option>
+                                    <option value='^(([^<>()\[\]\\.,;:\s@`]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$'>
+                                        Email
+                                    </option>
+                                    <option value="^(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?$">
+                                        Url
+                                    </option>
                                 </datalist>
                                 <div class="input-group-text"
                                      title="Message to display on validation error">
@@ -211,14 +215,14 @@
                                         class="btn btn-success"
                                         th:hx-post="${#mvc.url('CSC#renderGenerationStatement').arg(0, course.url).arg(1, stat.index).build()}"
                                         :disabled="!selected"
-                                        hx-include="closest form"
-                                        hx-target="#modal-here">
+                                        hx-target="#modal-here"
+                                        hx-swap="innerHTML">
                                     <i class="fa-solid fa-play"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
-                    <div class="card-footer row mx-0 justify-content-between">
+                    <div class="card-footer hstack justify-content-between">
                         <div class="col col-xl-4 col-lg-5 col-md-6">
                             <label>Field width: <span x-text="partWidth"></span> / 4</label>
                             <input type="range"
@@ -228,13 +232,10 @@
                                    x-model="partWidth"
                                    class="form-range" aria-label="Form control width">
                         </div>
-                        <div class="col-auto my-auto px-0">
+                        <div class="hstack gap-2">
                             <button type="button"
                                     th:if="${part._schemaPartEntity != null}"
                                     th:hx-post="${#mvc.url('CSC#resetPartToOriginalState').arg(0, course.url).arg(1, stat.index).build()}"
-                                    hx-target="#schemaForm"
-                                    hx-swap="outerHTML"
-                                    hx-include="closest form"
                                     class="btn btn-outline-primary"
                                     title="Reset part"
                                     aria-label="Reset part">
@@ -242,9 +243,6 @@
                             </button>
                             <button type="button"
                                     th:hx-delete="${#mvc.url('CSC#deletePartFromSchema').arg(0, course.url).arg(1, stat.index).build()}"
-                                    hx-target="#schemaForm"
-                                    hx-swap="outerHTML"
-                                    hx-include="closest form"
                                     class="btn btn-outline-danger"
                                     title="Remove part"
                                     aria-label="Remove part">
@@ -255,20 +253,17 @@
                 </div>
             </div>
         </div>
-        <div class="mb-5">
+        <div class="mb-5 hstack gap-2">
             <button type="button"
                     th:hx-get="${#mvc.url('CSC#addPartToSchema').arg(0, course.url).build()}"
-                    hx-target="#schemaForm"
-                    hx-swap="outerHTML"
-                    hx-include="closest form"
                     class="btn btn-primary">
                 <i class="fa-solid fa-plus"></i>
                 New field
             </button>
             <a th:hx-post="${#mvc.url('CSC#renderSchema').arg(0, course.url).build()}"
                class="btn btn-outline-primary"
-               hx-include="closest form"
-               hx-target="#modal-here">
+               hx-target="#modal-here"
+               hx-swap="innerHTML">
                 <i class="fa-solid fa-table"></i>
                 Render form
             </a>
@@ -276,18 +271,16 @@
     </form>
     <div id="modal-here"></div>
 </section>
-<div id="render" class="container">
-    <div class="modal"
-         tabindex="-1"
-         style="display: block"
-         x-data
-         x-ref="render">
+<div id="render" class="container" x-data>
+    <div class="modal-backdrop opacity-75"></div>
+    <div class="modal d-block"
+         tabindex="-1">
         <div class="modal-dialog modal-xl modal-fullscreen-md-down">
             <div class="modal-content"
-                 @click.away="$refs.render.remove()">
+                 @click.away="$root.remove()">
                 <div class="modal-header">
                     <h5 class="modal-title">Rendered form</h5>
-                    <button type="button" class="btn-close" @click="$refs.render.remove()"
+                    <button type="button" class="btn-close" @click="$root.remove()"
                             aria-label="Close modal">
                     </button>
                 </div>
@@ -309,7 +302,7 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @click="$refs.render.remove()">
+                    <button type="button" class="btn btn-secondary" @click="$root.remove()">
                         Close
                     </button>
                 </div>
@@ -317,18 +310,16 @@
         </div>
     </div>
 </div>
-<div id="repl" class="container">
-    <div class="modal"
-         tabindex="-1"
-         style="display: block"
-         x-data
-         x-ref="repl">
+<div id="repl" class="container" x-data>
+    <div class="modal-backdrop opacity-75"></div>
+    <div class="modal d-block"
+         tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content"
-                 @click.away="$refs.repl.remove()">
+                 @click.away="$root.remove()">
                 <div class="modal-header">
                     <h5 class="modal-title">Auto generator results</h5>
-                    <button type="button" class="btn-close" @click="$refs.repl.remove()"
+                    <button type="button" class="btn-close" @click="$root.remove()"
                             aria-label="Close modal">
                     </button>
                 </div>
@@ -349,7 +340,7 @@
                     </table>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @click="$refs.repl.remove()">
+                    <button type="button" class="btn btn-secondary" @click="$root.remove()">
                         Close
                     </button>
                 </div>

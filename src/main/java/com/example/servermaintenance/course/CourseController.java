@@ -4,14 +4,13 @@ import com.example.servermaintenance.AlertService;
 import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.account.AccountService;
 import com.example.servermaintenance.course.domain.*;
-import com.github.slugify.Slugify;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -277,21 +276,38 @@ public class CourseController {
 
     @RolesAllowed("TEACHER")
     @GetMapping("/name")
-    public String getCourseName(@PathVariable String courseUrl, @ModelAttribute Course course) {
-        return "course/course-name";
+    public String getCourseName(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, Model model) {
+        if (!canEdit(model)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized action");
+        }
+        model.addAttribute("courseNameDto", new CourseNameDto(course.getName()));
+        return "course/course-name-edit";
     }
 
     @RolesAllowed("TEACHER")
     @GetMapping("/cancel-name-update")
-    public String getNameCancel(@PathVariable String courseUrl, @ModelAttribute Course course) {
-        return "course/course-name-cancel";
+    public String getNameCancel(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, Model model) {
+        if (!canEdit(model)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized action");
+        }
+        return "course/course-name";
     }
 
     @RolesAllowed("TEACHER")
     @PostMapping("/name")
-    public String updateCourseName(@PathVariable String courseUrl, @ModelAttribute Course course, @ModelAttribute("changedName") String changedName) {
-        course.setName(changedName);
+    public String updateCourseName(@SuppressWarnings("unused") @PathVariable String courseUrl,
+                                   @ModelAttribute Course course,
+                                   @Valid @ModelAttribute CourseNameDto courseNameDto,
+                                   BindingResult bindingResult,
+                                   Model model) {
+        if (!canEdit(model)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized action");
+        }
+        if (bindingResult.hasErrors()) {
+            return "course/course-name-edit";
+        }
+        course.setName(courseNameDto.getCourseName());
         courseRepository.save(course);
-        return "redirect:/courses/" + course.getUrl();
+        return "course/course-name";
     }
 }

@@ -12,7 +12,7 @@
     <title layout:title-pattern="$CONTENT_TITLE"></title>
 
     <script src="/webjars/htmx.org/1.7.0/dist/htmx.min.js" defer></script>
-    <script src="/webjars/alpinejs/3.9.1/dist/cdn.min.js"></script>
+    <script src="/webjars/alpinejs/3.9.1/dist/cdn.min.js" defer></script>
     <link href="/webjars/bootstrap/5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/webjars/fortawesome__fontawesome-free/6.1.1/css/all.min.css" rel="stylesheet">
     <style>
@@ -56,30 +56,18 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" :class="{'show': open}">
-                <th:block sec:authorize="isAnonymous()">
-                    <div class="navbar-nav col">
-                        <div class="nav-item">
-                            <a href="/login" class="nav-link">Login</a>
-                        </div>
-                        <div class="nav-item">
-                            <a href="/register" class="nav-link">Register</a>
-                        </div>
-                    </div>
-                </th:block>
                 <th:block sec:authorize="isAuthenticated()">
                     <div class="navbar-nav col">
                         <a href="/courses" class="nav-link my-auto">COURSES</a>
                     </div>
-                    <div class="col-auto row my-auto">
-                        <div class="col my-auto" sec:authentication="name"></div>
-                        <div class="col-auto">
-                            <form th:action="@{/logout}" method="post">
-                                <button type="submit" class="btn btn-danger px-4">
-                                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                                    Logout
-                                </button>
-                            </form>
-                        </div>
+                    <div class="hstack gap-3 justify-content-between">
+                        <div sec:authentication="name"></div>
+                        <form th:action="@{/logout}" method="post">
+                            <button type="submit" class="btn btn-danger px-4">
+                                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                                Logout
+                            </button>
+                        </form>
                     </div>
                 </th:block>
             </div>
