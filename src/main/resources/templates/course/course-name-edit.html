@@ -3,10 +3,12 @@
       hx-swap="outerHTML"
       hx-target="#nameUpdateForm"
       th:object="${courseNameDto}"
+      th:classappend="${#fields.hasErrors('courseName') ? 'mb-4' : ''}"
       class="hstack gap-2">
     <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
-    <div class="position-relative" th:x-data="|{ courseName: '${courseNameDto.courseName}' }|"
-         style="min-width: 1rem; width: min-content" x-init="$watch('courseName', name => console.log(name))">
+    <div class="position-relative"
+         th:x-data="|{ courseName: '${courseNameDto.courseName}' }|"
+         style="min-width: 1rem; width: min-content">
         <input name="changedName"
                class="form-control form-control-plaintext fs-1 py-0 position-absolute"
                type="text"
@@ -15,9 +17,10 @@
                required
                aria-label="Course name input"
                th:classappend="${#fields.hasErrors('courseName') ? 'is-invalid border-0' : ''}">
-        <div class="invalid-feedback" th:if="${#fields.hasErrors('courseName')}"
+        <div class="invalid-feedback position-absolute"
+             style="bottom: -1.5rem" th:if="${#fields.hasErrors('courseName')}"
              th:text="${#fields.errors('courseName')[0]}"></div>
-        <span class="invisible fs-1" x-text="courseName" style="white-space: pre"></span>
+        <span class="invisible fs-1 overflow-hidden d-block" x-text="courseName" style="white-space: pre"></span>
         <template x-if="courseName.length === 0">
             <span class="invisible fs-1">a</span>
         </template>
