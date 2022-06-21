@@ -23,4 +23,6 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     List<Account> findAllStudents(Course course);
     @Query("select distinct c from CourseStudent c join fetch c.courseStudentParts p join fetch p.schemaPart where c.course = :course order by c.courseLocalIndex")
     List<CourseStudent> findAllCourseStudentsFetchData(Course course);
+    @Query("select s.name from SchemaPart s left join s.course where s.course = :course order by s.order")
+    String[] findCourseSchemaPartNames(Course course);
 }
