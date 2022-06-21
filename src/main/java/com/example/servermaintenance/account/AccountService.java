@@ -14,6 +14,7 @@ import javax.transaction.Transactional;
 public class AccountService implements UserDetailsService {
     private final AccountRepository accountRepository;
 
+    // Sync application account with keycloak account or create a new one
     @Transactional
     public void syncAccount(AccessToken token) throws AccountNotFoundException {
         var account = accountRepository.findFirstByEmail(token.getEmail()).orElse(new Account());

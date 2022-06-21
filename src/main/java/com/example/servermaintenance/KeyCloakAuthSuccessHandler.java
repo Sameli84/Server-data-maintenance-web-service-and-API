@@ -24,6 +24,8 @@ public class KeyCloakAuthSuccessHandler extends KeycloakAuthenticationSuccessHan
     public KeyCloakAuthSuccessHandler(AuthenticationSuccessHandler fallback) {
         super(fallback);
     }
+
+    // Sync application account with keycloak account upon authentication
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws ServletException, IOException {
         if (authentication.getPrincipal() instanceof KeycloakPrincipal<?> principal) {

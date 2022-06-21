@@ -111,6 +111,7 @@ public class CourseService {
         return courseRepository.findAll();
     }
 
+    // Write csv file from saved course data
     public void writeReportContext(String courseUrl, Writer w) throws Exception {
         var course = getCourseByUrl(courseUrl);
         if (course.isEmpty()) {
@@ -170,12 +171,16 @@ public class CourseService {
         return courseKeyRepository.existsCourseKeyByCourse(course);
     }
 
+    // Get students data for given course for data input view
     @Transactional
     public SchemaInputDto getStudentForm(Course course, Account account) {
+        // Get schema parts
         var schema = schemaPartRepository.findSchemaPartsByCourseOrderByOrder(course);
+        // Get data
         var dataParts = courseStudentService.getCourseStudentParts(course, account);
         var result = new ArrayList<SchemaPartDto>(schema.size());
         var data = new ArrayList<CourseStudentPartDto>(schema.size());
+        // Combine course schema parts with respective student data
         for (int i = 0; i < schema.size(); i++) {
             var schemaPartDto = modelMapper.map(schema.get(i), SchemaPartDto.class);
             result.add(schemaPartDto);
@@ -184,12 +189,14 @@ public class CourseService {
         return new SchemaInputDto(result, data, null);
     }
 
+    // Form course data table with student data as rows
     @Transactional
     public CourseDataDto getCourseData(Course course) {
         var students = courseRepository.findAllCourseStudentsFetchData(course);
 
         var rows = new ArrayList<CourseDataRowDto>();
 
+        // Add a row for each students data
         for (var student : students) {
             var row = new CourseDataRowDto();
             row.setIndex(student.getCourseLocalIndex());
@@ -201,6 +208,7 @@ public class CourseService {
             rows.add(row);
         }
 
+        // Add headers using course schema parts names
         var headers = course.getSchemaParts()
                 .stream()
                 .sorted(Comparator.comparingInt(SchemaPart::getOrder))
@@ -210,6 +218,7 @@ public class CourseService {
         return new CourseDataDto(headers, rows);
     }
 
+    // Direct course data modification
     @Transactional
     public void saveCourseData(CourseDataDto courseDataDto, Course course) {
         var students = this.courseStudentService.getCourseStudents(course);
@@ -220,9 +229,9 @@ public class CourseService {
         var parts = courseDataDto.getRows()
                 .stream()
                 .flatMap(a -> a.getParts().stream()
-                        // take modified parts
+                        // Get parts that have been modified
                         .filter(c -> !c.getData().equals(c.get_courseStudentPart().getData()))
-                        // update data
+                        // Update data for modified parts
                         .map(b -> {
                             b.get_courseStudentPart().setData(b.getData());
                             return b.get_courseStudentPart();

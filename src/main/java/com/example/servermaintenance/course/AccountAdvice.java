@@ -33,6 +33,7 @@ public class AccountAdvice {
         return "redirect:/login";
     }
 
+    // Get session user as model attribute
     @ModelAttribute("account")
     public Account addAccountToModel(Principal principal, HttpServletRequest request) {
         if (principal == null) {

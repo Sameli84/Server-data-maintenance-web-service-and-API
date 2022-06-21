@@ -109,6 +109,7 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You must sign up for course before submitting data");
         }
 
+        // Get students data on course
         var studentParts = courseStudentService.getCourseStudentParts(course, account);
 
         // remove locked parts at the end from the count
@@ -135,7 +136,7 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong amount of data parts");
         }
 
-        // validoot
+        // Validate student data input
         boolean hasErrors = false;
         for (int i = 0; i < studentParts.size(); i++) {
             var schemaPart = studentParts.get(i).getSchemaPart();
@@ -167,12 +168,14 @@ public class CourseController {
             return "course/tab-input";
         }
 
+        // Set modified course data
         for (int i = 0; i < studentParts.size(); i++) {
             var studentPart = studentParts.get(i);
             if (!studentPart.getSchemaPart().isLocked()) {
                 studentPart.setData(dataParts.get(i).getData());
             }
         }
+        // Save modified course data
         courseStudentService.saveStudentParts(studentParts);
 
         alertService.addAlertToResponse(response, "success", "Updated data");

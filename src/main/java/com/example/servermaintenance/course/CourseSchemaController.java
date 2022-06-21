@@ -28,6 +28,7 @@ public class CourseSchemaController {
     private final SchemaPartRepository schemaPartRepository;
     private final ModelMapper modelMapper;
 
+    // Index for ordering schema parts in course creation or editing
     private int clampToList(List<?> list, int index) {
         if (index < 0) {
             return 0;
