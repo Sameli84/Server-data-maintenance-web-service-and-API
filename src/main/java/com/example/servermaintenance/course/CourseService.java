@@ -111,19 +111,38 @@ public class CourseService {
         return courseRepository.findAll();
     }
 
+    @Transactional
+    public CourseCsvDataDto getCourseCsvData(Course course) {
+        var headers = this.courseRepository.findCourseSchemaPartNames(course);
+        var rows = new ArrayList<String[]>();
+        var students = courseRepository.findAllCourseStudentsFetchData(course);
+        var row = new ArrayList<String>();
+
+        for (var student : students) {
+            row.clear();
+            row.addAll(student.getCourseStudentParts()
+                    .stream()
+                    .sorted(Comparator.comparingInt(a -> a.getSchemaPart().getOrder()))
+                    .map(CourseStudentPart::getData)
+                    .toList());
+            rows.add(row.toArray(new String[0]));
+        }
+
+        return new CourseCsvDataDto(headers, rows);
+    }
+
     public void writeReportContext(String courseUrl, Writer w) throws Exception {
         var course = getCourseByUrl(courseUrl);
         if (course.isEmpty()) {
             throw new Exception("course not found");
         }
-        List<String> headers = this.getCourseData(course.get()).getHeaders().stream().toList();
+        var csvData = getCourseCsvData(course.get());
 
         CSVWriter writer = new CSVWriter(w);
-        writer.writeNext(headers.toArray(new String[0]));
 
-        for (CourseDataRowDto cdrd : this.getCourseData(course.get()).getRows()) {
-            writer.writeNext(cdrd.getParts().stream().map(CourseStudentPartDto::getData).toList().toArray(new String[0]));
-        }
+        writer.writeNext(csvData.getHeaders());
+        writer.writeAll(csvData.getRows());
+
         writer.close();
     }
 

@@ -33,6 +33,7 @@ public class CourseAPIController {
             response.setStatus(200); // OK
             response.setHeader("Content-Disposition", "attachment; filename=" + courseUrl + ".csv");
             response.setContentType("text/csv");
+            response.setCharacterEncoding("utf-8");
             courseService.writeReportContext(courseUrl, response.getWriter());
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "unable generate report " + courseUrl, e);
