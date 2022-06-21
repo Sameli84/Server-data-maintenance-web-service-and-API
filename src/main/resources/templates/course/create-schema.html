@@ -12,9 +12,9 @@
           method="post"
           x-ref="schemaForm"
           th:x-data="|{selectedIndex: ${schemaDto.selectedIndex}}|">
-        <div class="row mb-2">
-            <h3 class="col">Editing <b>[[${course.name}]]</b> schema</h3>
-            <div class="col-auto">
+        <div class="hstack mb-2">
+            <h3 class="text-break">Editing <b>[[${course.name}]]</b> schema</h3>
+            <div class="hstack gap-1">
                 <div class="d-inline-block" th:if="${schemaDto.removedEntities.size() > 0}">
                     <select name="recover" class="form-select"
                             th:hx-post="@{/courses/{course}/schema/removed-parts/recover(course=${course.url})}"
@@ -29,13 +29,15 @@
                 </div>
                 <button th:hx-post="${#mvc.url('CSC#cancelEditing').arg(0, course.url).build()}"
                         type="button"
-                        class="btn btn-danger"
+                        class="btn btn-danger hstack gap-1 py-2"
+                        style="height: min-content"
                         hx-confirm="Are you sure you want to cancel made changes?">
                     <i class="fa-solid fa-x"></i>
                     Cancel
                 </button>
                 <button type="button"
-                        class="btn btn-success px-3"
+                        class="btn btn-success px-3 hstack gap-1 py-2"
+                        style="height: min-content"
                         hx-confirm="Are you sure you want to save these changes?"
                         hx-post="">
                     <i class="fa-solid fa-floppy-disk"></i>
