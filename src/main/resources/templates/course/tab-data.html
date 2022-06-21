@@ -22,7 +22,7 @@
         </div>
 
         <p th:if="${courseDataDto.rows?.size() == 0}">No entries...</p>
-        <form th:if="${canEdit}">
+        <form th:if="${canEdit}" class="hstack gap-1">
             <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
             <button type="button"
                     th:hx-get="@{/courses/{course}/data/edit(course=${course.url})}"
@@ -38,10 +38,10 @@
             </button>
             <button type="submit" form="csv"
                     class="btn btn-success px-3 py-2">
-                <i class="fa-solid fa-file-text"></i>
+                <i class="fa-solid fa-table"></i>
                 Download csv
             </button>
         </form>
-        <form id="csv" th:if="${canEdit}" th:action="@{../api/course/{course}(course=${course.url})}"></form>
+        <form id="csv" th:if="${canEdit}" th:action="@{/api/course/{course}(course=${course.url})}"></form>
     </div>
 </th:block>
