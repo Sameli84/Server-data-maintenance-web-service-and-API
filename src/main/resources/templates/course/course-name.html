@@ -2,12 +2,11 @@
     <h1 class="text-truncate">
         [[${course.name}]]
     </h1>
-    <a title="Change name"
+    <button title="Change name"
        th:hx-get="@{/courses/{url}/name(url=${course.getUrl()})}"
        hx-swap="outerHTML"
        hx-target="#course-name"
-       class="my-auto"
-       style="cursor: pointer">
-        <i th:if="${canEdit}" class="fa-solid fa-pen fs-3 text-primary"></i>
-    </a>
+       class="btn btn-outline-primary border-0">
+        <i th:if="${canEdit}" class="fa-solid fa-pen fs-3"></i>
+    </button>
 </div>
