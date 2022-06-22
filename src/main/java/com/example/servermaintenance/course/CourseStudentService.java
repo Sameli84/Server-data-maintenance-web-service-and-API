@@ -23,7 +23,7 @@ public class CourseStudentService {
     // Generates required parts when students joins a course
     @Transactional
     public CourseStudent generate(Course course, Account account, long id) {
-        var schema = schemaPartRepository.findSchemaPartsByCourseOrderByOrder(course);
+        var schema = schemaPartRepository.findSchemaPartsOrdered(course);
         var courseStudent = new CourseStudent(account, course, id);
         for (SchemaPart part : schema) {
             var courseStudentPart = new CourseStudentPart(courseStudent, part);

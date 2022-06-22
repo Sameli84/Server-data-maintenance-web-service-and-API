@@ -47,16 +47,21 @@ public class CourseSchemaController {
     @ModelAttribute("schemaDto")
     public SchemaDto schema(@ModelAttribute Course course,
                             @ModelAttribute("courseSchemaSessionMap") CourseSessionMap<SchemaDto> courseSessionMap) {
+        // Get course schema from session cache
         if (courseSessionMap.contains(course)) {
             return courseSessionMap.get(course);
         }
-        var schemaParts = schemaPartRepository.findSchemaPartsByCourseOrderByOrder(course); // TODO: put this call behind service
-        var schemaDto = courseSessionMap.getOrDefault(course, SchemaDto::new);
+        var schemaDto = courseSessionMap.create(course, SchemaDto::new);
+
+        var schemaParts = schemaPartRepository.findSchemaPartsOrdered(course);
+
+        // New schema, add part so page isn't empty
         if (schemaParts.isEmpty()) {
             schemaDto.addPart(new SchemaPartDto());
             return schemaDto;
         }
 
+        // Map schemaParts to Dto
         for (var sp : schemaParts) {
             var spd = modelMapper.map(sp, SchemaPartDto.class);
             spd.set_schemaPartEntity(sp);

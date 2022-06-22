@@ -46,7 +46,7 @@ public class CourseService {
     @Transactional
     public void saveCourseSchema(Course course, SchemaDto schemaDto) {
         var parts = schemaDto.getParts();
-        var newEntities = new HashSet<SchemaPart>(parts.size());
+        var newSchemaParts = new HashSet<SchemaPart>(parts.size());
 
         for (int i = 0; i < parts.size(); i++) {
             var spd = parts.get(i);
@@ -58,13 +58,13 @@ public class CourseService {
             part.setCourse(course);
             part.setOrder(i);
             part = courseSchemaPartRepository.save(part);
-            newEntities.add(part);
+            newSchemaParts.add(part);
 
             if (isNewPart) {
                 courseStudentService.generateNewPartStudentData(course, part);
             }
         }
-        course.setSchemaParts(newEntities);
+        course.setSchemaParts(newSchemaParts);
 
         courseSchemaPartRepository.deleteAll(schemaDto.getRemovedEntities());
         courseRepository.save(course);
@@ -194,7 +194,7 @@ public class CourseService {
     @Transactional
     public SchemaInputDto getStudentForm(Course course, Account account) {
         // Get schema parts
-        var schema = schemaPartRepository.findSchemaPartsByCourseOrderByOrder(course);
+        var schema = schemaPartRepository.findSchemaPartsOrdered(course);
         // Get data
         var dataParts = courseStudentService.getCourseStudentParts(course, account);
         var result = new ArrayList<SchemaPartDto>(schema.size());

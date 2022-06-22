@@ -23,7 +23,7 @@ public class CourseSessionMap<T> {
         return this.map.get(course.getId());
     }
 
-    T getOrDefault(Course course, Supplier<T> factory) {
+    T create(Course course, Supplier<T> factory) {
         if (!this.map.containsKey(course.getId())) {
             this.map.put(course.getId(), factory.get());
         }
