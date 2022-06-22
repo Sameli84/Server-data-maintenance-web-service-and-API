@@ -20,9 +20,10 @@ public class CourseStudentService {
     private final CourseStudentPartRepository courseStudentPartRepository;
     private final SchemaPartRepository schemaPartRepository;
 
+    // Generates required parts when students joins a course
     @Transactional
     public CourseStudent generate(Course course, Account account, long id) {
-        var schema = schemaPartRepository.findSchemaPartsByCourseOrderByOrder(course);
+        var schema = schemaPartRepository.findSchemaPartsOrdered(course);
         var courseStudent = new CourseStudent(account, course, id);
         for (SchemaPart part : schema) {
             var courseStudentPart = new CourseStudentPart(courseStudent, part);
@@ -39,6 +40,7 @@ public class CourseStudentService {
         return courseStudentRepository.save(courseStudent);
     }
 
+    // Generates required parts for all students on course when a new schema part is added
     @Transactional
     public void generateNewPartStudentData(Course course, SchemaPart part) {
         for (var courseStudent : course.getCourseStudents()) {

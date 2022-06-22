@@ -1,7 +1,7 @@
 package com.example.servermaintenance.course;
 
-import com.example.servermaintenance.account.RoleService;
 import com.example.servermaintenance.account.Account;
+import com.example.servermaintenance.account.AccountService;
 import com.example.servermaintenance.course.domain.*;
 import com.github.slugify.Slugify;
 import com.opencsv.CSVWriter;
@@ -12,14 +12,12 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.io.Writer;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class CourseService {
     private final CourseRepository courseRepository;
     private final CourseKeyRepository courseKeyRepository;
-    private final RoleService roleService;
     private final CourseSchemaPartRepository courseSchemaPartRepository;
 
     private ModelMapper modelMapper;
@@ -28,6 +26,7 @@ public class CourseService {
     private final CourseStudentPartRepository courseStudentPartRepository;
 
     private final CourseStudentRepository courseStudentRepository;
+    private final AccountService accountService;
 
     @Transactional
     public Course createCourse(CourseCreationDto creationDto, Account account) {
@@ -47,7 +46,7 @@ public class CourseService {
     @Transactional
     public void saveCourseSchema(Course course, SchemaDto schemaDto) {
         var parts = schemaDto.getParts();
-        var newEntities = new HashSet<SchemaPart>(parts.size());
+        var newSchemaParts = new HashSet<SchemaPart>(parts.size());
 
         for (int i = 0; i < parts.size(); i++) {
             var spd = parts.get(i);
@@ -59,13 +58,13 @@ public class CourseService {
             part.setCourse(course);
             part.setOrder(i);
             part = courseSchemaPartRepository.save(part);
-            newEntities.add(part);
+            newSchemaParts.add(part);
 
             if (isNewPart) {
                 courseStudentService.generateNewPartStudentData(course, part);
             }
         }
-        course.setSchemaParts(newEntities);
+        course.setSchemaParts(newSchemaParts);
 
         courseSchemaPartRepository.deleteAll(schemaDto.getRemovedEntities());
         courseRepository.save(course);
@@ -112,8 +111,25 @@ public class CourseService {
         return courseRepository.findAll();
     }
 
-    public Course getCourseById(Long id) {
-        return courseRepository.getById(id);
+    // Generates required parts when students joins a course
+    @Transactional
+    public CourseCsvDataDto getCourseCsvData(Course course) {
+        var headers = this.courseRepository.findCourseSchemaPartNames(course);
+        var rows = new ArrayList<String[]>();
+        var students = courseRepository.findAllCourseStudentsFetchData(course);
+        var row = new ArrayList<String>();
+
+        for (var student : students) {
+            row.clear();
+            row.addAll(student.getCourseStudentParts()
+                    .stream()
+                    .sorted(Comparator.comparingInt(a -> a.getSchemaPart().getOrder()))
+                    .map(CourseStudentPart::getData)
+                    .toList());
+            rows.add(row.toArray(new String[0]));
+        }
+
+        return new CourseCsvDataDto(headers, rows);
     }
 
     public void writeReportContext(String courseUrl, Writer w) throws Exception {
@@ -121,14 +137,13 @@ public class CourseService {
         if (course.isEmpty()) {
             throw new Exception("course not found");
         }
-        List<String> headers = this.getCourseData(course.get()).getHeaders().stream().toList();
+        var csvData = getCourseCsvData(course.get());
 
         CSVWriter writer = new CSVWriter(w);
-        writer.writeNext(headers.toArray(new String[0]));
 
-        for (CourseDataRowDto cdrd : this.getCourseData(course.get()).getRows()) {
-            writer.writeNext(cdrd.getParts().stream().map(CourseStudentPartDto::getData).collect(Collectors.toList()).toArray(new String[0]));
-        }
+        writer.writeNext(csvData.getHeaders());
+        writer.writeAll(csvData.getRows());
+
         writer.close();
     }
 
@@ -158,7 +173,7 @@ public class CourseService {
 
     @Transactional
     public boolean deleteCourse(Course course, Account account) {
-        if (Objects.equals(course.getOwner().getId(), account.getId()) || roleService.isAdmin(account)) {
+        if (isOwnerOrAdmin(course, account)) {
             courseRepository.delete(course);
             return true;
         }
@@ -175,12 +190,16 @@ public class CourseService {
         return courseKeyRepository.existsCourseKeyByCourse(course);
     }
 
+    // Get students data for given course for data input view
     @Transactional
     public SchemaInputDto getStudentForm(Course course, Account account) {
-        var schema = schemaPartRepository.findSchemaPartsByCourseOrderByOrder(course);
+        // Get schema parts
+        var schema = schemaPartRepository.findSchemaPartsOrdered(course);
+        // Get data
         var dataParts = courseStudentService.getCourseStudentParts(course, account);
         var result = new ArrayList<SchemaPartDto>(schema.size());
         var data = new ArrayList<CourseStudentPartDto>(schema.size());
+        // Combine course schema parts with respective student data
         for (int i = 0; i < schema.size(); i++) {
             var schemaPartDto = modelMapper.map(schema.get(i), SchemaPartDto.class);
             result.add(schemaPartDto);
@@ -189,12 +208,14 @@ public class CourseService {
         return new SchemaInputDto(result, data, null);
     }
 
+    // Form course data table with student data as rows
     @Transactional
     public CourseDataDto getCourseData(Course course) {
         var students = courseRepository.findAllCourseStudentsFetchData(course);
 
         var rows = new ArrayList<CourseDataRowDto>();
 
+        // Add a row for each students data
         for (var student : students) {
             var row = new CourseDataRowDto();
             row.setIndex(student.getCourseLocalIndex());
@@ -206,6 +227,7 @@ public class CourseService {
             rows.add(row);
         }
 
+        // Add headers using course schema parts names
         var headers = course.getSchemaParts()
                 .stream()
                 .sorted(Comparator.comparingInt(SchemaPart::getOrder))
@@ -215,6 +237,7 @@ public class CourseService {
         return new CourseDataDto(headers, rows);
     }
 
+    // Direct course data modification
     @Transactional
     public void saveCourseData(CourseDataDto courseDataDto, Course course) {
         var students = this.courseStudentService.getCourseStudents(course);
@@ -225,9 +248,9 @@ public class CourseService {
         var parts = courseDataDto.getRows()
                 .stream()
                 .flatMap(a -> a.getParts().stream()
-                        // take modified parts
+                        // Get parts that have been modified
                         .filter(c -> !c.getData().equals(c.get_courseStudentPart().getData()))
-                        // update data
+                        // Update data for modified parts
                         .map(b -> {
                             b.get_courseStudentPart().setData(b.getData());
                             return b.get_courseStudentPart();
@@ -236,5 +259,9 @@ public class CourseService {
                 .toList();
 
         courseStudentPartRepository.saveAll(parts);
+    }
+
+    public boolean isOwnerOrAdmin(Course course, Account account) {
+        return Objects.equals(account.getId(), course.getOwner().getId()) || accountService.isAdmin(account);
     }
 }

@@ -96,6 +96,7 @@ public class CourseDataController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized action");
         }
         var slug = new Slugify().withUnderscoreSeparator(true);
+        // Parses multiword data headers to strings with no spaces, so they can be used with generation tool
         courseDataDto.setHeaders(courseDataDto.getHeaders().stream().map(slug::slugify).toList());
         model.addAttribute("dataGenerationDto", new DataGenerationDto());
 
@@ -114,6 +115,7 @@ public class CourseDataController {
         }
 
         var slug = new Slugify().withUnderscoreSeparator(true);
+        // Parses multiword data headers to strings with no spaces, so they can be used with interpreter tool
         courseDataDto.setHeaders(courseDataDto.getHeaders().stream().map(slug::slugify).toList());
 
         int rowsAffected = 0;
@@ -128,10 +130,12 @@ public class CourseDataController {
 
             var row = courseDataDto.getRows().get(i);
 
+            // Create interpreter tool with given statement
             var interpreter = new Interpreter(dataGenerationDto.getStatement())
                     .putLong("id", row.getIndex());
 
             var parts = row.getParts();
+            // Generate new data for selected rows with interpreter tool
             for (int j = 0; j < parts.size(); j++) {
                 interpreter.declareString(courseDataDto.getHeaders().get(j), parts.get(j).getData());
             }

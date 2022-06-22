@@ -37,3 +37,5 @@ build/
 ### PIPELINE ###
 
 .gitlab-ci.yml
+
+src/main/resources/application-dev.properties

@@ -1,7 +1,6 @@
 package com.example.servermaintenance.course;
 
 import com.example.servermaintenance.account.Account;
-import com.example.servermaintenance.account.RoleService;
 import com.example.servermaintenance.course.domain.Course;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -10,7 +9,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.Objects;
 
 @ControllerAdvice(assignableTypes = {
         CourseController.class,
@@ -20,7 +18,6 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class CourseAdvice {
     private final CourseService courseService;
-    private final RoleService roleService;
 
     @ExceptionHandler(CourseNotFoundException.class)
     public String processCourseNotFoundException(RedirectAttributes redirectAttributes) {
@@ -40,6 +37,6 @@ public class CourseAdvice {
 
     @ModelAttribute("canEdit")
     public boolean addCanEditToModel(@ModelAttribute Course course, @ModelAttribute Account account) {
-        return Objects.equals(account.getId(), course.getOwner().getId()) || roleService.isAdmin(account);
+        return courseService.isOwnerOrAdmin(course, account);
     }
 }

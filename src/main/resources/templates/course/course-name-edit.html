@@ -1,0 +1,37 @@
+<form id="nameUpdateForm"
+      th:hx-post="@{/courses/{url}/name(url=${course.getUrl()})}"
+      hx-swap="outerHTML"
+      hx-target="#nameUpdateForm"
+      th:object="${courseNameDto}"
+      th:classappend="${#fields.hasErrors('courseName') ? 'mb-4' : ''}"
+      class="hstack gap-2">
+    <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}"/>
+    <div class="position-relative"
+         th:x-data="|{ courseName: '${courseNameDto.courseName}' }|"
+         style="min-width: 1rem; width: min-content">
+        <input name="changedName"
+               class="form-control form-control-plaintext fs-1 py-0 position-absolute"
+               type="text"
+               th:field="*{courseName}"
+               x-model="courseName"
+               required
+               aria-label="Course name input"
+               th:classappend="${#fields.hasErrors('courseName') ? 'is-invalid border-0' : ''}">
+        <div class="invalid-feedback position-absolute"
+             style="bottom: -1.5rem" th:if="${#fields.hasErrors('courseName')}"
+             th:text="${#fields.errors('courseName')[0]}"></div>
+        <span class="invisible fs-1 overflow-hidden d-block" x-text="courseName" style="white-space: pre"></span>
+        <template x-if="courseName.length === 0">
+            <span class="invisible fs-1">a</span>
+        </template>
+    </div>
+    <button type="submit" class="btn btn-success ms-2 px-3 py-2 hstack gap-2 h-25 my-auto">
+        <i class="fa-solid fa-floppy-disk"></i>
+        Save
+    </button>
+    <button class="btn btn-danger px-3 py-2 hstack gap-2 h-25 my-auto"
+            th:hx-get="@{/courses/{url}/cancel-name-update(url=${course.getUrl()})}">
+        <i class="fa-solid fa-x"></i>
+        Cancel
+    </button>
+</form>

@@ -10,7 +10,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.annotation.security.RolesAllowed;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 
 @RestController
 @RequestMapping(path = "/api/course")
@@ -23,13 +26,14 @@ public class CourseAPIController {
         return "moi";
     }
 
-    @Secured("ROLE_TEACHER")
+    @RolesAllowed("TEACHER")
     @GetMapping("/{courseUrl}")
     public void generateReport(@PathVariable String courseUrl, HttpServletResponse response) {
         try {
             response.setStatus(200); // OK
             response.setHeader("Content-Disposition", "attachment; filename=" + courseUrl + ".csv");
             response.setContentType("text/csv");
+            response.setCharacterEncoding("utf-8");
             courseService.writeReportContext(courseUrl, response.getWriter());
         } catch (Exception e) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "unable generate report " + courseUrl, e);

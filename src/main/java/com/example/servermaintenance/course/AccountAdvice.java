@@ -2,15 +2,16 @@ package com.example.servermaintenance.course;
 
 import com.example.servermaintenance.account.Account;
 import com.example.servermaintenance.account.AccountNotFoundException;
+import com.example.servermaintenance.account.AccountService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.context.annotation.SessionScope;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.security.Principal;
 import java.util.Objects;
 
 @RequiredArgsConstructor
@@ -21,6 +22,8 @@ import java.util.Objects;
         CourseSchemaController.class
 })
 public class AccountAdvice {
+    private final AccountService accountService;
+
     @ExceptionHandler(AccountNotFoundException.class)
     public String processAccountException(HttpServletRequest request, HttpServletResponse response) {
         if (Objects.equals(request.getHeader("HX-Request"), "true")) {
@@ -30,8 +33,13 @@ public class AccountAdvice {
         return "redirect:/login";
     }
 
+    // Get session user as model attribute
     @ModelAttribute("account")
-    public Account addAccountToModel(@AuthenticationPrincipal UserDetails userDetails) {
-        return (Account) userDetails;
+    public Account addAccountToModel(Principal principal, HttpServletRequest request) {
+        if (principal == null) {
+            request.getSession().invalidate();
+            return null;
+        }
+        return accountService.findByEmail(principal.getName());
     }
 }

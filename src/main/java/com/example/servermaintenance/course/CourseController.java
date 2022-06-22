@@ -8,13 +8,14 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.*;
@@ -23,7 +24,6 @@ import java.util.*;
 @Controller
 @AllArgsConstructor
 @RequestMapping("/courses/{courseUrl}")
-@Secured("ROLE_STUDENT")
 public class CourseController {
     private final AccountService accountService;
     private final CourseService courseService;
@@ -66,7 +66,7 @@ public class CourseController {
         return "redirect:/courses/" + course.getUrl();
     }
 
-    @Secured("ROLE_TEACHER")
+    @RolesAllowed("TEACHER")
     @DeleteMapping("/delete")
     public void deleteCourse(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, @ModelAttribute Account account, HttpServletResponse response, Model model) {
         if (!canEdit(model)) {
@@ -108,6 +108,7 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You must sign up for course before submitting data");
         }
 
+        // Get students data on course
         var studentParts = courseStudentService.getCourseStudentParts(course, account);
 
         // remove locked parts at the end from the count
@@ -134,7 +135,7 @@ public class CourseController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong amount of data parts");
         }
 
-        // validoot
+        // Validate student data input
         boolean hasErrors = false;
         for (int i = 0; i < studentParts.size(); i++) {
             var schemaPart = studentParts.get(i).getSchemaPart();
@@ -166,19 +167,21 @@ public class CourseController {
             return "course/tab-input";
         }
 
+        // Set modified course data
         for (int i = 0; i < studentParts.size(); i++) {
             var studentPart = studentParts.get(i);
             if (!studentPart.getSchemaPart().isLocked()) {
                 studentPart.setData(dataParts.get(i).getData());
             }
         }
+        // Save modified course data
         courseStudentService.saveStudentParts(studentParts);
 
         alertService.addAlertToResponse(response, "success", "Updated data");
         return "course/tab-input";
     }
 
-    @Secured("ROLE_TEACHER")
+    @RolesAllowed("TEACHER")
     @GetMapping("/students")
     public String getStudentsTab(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, Model model) {
         if (!canEdit(model)) {
@@ -188,7 +191,7 @@ public class CourseController {
         return "course/tab-students";
     }
 
-    @Secured("ROLE_TEACHER")
+    @RolesAllowed("TEACHER")
     @DeleteMapping("/students/{studentId}/kick")
     public String kickFromCourse(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, @ModelAttribute Account account, @PathVariable int studentId, Model model, HttpServletResponse response) {
         if (!canEdit(model)) {
@@ -220,7 +223,7 @@ public class CourseController {
         return "course/tab-students";
     }
 
-    @Secured("ROLE_TEACHER")
+    @RolesAllowed("TEACHER")
     @GetMapping("/keys")
     public String getKeysTab(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, Model model) {
         if (!canEdit(model)) {
@@ -229,7 +232,7 @@ public class CourseController {
         return "course/tab-keys";
     }
 
-    @Secured("ROLE_TEACHER")
+    @RolesAllowed("TEACHER")
     @PostMapping("/keys/create")
     public String createCourseKey(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, @RequestParam String key, Model model, HttpServletResponse response) {
         if (!canEdit(model)) {
@@ -247,7 +250,7 @@ public class CourseController {
         return "course/tab-keys";
     }
 
-    @Secured("ROLE_TEACHER")
+    @RolesAllowed("TEACHER")
     @DeleteMapping("/keys/{keyId}/revoke")
     public String revokeCourseKey(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, @PathVariable int keyId, Model model, HttpServletResponse response) {
         if (!canEdit(model)) {
@@ -261,7 +264,7 @@ public class CourseController {
         return "course/tab-keys";
     }
 
-    @Secured("ROLE_TEACHER")
+    @RolesAllowed("TEACHER")
     @GetMapping("/settings")
     public String getSettingsTab(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, Model model) {
         if (!canEdit(model)) {
@@ -271,23 +274,40 @@ public class CourseController {
         return "course/tab-settings";
     }
 
-    @Secured("ROLE_TEACHER")
+    @RolesAllowed("TEACHER")
     @GetMapping("/name")
-    public String getCourseName(@PathVariable String courseUrl, @ModelAttribute Course course) {
+    public String getCourseName(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, Model model) {
+        if (!canEdit(model)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized action");
+        }
+        model.addAttribute("courseNameDto", new CourseNameDto(course.getName()));
+        return "course/course-name-edit";
+    }
+
+    @RolesAllowed("TEACHER")
+    @GetMapping("/cancel-name-update")
+    public String getNameCancel(@SuppressWarnings("unused") @PathVariable String courseUrl, @ModelAttribute Course course, Model model) {
+        if (!canEdit(model)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized action");
+        }
         return "course/course-name";
     }
 
-    @Secured("ROLE_TEACHER")
-    @GetMapping("/cancel-name-update")
-    public String getNameCancel(@PathVariable String courseUrl, @ModelAttribute Course course) {
-        return "course/course-name-cancel";
-    }
-
-    @Secured("ROLE_TEACHER")
+    @RolesAllowed("TEACHER")
     @PostMapping("/name")
-    public String updateCourseName(@PathVariable String courseUrl, @ModelAttribute Course course, @ModelAttribute("changedName") String changedName) {
-        course.setName(changedName);
+    public String updateCourseName(@SuppressWarnings("unused") @PathVariable String courseUrl,
+                                   @ModelAttribute Course course,
+                                   @Valid @ModelAttribute CourseNameDto courseNameDto,
+                                   BindingResult bindingResult,
+                                   Model model) {
+        if (!canEdit(model)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized action");
+        }
+        if (bindingResult.hasErrors()) {
+            return "course/course-name-edit";
+        }
+        course.setName(courseNameDto.getCourseName());
         courseRepository.save(course);
-        return "redirect:/courses/" + course.getUrl();
+        return "course/course-name";
     }
 }

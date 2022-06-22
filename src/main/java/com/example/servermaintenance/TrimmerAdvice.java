@@ -5,6 +5,7 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.InitBinder;
 
+// Trimmer cleans trailing spaces from form inputs
 @ControllerAdvice
 public class TrimmerAdvice {
     @InitBinder
