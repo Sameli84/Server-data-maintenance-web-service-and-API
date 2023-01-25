@@ -13,7 +13,7 @@
           hx-include="this"
           hx-swap="outerHTML"
           th:x-data="|{selectedIndex: ${schemaDto.selectedIndex}}|">
-        <div class="hstack mb-2">
+        <div class="hstack mb-2 justify-content-between">
             <h3 class="text-break">Editing <b>[[${course.name}]]</b> schema</h3>
             <div class="hstack gap-2 align-items-baseline">
                 <div th:if="${schemaDto.removedEntities.size() > 0}"
