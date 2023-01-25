@@ -35,5 +35,5 @@ KC_REALM=springbootkeycloak
 KC_CLIENT=serverdata
 
 Image from running project and example from datafield creation view:
-![project](https://user-images.githubusercontent.com/47208771/214518883-df51e767-4eb2-4c73-889b-af457817269d.jpeg)
+![project](https://user-images.githubusercontent.com/47208771/214525649-0bf60a15-bf6c-4b26-8788-ba4f26e8763b.jpeg)
 
